@@ -1,0 +1,47 @@
+{
+  "name": "bfec",
+  "displayName": "bfec",
+  "description": "Language support for the bfec (Binary Format Encoder Compiler) schema language",
+  "version": "0.1.0",
+  "engines": {
+      "vscode": "^1.45.0"
+  },
+  "categories": [
+      "Programming Languages"
+  ],
+  "contributes": {
+      "languages": [{
+          "id": "bfec",
+          "aliases": ["bfec", "bfec"],
+          "extensions": [".bfec"],
+          "configuration": "./bfec.language-configuration.json"
+      }],
+      "grammars": [{
+          "language": "bfec",
+          "scopeName": "source.bfec",
+          "path": "./syntaxes/bfec.tmLanguage.json"
+      }],
+      "snippets": [{
+        "language": "bfec",
+        "path": "./snippets/bfec.code-snippets"
+      }]
+  },
+  "activationEvents": [
+		"onLanguage:bfec"
+	],
+  "configurationDefaults": {
+    "bfec": {
+      "editor.semanticHighlighting.enabled": true
+    }
+  },
+	"main": "./out/extension.js",
+	"scripts": {
+		"vscode:prepublish": "npm run build",
+		"build": "tsc -p ./",
+		"clean": "rimraf ./out",
+		"watch": "tsc -watch -p ./"
+	},
+	"devDependencies": {
+		"@types/vscode": "^1.42.0"
+	}
+}

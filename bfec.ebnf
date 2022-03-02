@@ -1,0 +1,257 @@
+
+# Character Classes
+
+newline     = "\n" | "\r" | "\r\n" | "\u{202b}" | "\u{2029}" ;
+whitespace  = { "\u{0009}" | "\u{000b}" | "\u{000c}" | "\u{0020}" | "\u{00a0}" | "\u{feff}" | "\u{1680}" | "\u{2000}"
+              | "\u{2001}" | "\u{2002}" | "\u{2003}" | "\u{2004}" | "\u{2005}" | "\u{2006}" | "\u{2007}" | "\u{2008}"
+              | "\u{2009}" | "\u{200a}" | "\u{202f}" | "\u{205f}" | "\u{3000}"
+              } ;
+
+alpha_lower = "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m"
+            | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z" ;
+
+alpha_upper = "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J" | "K" | "L" | "M"
+            | "N" | "O" | "P" | "Q" | "R" | "S" | "T" | "U" | "V" | "W" | "X" | "Y" | "Z" ;
+
+digit       = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
+hex_digit   = digit | "a" | "b" | "c" | "d" | "e" | "f" | "A" | "B" | "C" | "D" | "E" | "F" ;
+
+any_char    = ? Any valid unicode character ? ;
+ascii_char  = ? Any valid ASCII character ? ;
+non_newline = any_char - newline ;
+
+
+
+# Comments
+
+line_comment  = "#" , [{ non_newline }] ;
+
+
+
+# Valid in most any location, always ignored
+
+ignored = newline | whitespace | line_comment ;
+
+
+
+# Identifiers / Name Paths
+
+identifier = ( alpha_lower | alpha_upper | "_" ) , [{ alpha_lower | alpha_upper | "_" | digit }] ;
+
+name_path = ( identifier | "$" ) , [{ [ ignored ] , "." , [ ignored ] , identifier }] ;
+
+
+
+# Literals
+
+escape_char = "\\" ;
+escape_control_char = "n" | "r" | "t" | "b" | "0" ;
+escape_hexidecimal = "x" , hex_digit , hex_digit ;
+escape_unicode_code_point = "u{" , hex_digit , ( 4 * [ hex_digit ] ) , "}" ;
+
+char_escape = escape_char , ( '"' | escape_char | escape_control_char | escape_hexidecimal ) ;
+unicode_escape = escape_char , ( "'" | escape_char | escape_control_char | escape_hexidecimal | escape_unicode_code_point ) ;
+
+byte_str_literal = '"' , [{ ascii_char - ( '"' | escape_char | newline ) | char_escape }] , '"' ;
+unicode_str_literal = "'" , [{ non_newline - ( "'" | escape_char ) | char_escape }] , "'" ;
+
+int_dec_literal = [ "-" ] , { digit } ;
+int_hex_literal = [ "-" ] , "0x" , { hex_digit } ;
+
+float_nan_literal = "nan" ;
+float_inf_literal = "infinity" ;
+float_hex_literal = (* TODO: Float hex literal *) ;
+float_dec_literal = (* TODO: Float literal *) ;
+
+str_literal = byte_str_literal | unicode_str_literal ;
+int_literal = dec_int_literal | hex_int_literal ;
+float_literal = float_nan_literal | float_inf_literal | float_hex_literal | float_dec_literal ;
+
+
+
+# Built-in Types
+
+type_builtin_uint = "u8" | "u16" | "u24" | "u32" | "u64" | "u128" ;
+
+type_builtin_sint = "i8" | "i16" | "i24" | "i32" | "i64" | "i128" ;
+
+type_builtin_varint = "varint" , [ ignored ] , "(" , [ ignored ] , ( type_builtin_uint | type_builtin_sint ) , [ ignored ] , ")" ;
+
+type_builtin_bin_float = "f16" | "f32" | "f64" ;
+
+type_builtin_dec_float = "d16" | "d32" | "d64" ;
+
+type_builtin_bits = "b1"  | "b2"  | "b3"  | "b4"  | "b5"  | "b6"  | "b7"  | "b8"
+                  | "b9"  | "b10" | "b11" | "b12" | "b13" | "b14" | "b15" | "b16"
+                  | "b17" | "b18" | "b19" | "b20" | "b21" | "b22" | "b23" | "b24"
+                  | "b25" | "b26" | "b27" | "b28" | "b29" | "b30" | "b31" | "b32"
+                  ;
+
+type_builtin_text = "ascii" | "utf8" | "utf16" | "utf32" ;
+
+
+
+# Value Expression
+
+value_expr = str_literal
+           | int_literal
+           | float_literal
+           | name_path
+           ;
+
+
+
+# Boolean Logic Expression
+
+bool_logic_expr = ( ( value_expr , [ ignored ] , ( "=" | "!=" | "&" | "|" | "^" ) , [ ignored ] , value_expr )
+                  | ( ( "!" ) , [ ignored ] , bool_logic_expr )
+                  | ( "(" , [ ignored ] , bool_logic_expr , [ ignored ] , ")" )
+                  )
+                  ;
+
+
+
+# Type Expression
+
+type_expr_int = type_builtin_uint
+              | type_builtin_sint
+              | type_builtin_varint
+              ;
+
+type_expr = type_builtin_uint
+          | type_builtin_sint
+          | type_builtin_varint
+          | type_builtin_bin_float
+          | type_builtin_dec_float
+          | type_builtin_bits
+          | type_builtin_text
+          | hex_int_literal
+          | type_expr_named
+          | type_expr_array
+          ;
+
+
+
+# Custom Named Type Expression
+
+type_expr_named = identifier , [
+                  [ ignored ] , "(" , [ [ ignored ] , value_expr , [{ [ ignored ] , "," [ ignored ] , value_expr }] ] , ")"
+                ]
+                ;
+
+
+                
+# Array Type Expression
+
+type_expr_array = type_expr , [ ignored ]
+                , "[" , [ ignored ]
+                , ( type_expr_int | int_literal | name_path )
+                , [ ignored ] , "]"
+                ;
+
+
+
+# Binary Expansion
+
+type_bin_expansion = "->" , [ ignored ] , "bin" , [ ignored ] , "{" , [ ignored ] , [{ struct_field , [ ignored ] }] , "}" ;
+
+
+
+# Structs
+
+struct_name = "$" | identifier ;
+
+param_name = identifier ;
+
+decl_param = param_name , [ ignored ] , ":" [ ignored ] , type_expr ;
+
+decl_struct = "struct" , ignored , struct_name , [ ignored ]
+            , [ "(" , [
+              [ ignored ] , decl_param , [{
+                [ ignored ] , "," , [ ignored ] , decl_param
+              }]
+            ]
+            , [ ignored ] , ")" ]
+            , [ ignored ] , "{" , [{ struct_elem }] , "}"
+            ;
+
+struct_field_optional_condition = "?" , [ ignored ] , "(" [ ignored ] , bool_logic_expr , [ ignored ] , ")" ;
+
+struct_field_normal = identifier , [ ignored ] , ":" , [ ignored ] , type_expr , [ ignored ]
+                    , [ struct_field_optional_condition , [ ignored ] ]
+                    , [ ( type_bin_expansion , [ ignored ] )
+                      | ( "=" , [ ignored ] , value_expr , [ ignored ] )
+                      ]
+                    , ";"
+                    ;
+
+struct_field_expansion = "..." , [ ignored ] , type_expr , [ ignored ]
+                       , [ struct_field_optional_condition , [ ignored ] ]
+                       , [ type_bin_expansion , [ ignored ] ]
+                       , ";"
+                       ;
+
+struct_field_size_prefix = "$size" , [ ignored ] , ":" , [ ignored ] , type_expr_int , [ ignored ] , ";" ;
+
+struct_elem = ignored
+            | struct_field
+            | struct_field_expansion
+            | struct_field_size_prefix
+            ;
+
+
+
+# Enums
+
+enum_name = identifier ;
+
+decl_enum = "enum" , ignored , enum_name
+          , [ ignored ] , ":"
+          , [ ignored ] , type_expr
+          , [ ignored ] , "{" , [{ enum_elem }] , "}"
+          ;
+
+enum_member_name = identifier ;
+
+enum_member = enum_member_name , [ ignored ] , "=" , [ ignored ] , value_expr , [ ignored ] , ";" ;
+
+enum_elem = ignored
+          | enum_member
+          ;
+
+
+
+# Switches
+
+switch_name = identifier ;
+
+decl_switch = "switch" , ignored , switch_name
+            , [ ignored ] , "(" , [ ignored ] , type_expr , [ ignored ] , ")"
+            , [ ignored ] , "{" , [{ switch_elem }] ,  "}"
+            ;
+
+switch_case = "case" , ignored , enum_member_name
+            , [ ignored ] , ":"
+            , [ ignored ] , type_expr
+            , [ ignored ] , ";"
+            ;
+
+switch_elem = ignored
+            | switch_case
+            ;
+
+
+
+# Froms
+
+from_name = struct_name | enum_name | switch_name ;
+
+decl_from = "from" , ignored , str_literal
+          , [ ignored ] , "{"
+          , [ [ ignored ] , from_member , [{
+            [ ignored ] , "," , [ ignored ] , from_member }]
+          ]
+          , [ ignored ] , "}"
+          ;
+
+from_member = from_name , [ ignored , "as" , [ ignored ] , from_name ] ;

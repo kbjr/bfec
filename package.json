@@ -1,0 +1,27 @@
+{
+	"name": "bfec",
+	"version": "0.1.0",
+	"private": true,
+	"main": "build/lib/main.js",
+	"bin": {
+		"bfec": "bin/bfec"
+	},
+	"scripts": {
+		"test": "echo 'No tests defined'",
+		"clean": "rimraf ./build",
+		"build": "tsc --build tsconfig.json"
+	},
+	"author": "",
+	"license": "UNLICENSED",
+	"dependencies": {
+		"@types/mkdirp": "^1.0.2",
+		"chalk": "^4.0.0",
+		"mkdirp": "^1.0.4",
+		"source-map-support": "^0.5.19"
+	},
+	"devDependencies": {
+		"@types/node": "^17.0.21",
+		"rimraf": "^3.0.2",
+		"typescript": "^4.3.4"
+	}
+}

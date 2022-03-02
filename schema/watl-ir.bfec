@@ -1,0 +1,103 @@
+
+# Imports from other files to facilitate large/complex projects
+from '~/entities.bfec' {
+	Entity
+};
+
+# Parent type "b1" means "1-bit"
+enum bool : b1 {
+	false = 0;
+	true  = 1;
+}
+
+# "$" is a special name for the "document root", or the entrypoint of the encoder
+struct $ {
+	header: Header;
+	metadata: Metadata;
+	data_tables: DataTable[u32];
+	dependencies: Dependency[u32];
+	contents: FileContents($.header.file_type);
+	source_files?($.header.flags.has_sources == bool.true): SourceFile[u32];
+}
+
+struct Header {
+	top_byte: 0x00;
+	format_uuid: 0xc7856256_dc49_11eb_abc4_00155db73e89;
+	version: 1;
+	flags: u16 -> bin {
+		is_signed: bool;
+		file_type: FileType;
+		has_sources: bool;
+	};
+}
+
+# Parent type "b3" means "3-bits"
+enum FileType: b3 {
+	module_obj  = 0;   # *.o.w
+	static_lib  = 1;   # *.lib.w
+	dynamic_lib = 2;   # *.dll.w
+	program     = 3;   # *.p.w
+	extension   = 4;   # *.ext.w
+	host_obj    = 5;   # *.ho.w
+	header      = 6;   # *.h.w
+}
+
+switch FileContents (FileType) {
+	case module_obj:  ModuleObjectContents;
+	case static_lib:  StaticLibraryContents;
+	case dynamic_lib: DynamicLibraryContents;
+	case program:     ProgramContents;
+	case extension:   ExtensionContents;
+	case host_obj:    HostObjectContents;
+	case header:      HeaderContents;
+}
+
+struct Metadata {
+	$size: u32;
+	# ...
+}
+
+struct DataTable {
+	# ...
+}
+
+struct Dependency {
+	# ...
+}
+
+struct ModuleObjectContents {
+	$size: u32;
+	id_count: u32;
+	object: Entity(namespace);
+}
+
+struct StaticLibraryContents {
+	$size: u32;
+	# ...
+}
+
+struct DynamicLibraryContents {
+	$size: u32;
+	# ...
+}
+
+struct ProgramContents {
+	$size: u32;
+	# ...
+}
+
+struct ExtensionContents {
+	$size: u32;
+	# ...
+}
+
+struct HostObjectContents {
+	$size: u32;
+	# ...
+}
+
+struct HeaderContents {
+	$size: u32;
+	# ...
+}
+
