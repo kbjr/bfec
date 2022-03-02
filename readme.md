@@ -16,7 +16,7 @@ $ ./bin/bfec -h
 $ npm i -g @k/bfec
 ```
 
-## Usage
+## CLI Usage
 
 ```
 λ bfec -h
@@ -98,4 +98,45 @@ Examples:
   bfec -in "./schemas" "main.bfec" -out ts "./src" -log 1
 
 
+```
+
+## Programatic Usage
+
+```typescript
+import {
+  parse_bfec_schema,
+  compile_ast_to_schema,
+  compile_to_assemblyscript,
+  compile_to_html,
+  compile_to_markdown,
+  compile_to_typescript
+} from '@k/bfec';
+
+const contents = `
+struct $ {
+  foo: u32;
+  bar: u32;
+}
+`;
+
+// Parse schema document into an AST (Abstract Syntax Tree)
+const ast = parse_bfec_schema(contents);
+
+// Link AST into an intermediate Schema object
+const schema = compile_ast_to_schema(ast, {
+  async resolve_import(path: string) {
+    // Find referenced schema for imports....
+    const imported_contents = '';
+
+    // Parse the import and return an AST for the imported file
+    const imported_ast = parse_bfec_schema(imported_contents);
+    return imported_ast;
+  }
+});
+
+// Compile the Schema object to whatever format(s) you want
+const assemblyscript = compile_to_assemblyscript(schama);
+const html           = compile_to_html(schama);
+const markdown       = compile_to_markdown(schama);
+const typescript     = compile_to_typescript(schama);
 ```

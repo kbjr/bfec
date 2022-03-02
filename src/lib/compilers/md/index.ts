@@ -1,10 +1,10 @@
 
 import { ast } from '../../parser';
 
-export interface HTMLCompilerOptions {
+export interface MarkdownCompilerOptions {
 	// 
 }
 
-export function compile_to_html(file: ast.FileNode, opts: HTMLCompilerOptions) : void {
+export function compile_to_markdown(file: ast.FileNode, opts: MarkdownCompilerOptions) : void {
 	// 
 }
