@@ -44,6 +44,7 @@ Outputs:
       ${string('"as"')}        = AssemblyScript
       ${string('"ast_json"')}  = Abstract Syntax Tree (JSON)
       ${string('"html"')}      = HTML Documentation
+      ${string('"md"')}        = Markdown Documentation
       ${string('"sch_json"')}  = Compiled Schema (JSON)
       ${string('"ts"')}        = TypeScript
 
@@ -64,6 +65,7 @@ Options:
       ${string('"' + logger.parser + '"')}
       ${string('"' + logger.c_as + '"')}
       ${string('"' + logger.c_html + '"')}
+      ${string('"' + logger.c_md + '"')}
       ${string('"' + logger.c_ts + '"')}
 
     Log Levels:

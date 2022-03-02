@@ -16,6 +16,7 @@ export enum logger {
 	parser = 'parser',
 	linker = 'linker',
 	c_as   = 'c_as',
+	c_md   = 'c_md',
 	c_html = 'c_html',
 	c_ts   = 'c_ts',
 }
@@ -73,4 +74,5 @@ export const parser = new Logger(logger.parser, log_level.info);
 export const linker = new Logger(logger.linker, log_level.info);
 export const c_as   = new Logger(logger.c_as, log_level.info);
 export const c_html = new Logger(logger.c_html, log_level.info);
+export const c_md   = new Logger(logger.c_md, log_level.info);
 export const c_ts   = new Logger(logger.c_ts, log_level.info);

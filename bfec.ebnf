@@ -58,14 +58,8 @@ unicode_str_literal = "'" , [{ non_newline - ( "'" | escape_char ) | char_escape
 int_dec_literal = [ "-" ] , { digit } ;
 int_hex_literal = [ "-" ] , "0x" , { hex_digit } ;
 
-float_nan_literal = "nan" ;
-float_inf_literal = "infinity" ;
-float_hex_literal = (* TODO: Float hex literal *) ;
-float_dec_literal = (* TODO: Float literal *) ;
-
 str_literal = byte_str_literal | unicode_str_literal ;
 int_literal = dec_int_literal | hex_int_literal ;
-float_literal = float_nan_literal | float_inf_literal | float_hex_literal | float_dec_literal ;
 
 
 
@@ -95,7 +89,6 @@ type_builtin_text = "ascii" | "utf8" | "utf16" | "utf32" ;
 
 value_expr = str_literal
            | int_literal
-           | float_literal
            | name_path
            ;
 
@@ -230,14 +223,23 @@ decl_switch = "switch" , ignored , switch_name
             , [ ignored ] , "{" , [{ switch_elem }] ,  "}"
             ;
 
+switch_invalid = "$invalid" ;
+
 switch_case = "case" , ignored , enum_member_name
             , [ ignored ] , ":"
-            , [ ignored ] , type_expr
+            , [ ignored ] , ( type_expr | switch_invalid )
             , [ ignored ] , ";"
             ;
 
+switch_default = "default"
+               , [ ignored ] , ":"
+               , [ ignored ] , ( type_expr | switch_invalid )
+               , [ ignored ] , ";"
+               ;
+
 switch_elem = ignored
             | switch_case
+            | switch_default
             ;
 
 
