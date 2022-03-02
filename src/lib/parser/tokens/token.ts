@@ -1,11 +1,22 @@
 
-export interface Token {
-	type: token_type;
-	line: number;
-	char: number;
-	offset: number;
-	length: number;
-	text: string;
+export class Token {
+	public type: token_type;
+	public line: number;
+	public char: number;
+	public offset: number;
+	public length: number;
+	public text: string;
+
+	public toJSON() {
+		return {
+			type: token_type[this.type],
+			line: this.line,
+			char: this.char,
+			offset: this.offset,
+			length: this.length,
+			text: this.text,
+		};
+	}
 }
 
 export enum token_type {

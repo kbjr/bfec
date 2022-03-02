@@ -1,6 +1,7 @@
 
-export interface ASTNode {
-	type: node_type;
+export abstract class ASTNode {
+	public abstract type: node_type;
+	public abstract toJSON() : object;
 }
 
 export enum node_type {
