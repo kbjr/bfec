@@ -1,7 +1,6 @@
 {
-	"name": "bfec",
+	"name": "@k/bfec",
 	"version": "0.1.0",
-	"private": true,
 	"main": "build/lib/main.js",
 	"bin": {
 		"bfec": "bin/bfec"
@@ -12,7 +11,7 @@
 		"build": "tsc --build tsconfig.json"
 	},
 	"author": "",
-	"license": "UNLICENSED",
+	"license": "ISC",
 	"dependencies": {
 		"@types/mkdirp": "^1.0.2",
 		"chalk": "^4.0.0",
