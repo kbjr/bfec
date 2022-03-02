@@ -1,4 +1,23 @@
 
+## Building / Running From Source
+
+```bash
+# In project directory...
+$ npm i
+$ npm run build
+
+# Once built, can be called locally:
+$ ./bin/bfec -h
+```
+
+## Installing From NPM
+
+```bash
+$ npm i -g @k/bfec
+```
+
+## Usage
+
 ```
 λ bfec -h
 
