@@ -15,7 +15,7 @@ export function set_log_level(new_level: log_level) : void {
 	level = new_level;
 }
 
-export const logger = {
+export const log = {
 	error(message: string, ...others: any[]) : void {
 		if (level >= log_level.error) {
 			console.error(message, ...others);

@@ -1,0 +1,50 @@
+{
+	"Declare From": {
+		"prefix": "from",
+		"body": [
+			"from ${1:\"source\"} ${2:imported};$0"
+		],
+		"description": "Declare From"
+	},
+	"Declare Struct": {
+		"prefix": "struct",
+		"body": [
+			"struct ${1:StructName} {",
+			"\t$TM_SELECTED_TEXT$0",
+			"}"
+		],
+		"description": "Declare Struct"
+	},
+	"Declare Enum": {
+		"prefix": "enum",
+		"body": [
+			"enum ${1:EnumName}: ${2:element_type_expr} {",
+			"\t$TM_SELECTED_TEXT$0",
+			"}"
+		],
+		"description": "Declare Enum"
+	},
+	"Switch Statement": {
+		"prefix": "switch",
+		"body": [
+			"switch ${1:SwitchName} (${2:condition_type}) {",
+			"\tcase ${3:case_value}: ${4:CaseType};$0",
+			"}"
+		],
+		"description": "Switch Statement"
+	},
+	"Case Statement": {
+		"prefix": "case",
+		"body": [
+			"case ${1:case_value}: ${2:CaseType};$0",
+		],
+		"description": "Case Statement"
+	},
+	"Default Statement": {
+		"prefix": "default",
+		"body": [
+			"default: ${0:DefaultType};",
+		],
+		"description": "Default Statement"
+	},
+}

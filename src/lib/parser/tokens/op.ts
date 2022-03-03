@@ -32,9 +32,15 @@ export class OpToken_not extends Token {
 	public text: '!' = '!';
 }
 
+export class OpToken_expansion extends Token {
+	public type: token_type.op_expansion = token_type.op_expansion;
+	public text: '...' = '...';
+}
+
 export const op_equal     = new SimpleTokenMatcher(OpToken_equal, /==/y);
 export const op_not_equal = new SimpleTokenMatcher(OpToken_not_equal, /!=/y);
 export const op_and       = new SimpleTokenMatcher(OpToken_and, /&/y);
 export const op_or        = new SimpleTokenMatcher(OpToken_or, /\|/y);
 export const op_xor       = new SimpleTokenMatcher(OpToken_xor, /\^/y);
 export const op_not       = new SimpleTokenMatcher(OpToken_not, /!/y);
+export const op_expansion = new SimpleTokenMatcher(OpToken_expansion, /\.\.\./y);

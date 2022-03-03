@@ -248,6 +248,8 @@ switch_elem = ignored
 
 from_name = struct_name | enum_name | switch_name ;
 
+decl_from_whole = "from" , ignored , str_literal , [ ignored ] , struct_name ;
+
 decl_from = "from" , ignored , str_literal
           , [ ignored ] , "{"
           , [ [ ignored ] , from_member , [{

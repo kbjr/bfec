@@ -58,6 +58,7 @@ export enum token_type {
 	op_or,
 	op_xor,
 	op_not,
+	op_expansion,
 
 	kw_struct,
 	kw_switch,
