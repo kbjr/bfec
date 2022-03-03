@@ -1,6 +1,7 @@
 {
   "name": "bfec",
   "displayName": "bfec",
+  "publisher": "jbrumond",
   "description": "Language support for the bfec (Binary Format Encoder Compiler) schema language",
   "version": "0.1.0",
   "engines": {

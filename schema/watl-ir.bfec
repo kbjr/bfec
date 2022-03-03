@@ -1,9 +1,9 @@
 
-from 'https://bfec.io/std/types.bfec' { bool };
+from 'https://bfec.io/std/v1.bfec' { bool };
 
 from '~/entities.bfec' {
 	Entity,
-  EntityType
+	EntityType
 };
 
 struct $ {

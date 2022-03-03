@@ -6,6 +6,15 @@
 		],
 		"description": "Declare From"
 	},
+	"Declare $ Struct": {
+		"prefix": "struct",
+		"body": [
+			"struct $ {",
+			"\t$TM_SELECTED_TEXT$0",
+			"}"
+		],
+		"description": "Declare $ Struct"
+	},
 	"Declare Struct": {
 		"prefix": "struct",
 		"body": [
