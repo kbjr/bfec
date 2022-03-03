@@ -63,6 +63,7 @@ Options:
     Loggers:
       ${string('"' + logger.main + '"')}
       ${string('"' + logger.parser + '"')}
+      ${string('"' + logger.linker + '"')}
       ${string('"' + logger.c_as + '"')}
       ${string('"' + logger.c_html + '"')}
       ${string('"' + logger.c_md + '"')}

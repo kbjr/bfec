@@ -9,32 +9,42 @@ repository:
       - name: comment.line.hash.bfec
         match: "#.*"
   
-  identifier:
+  enum_name:
+    name: entity.name.enum.bfec
     match: \b[a-zA-Z_][a-zA-Z0-9_]*\b
-    name: variable.name.bfec
   
+  switch_name:
+    name: entity.name.switch.bfec
+    match: \b[a-zA-Z_][a-zA-Z0-9_]*\b
+
   name_path:
     name: meta.expression.name-path.bfec
     match: >-
-      (?x)\b(?:
-        ([a-zA-Z_][a-zA-Z0-9_])\s*
-        (\.|\?\.)\s*
+      (?x)
+      \s*
+      ([a-zA-Z_][a-zA-Z0-9_]*|\$|@)\s*
+      (?:
+        (\.)\s*
+        ([a-zA-Z_][a-zA-Z0-9_]*)
       )*
-      ([a-zA-Z_][a-zA-Z0-9_]*)
     captures:
       "1":
-        name: entity.name.namespace.bfec
+        patterns:
+          - match: \$|@
+            name: entity.name.struct.bfec entity.name.type.class.bfec
+          - match: (?:[a-zA-Z_][a-zA-Z0-9_]*)
+            name: entity.name.type.bfec
       "2":
         name: keyword.operator.property-access.bfec
       "3":
-        name: entity.name.namespace.bfec
+        name: entity.name.type.bfec
   
   constants:
     patterns:
       - name: constant.numeric.float.bfec
         match: \b-?[0-9]+\.[0-9]+\b
       - name: constant.numeric.hex.bfec
-        match: \b-?0x[0-9a-fA-Z]+\b
+        match: \b-?0x[0-9a-fA-Z][0-9a-fA-Z_]+\b
       - name: constant.numeric.integer.bfec
         match: \b-?[0-9]+\b
   
@@ -66,6 +76,65 @@ repository:
       - name: constant.character.escape.bfec
         match: \\(n|r|t|b|0|\\|'|x[0-9a-fA-F]{2}|u\{[0-9a-fA-F]{1,5}\})
   
+  separator:
+    match: \s*(,)
+    captures:
+      "1":
+        name: punctuation.separator.comma.bfec
+
+
+
+# ===== Types =====
+
+  type_builtin:
+    name: meta.type-expression.builtin.bfec
+    match: >-
+      (?x)
+      (?: (i8 | i16 | i24 | i32 | i64 | i128 | u8 | u16 | u24 | u32 | u64 | u128)
+      | (?: (varint) \s* (\() \s* (i8 | i16 | i24 | i32 | i64 | i128 | u8 | u16 | u24 | u32 | u64 | u128) \s* (\)) )
+      | (f16 | f32 | f64 | d16 | d32 | d64)
+      | (b (?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29 | 30 | 31 | 32 ))
+      | (ascii | utf8 | utf16 | utf32)
+      )\b
+    captures:
+      "1":
+        name: support.function.bfec entity.name.builtin.int.bfec
+      "2":
+        name: support.function.bfec entity.name.builtin.varint.bfec
+      "3":
+        name: punctuation.paren-open.paren-left.bfec
+      "4":
+        name: support.function.bfec entity.name.builtin.int.bfec
+      "5":
+        name: punctuation.paren-close.paren-right.bfec
+      "6":
+        name: support.function.bfec entity.name.builtin.float.bfec
+      "7":
+        name: support.function.bfec entity.name.builtin.bit.bfec
+      "8":
+        name: support.function.bfec entity.name.builtin.text.bfec
+
+  param_expr:
+    patterns:
+      - include: "#comments"
+      - include: "#name_path"
+      - name: meta.expression.logical.not.bfec
+        begin: (!)\s*
+        beginCaptures:
+          "1":
+            name: keyword.operator.logical.not.bfec
+        end: (?=[,\)])
+        patterns:
+          - include: "#comments"
+          - include: "#param_expr"
+      - name: meta.expression.binary.bfec
+        begin: (?<=[a-zA-Z0-9_]+)\s*(&|\||\^|==|!=)\s*
+        end: (?=[,\)])
+        patterns:
+          - include: "#comments"
+          - include: "#param_expr"
+          - include: "#separator"
+
 
 
 # ===== Scopes =====
@@ -109,7 +178,7 @@ repository:
     begin: (?:\s*|\b)(from)\s*
     beginCaptures:
       "1":
-        name: keyword.control.from.bfec
+        name: storage.import.bfec
     end: ;
     endCaptures:
       "0":
@@ -179,29 +248,122 @@ repository:
 
   decl_struct:
     name: meta.declaration.struct.bfec
-    begin: (?:\s*|\b)(struct)\s+(\$|[a-zA-Z_][a-zA-Z0-9_]*)\s*(\{)
+    begin: (?:\s*|\b)(struct)\s+(\$|[a-zA-Z_][a-zA-Z0-9_]*)\s*
     beginCaptures:
       "1":
         name: storage.type.struct.bfec
       "2":
-        name: entity.name.struct.bfec
-      "3":
-        name: punctuation.start-block.open-brace.bfec
-    end: \s*(\})
+        name: entity.name.struct.bfec entity.name.type.class.bfec
+    end: (?<=\})
+    patterns:
+      - include: "#comments"
+      - name: meta.declaration.struct-param-list.bfec
+        begin: (?<=(?:\$|[a-zA-Z_][a-zA-Z0-9_]*)\s*)(\()\s*
+        beginCaptures:
+          "1":
+            name: punctuation.param-list-open.paren-left.bfec
+        end: \)
+        endCaptures:
+          "0":
+            name: punctuation.param-list-open.paren-left.bfec
+        patterns:
+          - include: "#comments"
+          - name: meta.declaration.struct-param.bfec
+            begin: \s*([a-zA-Z_][a-zA-Z0-9_]*)\s*(:)\s*
+            beginCaptures:
+              "1":
+                name: variable.parameter.bfec
+              "2":
+                name: punctuation.type-definition.colon.bfec
+            end: (?=,|\))
+            patterns:
+              - include: "#comments"
+              - include: "#enum_name"
+      - name: meta.block.struct-body.bfec
+        begin: \s*(\{)
+        beginCaptures:
+          "1":
+            name: punctuation.start-block.open-brace.bfec
+        end: \s*(\})
+        endCaptures:
+          "1":
+            name: punctuation.end-block.close-brace.bfec
+        patterns:
+          - include: "#struct_scope"
+
+  struct_field:
+    name: meta.declaration.struct-member.bfec
+    begin: \s*([a-zA-Z_][a-zA-Z0-9_]*)\s*
+    beginCaptures:
+      "1":
+        name: variable.member.name.bfec
+      "2":
+        name: punctuation.type-definition.colon.bfec
+    end: \s*(;)
     endCaptures:
       "1":
-        name: punctuation.end-block.close-brace.bfec
+        name: punctuation.terminator.semicolon.bfec
     patterns:
-      - include: "#struct_scope"
+      - include: "#comments"
+      - begin: (?<=[a-zA-Z0-9_]\s*)(\?\()
+        beginCaptures:
+          "1":
+            name: punctuation.optional-condition.open-paren.bfec
+        end: \s*(\))\s*(?=:)
+        endCaptures:
+          "1":
+            name: punctuation.optional-condition.close-paren.bfec
+        patterns:
+          - include: "#param_expr"
+      - begin: (?<=[a-zA-Z0-9_\)]\s*)(:)\s*
+        end: (?=\s*=|->|;)
+        patterns:
+          - include: "#struct_expr"
+      - begin: \s*(->)\s*(bin)\s*(\{)
+        beginCaptures:
+          "1":
+            name: keyword.operator.arrow.bfec
+          "2":
+            name: keyword.control.bin.bfec
+          "3":
+            name: punctuation.start-block.open-brace.bfec
+        end: \s*(\})
+        endCaptures:
+          "1":
+            name: punctuation.end-block.close-brace.bfec
+        patterns:
+          - include: "#struct_scope"
+      - match: (?<=[a-zA-Z0-9_\)])\s*(=)\s*([a-zA-Z_][a-zA-Z0-9_]*)
+        captures:
+          "1":
+            name: keyword.operator.assign.bfec
+          "2":
+            name: variable.assignment.bfec
 
-  # TODO: Struct Field
-  struct_field:
-    # 
-
-  # TODO: Struct Expansion
   struct_expansion:
     name: meta.declaration.struct-expansion.bfec
-    match: \s*(\.\.\.)\s*
+    begin: \s*(\.\.\.)\s*([a-zA-Z_][a-zA-Z0-9_]*)
+    beginCaptures:
+      "1":
+        name: keyword.operator.expansion.bfec
+      "2":
+        name: entity.other.inherited-class.bfec
+    end: \s*(;)
+    endCaptures:
+      "1":
+        name: punctuation.terminator.semicolon.bfec
+    patterns:
+      - include: "#comments"
+      - begin: \s*(\()
+        beginCaptures:
+          "1":
+            name: punctuation.start-parems.open-paren.bfec
+        end: \s*(\))
+        endCaptures:
+          "1":
+            name: punctuation.end-parems.close-paren.bfec
+        patterns:
+          - include: "#param_expr"
 
   struct_size_prefix:
     name: meta.declaration.struct-size-prefix.bfec
@@ -211,11 +373,11 @@ repository:
       (\$size)\s*
       (:)\s*
       (?:
-        (i8 | i16 | i32 | i64 | i128 | u8 | u16 | u32 | u64 | u128)
+        (i8 | i16 | i24 | i32 | i64 | i128 | u8 | u16 | u24 | u32 | u64 | u128)
       | (?:
           (varint) \s*
           (\() \s*
-          (i8 | i16 | i32 | i64 | i128 | u8 | u16 | u32 | u64 | u128) \s*
+          (i8 | i16 | i24 | i32 | i64 | i128 | u8 | u16 | u24 | u32 | u64 | u128) \s*
           (\))
         )
       )
@@ -235,6 +397,41 @@ repository:
       "7":
         name: punctuation.paren-close.paren-right.bfec
   
+  struct_expr:
+    patterns:
+      - include: "#type_builtin"
+      - include: "#constants"
+      - include: "#charstring"
+      - include: "#string"
+      - begin: \s*([a-zA-Z_][a-zA-Z0-9_]*)
+        beginCaptures:
+          "1":
+            name: entity.name.type.bfec
+        end: (?=\s*[;\[])
+        patterns:
+          - include: "#comments"
+          - begin: \s*(\()
+            beginCaptures:
+              "1":
+                name: punctuation.start-parems.open-paren.bfec
+            end: \s*(\))
+            endCaptures:
+              "1":
+                name: punctuation.end-parems.close-paren.bfec
+            patterns:
+              - include: "#param_expr"
+      - begin: (?<=[a-zA-Z0-9_\)\]])\s*(\[)\s*
+        beginCaptures:
+          "1":
+            name: punctuation.start-list.open-bracket.bfec
+        end: \s*(\])
+        endCaptures:
+          "1":
+            name: punctuation.end-list.close-bracket.bfec
+        patterns:
+          - include: "#comments"
+          - include: "#type_builtin"
+
   decl_enum:
     name: meta.declaration.enum.bfec
     begin: >-
@@ -247,7 +444,7 @@ repository:
       "1":
         name: storage.type.enum.bfec
       "2":
-        name: entity.name.class.enum.bfec
+        name: entity.name.type.enum.bfec
       "3":
         name: punctuation.type-definition.colon.bfec
     end: (?<=\})
@@ -256,7 +453,7 @@ repository:
         end: (?=\s*\{)
         patterns:
           - include: "#comments"
-          - include: "#type_expr_builtin"
+          - include: "#type_builtin"
       - name: meta.block.enum-body.bfec
         begin: (?<!\})\s*(\{)
         beginCaptures:
@@ -285,33 +482,30 @@ repository:
       - include: "#comments"
       - include: "#constants"
 
-  # TODO: Switch
   decl_switch:
-    name: meta.declaration.trait-impl.bfec
-    begin: (?:\s*|\b)(implement)\s+(trait)\s+([a-zA-Z_][a-zA-Z0-9_]*)
+    name: meta.declaration.switch.bfec
+    begin: (?:\s*|\b)(switch)\s+([a-zA-Z_][a-zA-Z0-9_]*)
     beginCaptures:
       "1":
-        name: storage.type.implement.bfec
+        name: storage.type.switch.bfec
       "2":
-        name: storage.type.trait.bfec
-      "3":
-        name: entity.name.type.trait.bfec
+        name: entity.name.switch.bfec entity.name.function.bfec
     end: (?<=\})
     patterns:
       - include: "#comments"
-      - include: "#decl_type_param_list"
-      - name: meta.declaration.implement-for.bfec
-        begin: \s+(for)\s+([a-zA-Z_][a-zA-Z0-9_]*)
+      - name: meta.declaration.switch-param-list.bfec
+        begin: (?<=(?:[a-zA-Z_][a-zA-Z0-9_]*)\s*)(\()\s*
         beginCaptures:
           "1":
-            name: storage.modifier.for.bfec
-          "2":
-            name: entity.name.type.bfec
-        end: (?=\{)
+            name: punctuation.param-list-open.paren-left.bfec
+        end: \)
+        endCaptures:
+          "0":
+            name: punctuation.param-list-open.paren-left.bfec
         patterns:
           - include: "#comments"
-          - include: "#decl_type_param_list"
-      - name: meta.block.trait-impl-body.bfec
+          - include: "#enum_name"
+      - name: meta.block.switch-body.bfec
         begin: \{
         beginCaptures:
           "0":
@@ -321,167 +515,46 @@ repository:
           "0":
             name: punctuation.end-block.close-brace.bfec
         patterns:
-          - include: "#trait_impl_scope"
+          - include: "#switch_scope"
   
-
-# ===== Expressions =====
-  
-  expression:
-    patterns:
-      - include: "#string"
-      - include: "#charstring"
-      - include: "#constants"
-      - include: "#expr_paren"
-      - include: "#expr_index"
-      - include: "#expr_call"
-  
-  expr_paren:
-    name: meta.expression.paren.bfec
-    begin: (\()
+  switch_case:
+    name: meta.branch.switch-case.bfec
+    begin: \s*(case)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*(:)\s*
     beginCaptures:
       "1":
-        name: punctuation.paren-open.paren-left.bfec
-    end: (\))
+        name: keyword.control.case.bfec
+      "2":
+        name: constant.other.enum-member.bfec
+      "3":
+        name: punctuation.type-definition.colon.bfec
+    end: \s*(;)
     endCaptures:
       "1":
-        name: punctuation.paren-close.paren-right.bfec
-    patterns:
-      - include: "#expression"
-  
-  # TODO: expr_index
-  expr_index:
-    name: meta.expression.index.bfec
-  
-  expr_call:
-    name: meta.expression.call.bfec
-    begin: >-
-      (?x)
-      (?:\s*|\b)
-      (?:(new)\s+)?
-      (?:
-        ([a-zA-Z_][a-zA-Z0-9_])\s*
-        (\.|\?\.)\s*
-      )*
-      ([a-zA-Z_][a-zA-Z0-9_]*)
-      (?=<|\()
-    beginCaptures:
-      "1":
-        name: keyword.operator.new
-      "2":
-        name: entity.name.namespace.bfec
-      "3":
-        name: keyword.operator.property-access.bfec
-      "4":
-        name: entity.name.function.bfec
-    end: (?<=\))
+        name: punctuation.terminator.semicolon.bfec
     patterns:
       - include: "#comments"
-      - include: "#expr_type_param_list"
-      - include: "#expr_param_list"
-  
-  expr_param_list:
-    name: meta.expression.param-list.bfec
-    begin: (?<=[a-zA-Z_][a-zA-Z0-9_]*\s*|>\s*)(\()
+      - include: "#switch_expr"
+
+  switch_default:
+    name: meta.branch.switch-default.bfec
+    begin: \s*(default)\s*(:)\s*
     beginCaptures:
       "1":
-        name: punctuation.param-list-open.paren-left.bfec
-    end: \)
+        name: keyword.control.default.bfec
+      "2":
+        name: punctuation.type-definition.colon.bfec
+    end: \s*(;)
     endCaptures:
-      "0":
-        name: punctuation.param-list-close.paren-right.bfec
+      "1":
+        name: punctuation.terminator.semicolon.bfec
     patterns:
       - include: "#comments"
-      - include: "#expr_param"
-      - name: punctuation.param-list.bfec
-        match: ","
-        captures:
-          "0":
-            name: punctuation.separator.comma.bfec
+      - include: "#switch_expr"
+  
+  switch_expr:
+    patterns:
+      - include: "#comments"
+      - name: keyword.control.invalid.bfec
+        match: \$invalid
+      - include: "#struct_expr"
 
-  # NOTE: This doesn't match correctly for multi-line call statements where params
-  # start at the beginning of their own line, and have an explicit parameter name
-  expr_param:
-    name: meta.expression.param.bfec
-    begin: >-
-      (?x)
-      (?<=[,\(])\s*
-      (?:
-        ([a-zA-Z_][a-zA-Z0-9_]*)\s*
-        (:=)\s*
-      )?
-    beginCaptures:
-      "1":
-        name: variable.parameter.bfec
-      "2":
-        name: keyword.operator.assign-param.bfec
-    end: (?=[,\)])
-    patterns:
-      - include: "#comments"
-      - include: "#expression"
-  
-  
-
-# ===== Type Expressions =====
-  
-  type_expression:
-    patterns:
-      - include: "#comments"
-      - include: "#type_expr_builtin"
-      - include: "#type_expr_named"
-      - include: "#constants"
-      - include: "#charstring"
-      - include: "#string"
-  
-  type_expr_builtin:
-    name: meta.type-expression.builtin.bfec
-    match: >-
-      (?x)
-      (?: (i8 | i16 | i32 | i64 | i128 | u8 | u16 | u32 | u64 | u128)
-      | (?: (varint) \s* (\() \s* (i8 | i16 | i32 | i64 | i128 | u8 | u16 | u32 | u64 | u128) \s* (\)) )
-      | (f16 | f32 | f64 | d16 | d32 | d64)
-      | (b (?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29 | 30 | 31 | 32 ))
-      | (ascii | utf8 | utf16 | utf32)
-      )\b
-    captures:
-      "1":
-        name: support.function.bfec entity.name.builtin.int.bfec
-      "2":
-        name: support.function.bfec entity.name.builtin.varint.bfec
-      "3":
-        name: punctuation.paren-open.paren-left.bfec
-      "4":
-        name: support.function.bfec entity.name.builtin.int.bfec
-      "5":
-        name: punctuation.paren-close.paren-right.bfec
-      "6":
-        name: support.function.bfec entity.name.builtin.float.bfec
-      "7":
-        name: support.function.bfec entity.name.builtin.bit.bfec
-      "8":
-        name: support.function.bfec entity.name.builtin.text.bfec
-  
-  # TODO: Named Type Expression
-  #   Foo
-  #   Foo(bar)
-  type_expr_named:
-    name: meta.type-expression.named.bfec
-    begin: \b([a-zA-Z_][a-zA-Z0-9_]*)
-    beginCaptures:
-      "1":
-        name: entity.name.type.bfec
-    end: (?=[+|;>\)\}\],={])
-    patterns:
-      - include: "#comments"
-      - match: \s*(\.)\s*()
-      - begin: (?<=[a-zA-Z_][a-zA-Z0-9_]*\s*)(<)
-        beginCaptures:
-          "1":
-            name: punctuation.generic-open.angle-bracket-left.bfec
-        end: ">"
-        endCaptures:
-          "0":
-            name: punctuation.generic-close.angle-bracket-right.bfec
-        patterns:
-          - include: "#comments"
-          - include: "#type_expression"
-  

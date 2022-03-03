@@ -1,16 +1,11 @@
 
-# Imports from other files to facilitate large/complex projects
+from 'https://bfec.io/std/types.bfec' { bool };
+
 from '~/entities.bfec' {
-	Entity
+	Entity,
+  EntityType
 };
 
-# Parent type "b1" means "1-bit"
-enum bool : b1 {
-	false = 0;
-	true  = 1;
-}
-
-# "$" is a special name for the "document root", or the entrypoint of the encoder
 struct $ {
 	header: Header;
 	metadata: Metadata;
@@ -31,7 +26,6 @@ struct Header {
 	};
 }
 
-# Parent type "b3" means "3-bits"
 enum FileType: b3 {
 	module_obj  = 0;   # *.o.w
 	static_lib  = 1;   # *.lib.w
@@ -68,7 +62,7 @@ struct Dependency {
 struct ModuleObjectContents {
 	$size: u32;
 	id_count: u32;
-	object: Entity(namespace);
+	object: Entity(EntityType.namespace);
 }
 
 struct StaticLibraryContents {

@@ -1,0 +1,323 @@
+
+
+# ===== SCOPETEST =====
+
+  scope_test:
+    patterns:
+      - name: comment
+        match: \[comment\]
+      - name: string
+        match: \[string\]
+      - name: string.regex
+        match: \[string\.regex\]
+      - name: string.other.link
+        match: \[string\.other\.link\]
+      - name: constant
+        match: \[constant\]
+      - name: constant.numeric
+        match: \[constant\.numeric\]
+      - name: constant.language
+        match: \[constant\.language\]
+      - name: constant.character
+        match: \[constant\.character\]
+      - name: constant.other
+        match: \[constant\.other\]
+      - name: variable.function
+        match: \[variable\.function\]
+      - name: variable.other
+        match: \[variable\.other\]
+      - name: variable
+        match: \[variable\]
+      - name: variable.assignment
+        match: \[variable\.assignment\]
+      - name: keyword
+        match: \[keyword\]
+      - name: keyword.control
+        match: \[keyword\.control\]
+      - name: keyword.control.definition
+        match: \[keyword\.control\.definition\]
+      - name: keyword.operator
+        match: \[keyword\.operator\]
+      - name: keyword.other.unit
+        match: \[keyword\.other\.unit\]
+      - name: storage
+        match: \[storage\]
+      - name: storage.type
+        match: \[storage\.type\]
+      - name: storage.import
+        match: \[storage\.import\]
+      - name: entity.name.function
+        match: \[entity\.name\.function\]
+      - name: entity.name.class
+        match: \[entity\.name\.class\]
+      - name: entity.name.type.class
+        match: \[entity\.name\.type\.class\]
+      - name: entity.name.tag
+        match: \[entity\.name\.tag\]
+      - name: entity.name.section
+        match: \[entity\.name\.section\]
+      - name: entity.other.inherited-class
+        match: \[entity\.other\.inherited-class\]
+      - name: entity.other.attribute-name
+        match: \[entity\.other\.attribute-name\]
+      - name: entity.other.attribute-name.html
+        match: \[entity\.other\.attribute-name\.html\]
+      - name: entity.other.attribute-name.id
+        match: \[entity\.other\.attribute-name\.id\]
+      - name: variable.parameter
+        match: \[variable\.parameter\]
+      - name: support.function
+        match: \[support\.function\]
+      - name: support.constant
+        match: \[support\.constant\]
+      - name: support.type
+        match: \[support\.type\]
+      - name: support.class
+        match: \[support\.class\]
+      - name: support.other.variable
+        match: \[support\.other\.variable\]
+      - name: invalid
+        match: \[invalid\]
+      - name: invalid.deprecated
+        match: \[invalid\.deprecated\]
+      - name: punctuation.definition.comment
+        match: \[punctuation\.definition\.comment\]
+      - name: punctuation.definition.array
+        match: \[punctuation\.definition\.array\]
+      - name: punctuation.definition.parameters
+        match: \[punctuation\.definition\.parameters\]
+      - name: punctuation.definition.heading
+        match: \[punctuation\.definition\.heading\]
+      - name: text
+        match: \[text\]
+      - name: source
+        match: \[source\]
+      - name: meta.preprocessor.c
+        match: \[meta\.preprocessor\.c\]
+      - name: keyword.control.import
+        match: \[keyword\.control\.import\]
+      - name: comment.block
+        match: \[comment\.block\]
+      - name: constant.character.escape
+        match: \[constant\.character\.escape\]
+      - name: string.interpolated
+        match: \[string\.interpolated\]
+      - name: string.regexp
+        match: \[string\.regexp\]
+      - name: string.literal
+        match: \[string\.literal\]
+      - name: entity.name.type
+        match: \[entity\.name\.type\]
+      - name: meta.structure.dictionary.json
+        match: \[meta\.structure\.dictionary\.json\]
+      - name: string.quoted.double.json
+        match: \[string\.quoted\.double\.json\]
+      - name: meta.diff
+        match: \[meta\.diff\]
+      - name: meta.diff.header
+        match: \[meta\.diff\.header\]
+      - name: markup.deleted
+        match: \[markup\.deleted\]
+      - name: markup.inserted
+        match: \[markup\.inserted\]
+      - name: markup.changed
+        match: \[markup\.changed\]
+      - name: constant.numeric.line-number.find-in-files
+        match: \[constant\.numeric\.line-number\.find-in-files\]
+      - name: match
+        match: \[match\]
+      - name: entity.name.filename.find-in-files
+        match: \[entity\.name\.filename\.find-in-files\]
+      - name: keyword.other
+        match: \[keyword\.other\]
+      - name: meta.property-value
+        match: \[meta\.property-value\]
+      - name: support.constant.property-value
+        match: \[support\.constant\.property-value\]
+      - name: constant.other.color
+        match: \[constant\.other\.color\]
+      - name: meta.structure.dictionary.value.json
+        match: \[meta\.structure\.dictionary\.value\.json\]
+      - name: meta.property-name
+        match: \[meta\.property-name\]
+      - name: support.type.property-name
+        match: \[support\.type\.property-name\]
+      - name: punctuation.separator.key-value
+        match: \[punctuation\.separator\.key-value\]
+      - name: keyword.other.use
+        match: \[keyword\.other\.use\]
+      - name: keyword.other.function.use
+        match: \[keyword\.other\.function\.use\]
+      - name: keyword.other.namespace
+        match: \[keyword\.other\.namespace\]
+      - name: keyword.other.new
+        match: \[keyword\.other\.new\]
+      - name: keyword.other.special-method
+        match: \[keyword\.other\.special-method\]
+      - name: meta.use
+        match: \[meta\.use\]
+      - name: support.class.builtin
+        match: \[support\.class\.builtin\]
+      - name: meta.other.inherited-class
+        match: \[meta\.other\.inherited-class\]
+      - name: markup.bold
+        match: \[markup\.bold\]
+      - name: markup.italic
+        match: \[markup\.italic\]
+      - name: markup.underline
+        match: \[markup\.underline\]
+      - name: markup.underline.link
+        match: \[markup\.underline\.link\]
+      - name: markup.heading
+        match: \[markup\.heading\]
+      - name: markup.list
+        match: \[markup\.list\]
+      - name: markup.raw
+        match: \[markup\.raw\]
+      - name: markup.quote
+        match: \[markup\.quote\]
+      - name: meta.separator
+        match: \[meta\.separator\]
+      - name: source.sass
+        match: \[source\.sass\]
+      - name: meta.selector.sass
+        match: \[meta\.selector\.sass\]
+      - name: entity.other.attribute-name.class.sass
+        match: \[entity\.other\.attribute-name\.class\.sass\]
+      - name: entity.other.attribute-name.id.sass
+        match: \[entity\.other\.attribute-name\.id\.sass\]
+      - name: meta.property-list.sass
+        match: \[meta\.property-list\.sass\]
+      - name: meta.property-name.sass
+        match: \[meta\.property-name\.sass\]
+      - name: support.type.property-name.sass
+        match: \[support\.type\.property-name\.sass\]
+      - name: entity.name.tag.sass
+        match: \[entity\.name\.tag\.sass\]
+      - name: meta.property-value.sass
+        match: \[meta\.property-value\.sass\]
+      - name: constant.other.color.rgb-value.sass
+        match: \[constant\.other\.color\.rgb-value\.sass\]
+      - name: keyword.operator.js
+        match: \[keyword\.operator\.js\]
+      - name: source.js
+        match: \[source\.js\]
+      - name: comment.js
+        match: \[comment\.js\]
+      - name: meta.separator.diff
+        match: \[meta\.separator\.diff\]
+      - name: meta.diff.index
+        match: \[meta\.diff\.index\]
+      - name: meta.diff.range
+        match: \[meta\.diff\.range\]
+      - name: string.quoted
+        match: \[string\.quoted\]
+      - name: string.template
+        match: \[string\.template\]
+      - name: meta.template.expression
+        match: \[meta\.template\.expression\]
+      - name: punctuation
+        match: \[punctuation\]
+      - name: support
+        match: \[support\]
+      - name: storage,source.c++
+        match: \[storage,source\.c++\]
+      - name: entity
+        match: \[entity\]
+      - name: meta.delimiter
+        match: \[meta\.delimiter\]
+      - name: source.ruby.embedded
+        match: \[source\.ruby\.embedded\]
+      - name: string.regexp.arbitrary-repitition
+        match: \[string\.regexp\.arbitrary-repitition\]
+      - name: meta.selector.css
+        match: \[meta\.selector\.css\]
+      - name: support.type.property-name.css
+        match: \[support\.type\.property-name\.css\]
+      - name: support.constant.named-color.css
+        match: \[support\.constant\.named-color\.css\]
+      - name: meta.brace
+        match: \[meta\.brace\]
+      - name: paren
+        match: \[paren\]
+      - name: source.diff
+        match: \[source\.diff\]
+      - name: meta.diff.range.unified
+        match: \[meta\.diff\.range\.unified\]
+      - name: punctuation.definition.range.diff
+        match: \[punctuation\.definition\.range\.diff\]
+      - name: meta.diff.header.from-file
+        match: \[meta\.diff\.header\.from-file\]
+      - name: meta.diff.header.to-file
+        match: \[meta\.diff\.header\.to-file\]
+      - name: punctuation.definition.from-file.diff
+        match: \[punctuation\.definition\.from-file\.diff\]
+      - name: punctuation.definition.to-file.diff
+        match: \[punctuation\.definition\.to-file\.diff\]
+      - name: brackethighlighter.default
+        match: \[brackethighlighter\.default\]
+      - name: brackethighlighter.unmatched
+        match: \[brackethighlighter\.unmatched\]
+      - name: brackethighlighter.curly
+        match: \[brackethighlighter\.curly\]
+      - name: brackethighlighter.round
+        match: \[brackethighlighter\.round\]
+      - name: brackethighlighter.square
+        match: \[brackethighlighter\.square\]
+      - name: brackethighlighter.angle
+        match: \[brackethighlighter\.angle\]
+      - name: brackethighlighter.tag
+        match: \[brackethighlighter\.tag\]
+      - name: brackethighlighter.quote
+        match: \[brackethighlighter\.quote\]
+      - name: markup.bold.markdown
+        match: \[markup\.bold\.markdown\]
+      - name: markup.italic.markdown
+        match: \[markup\.italic\.markdown\]
+      - name: text.html.markdown
+        match: \[text\.html\.markdown\]
+      - name: entity.name.section.markdown
+        match: \[entity\.name\.section\.markdown\]
+      - name: punctuation.definition.heading.markdown
+        match: \[punctuation\.definition\.heading\.markdown\]
+      - name: string.other.link.title.markdown
+        match: \[string\.other\.link\.title\.markdown\]
+      - name: constant.other.reference.link.markdown
+        match: \[constant\.other\.reference\.link\.markdown\]
+      - name: markup.underline.link.markdown
+        match: \[markup\.underline\.link\.markdown\]
+      - name: meta.link.inline.markdown
+        match: \[meta\.link\.inline\.markdown\]
+      - name: punctuation.definition.metadata.markdown
+        match: \[punctuation\.definition\.metadata\.markdown\]
+      - name: markup.raw.inline.markdown
+        match: \[markup\.raw\.inline\.markdown\]
+      - name: markup.raw.block.markdown
+        match: \[markup\.raw\.block\.markdown\]
+      - name: entity.name.function.makefile
+        match: \[entity\.name\.function\.makefile\]
+      - name: meta.function.prerequisites.makefile
+        match: \[meta\.function\.prerequisites\.makefile\]
+      - name: keyword.operator.logical
+        match: \[keyword\.operator\.logical\]
+      - name: support.type.exception
+        match: \[support\.type\.exception\]
+      - name: meta.function.section
+        match: \[meta\.function\.section\]
+      - name: variable.language
+        match: \[variable\.language\]
+      - name: punctuation.definition.variable
+        match: \[punctuation\.definition\.variable\]
+      - name: punctuation.section.embedded.begin
+        match: \[punctuation\.section\.embedded\.begin\]
+      - name: punctuation.section.embedded.end
+        match: \[punctuation\.section\.embedded\.end\]
+      - name: meta.preprocessor
+        match: \[meta\.preprocessor\]
+      - name: support.function.construct
+        match: \[support\.function\.construct\]
+      - name: punctuation.definition.tag
+        match: \[punctuation\.definition\.tag\]
+      - name: punctuation.separator.continuation
+        match: \[punctuation\.separator\.continuation\]
+

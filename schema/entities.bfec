@@ -1,15 +1,16 @@
 
-struct Entity (type: EntityType) {
+struct Entity(type: EntityType) {
 	entity_type: EntityType = type;
-	...EntityContents(type);
+	...EntityContents(@.entity_type);
 }
 
 enum EntityType : u8 {
 	namespace = 1;
 }
 
-switch EntityContents (EntityType) {
+switch EntityContents(EntityType) {
 	case namespace: NamespaceEntityContents;
+	default: $invalid;
 }
 
 struct NamespaceEntityContents {
