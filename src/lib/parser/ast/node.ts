@@ -14,5 +14,8 @@ export enum node_type {
 	decl_switch,
 	decl_from,
 	
-	// 
+	struct_params_list,
+	struct_param,
+	
+	switch_param,
 }

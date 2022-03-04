@@ -3,7 +3,6 @@ export class Token {
 	public type: token_type;
 	public line: number;
 	public char: number;
-	public offset: number;
 	public length: number;
 	public text: string;
 
@@ -12,7 +11,6 @@ export class Token {
 			type: token_type[this.type],
 			line: this.line,
 			char: this.char,
-			offset: this.offset,
 			length: this.length,
 			text: this.text,
 		};

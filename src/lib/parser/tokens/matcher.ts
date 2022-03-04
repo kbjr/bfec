@@ -1,5 +1,6 @@
 
 import { Token } from './token';
+import { ParserState } from '../state';
 
 export class TokenMatcher<T extends Token> {
 	constructor(
@@ -7,18 +8,31 @@ export class TokenMatcher<T extends Token> {
 		public readonly pattern: RegExp
 	) { }
 
-	public match() : T {
-		// TODO: TokenMatcher.match()
+	public match(state: ParserState) : T {
+		if (state.line >= state.lines.length) {
+			return null;
+		}
 
-		const match = '';
+		const line = state.lines[state.line];
+
+		if (state.char >= line.length) {
+			state.line++;
+			state.char = 0;
+		}
 		
-		if (false) {
+		this.pattern.lastIndex = state.char;
+		const match = this.pattern.exec(line);
+		
+		if (match) {
 			const token = new this.Type();
-			token.line = 0;
-			token.char = 0;
-			token.offset = 0;
+			token.line = state.line;
+			token.char = state.char;
+
 			token.length = match.length;
-			token.text = match;
+			state.char += match.length;
+			
+			token.text = match[0];
+			
 			return token;
 		}
 
@@ -32,17 +46,29 @@ export class SimpleTokenMatcher<T extends Token> {
 		public readonly pattern: RegExp
 	) { }
 
-	public match() : T {
-		// TODO: SimpleTokenMatcher.match()
+	public match(state: ParserState) : T {
+		if (state.line >= state.lines.length) {
+			return null;
+		}
+
+		const line = state.lines[state.line];
+
+		if (state.char >= line.length) {
+			state.line++;
+			state.char = 0;
+		}
 		
-		const match = '';
+		this.pattern.lastIndex = state.char;
+		const match = this.pattern.exec(line);
 		
-		if (false) {
+		if (match) {
 			const token = new this.Type();
-			token.line = 0;
-			token.char = 0;
-			token.offset = 0;
+			token.line = state.line;
+			token.char = state.char;
+
 			token.length = match.length;
+			state.char += match.length;
+			
 			return token;
 		}
 

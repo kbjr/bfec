@@ -364,6 +364,20 @@ repository:
             name: punctuation.end-parems.close-paren.bfec
         patterns:
           - include: "#param_expr"
+      - begin: \s*(->)\s*(bin)\s*(\{)
+        beginCaptures:
+          "1":
+            name: keyword.operator.arrow.bfec
+          "2":
+            name: keyword.control.bin.bfec
+          "3":
+            name: punctuation.start-block.open-brace.bfec
+        end: \s*(\})
+        endCaptures:
+          "1":
+            name: punctuation.end-block.close-brace.bfec
+        patterns:
+          - include: "#struct_scope"
 
   struct_size_prefix:
     name: meta.declaration.struct-size-prefix.bfec

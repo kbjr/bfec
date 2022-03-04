@@ -1,27 +1,38 @@
 
-from 'https://bfec.io/std/v1.bfec' { bool };
-
-from '~/entities.bfec' {
-	Entity,
-	EntityType
-};
+# from 'https://bfec.io/std/v1.bfec' { bool };
+from '~/types.bfec' { bool };
+from '~/entities.bfec' { Entity, EntityType };
 
 struct $ {
+	# First byte of the file is left 0 to softly indicate a binary file
+	top_byte: 0x00;
+
 	header: Header;
 	metadata: Metadata;
 	data_tables: DataTable[u32];
 	dependencies: Dependency[u32];
 	contents: FileContents($.header.file_type);
-	source_files?($.header.flags.has_sources == bool.true): SourceFile[u32];
+	source_files?($.header.has_sources == bool.true): SourceFile[u32];
 }
 
 struct Header {
-	top_byte: 0x00;
+	# 16-byte file format UUID to identify the type of file
 	format_uuid: 0xc7856256_dc49_11eb_abc4_00155db73e89;
-	version: 1;
-	flags: u16 -> bin {
+
+	# One byte file format version
+	version: 0x01;
+
+	# 16-bits reserved for flags (11 unused)
+	...u16 -> bin {
+		# Indicates whether or not the file contains any cryptographic signature(s)
+		# to verify its contents
 		is_signed: bool;
+
+		# Indicates the specific sub-type of file
 		file_type: FileType;
+
+		# Indicates whether or not source position information (used in creating source
+		# maps), is included in the file
 		has_sources: bool;
 	};
 }

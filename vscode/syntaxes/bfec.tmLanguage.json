@@ -563,6 +563,31 @@
               "include": "#param_expr"
             }
           ]
+        },
+        {
+          "begin": "\\s*(->)\\s*(bin)\\s*(\\{)",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.operator.arrow.bfec"
+            },
+            "2": {
+              "name": "keyword.control.bin.bfec"
+            },
+            "3": {
+              "name": "punctuation.start-block.open-brace.bfec"
+            }
+          },
+          "end": "\\s*(\\})",
+          "endCaptures": {
+            "1": {
+              "name": "punctuation.end-block.close-brace.bfec"
+            }
+          },
+          "patterns": [
+            {
+              "include": "#struct_scope"
+            }
+          ]
         }
       ]
     },
