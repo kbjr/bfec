@@ -16,6 +16,14 @@ export enum node_type {
 	
 	struct_params_list,
 	struct_param,
+	struct_expansion,
+	struct_size_prefix,
+	struct_field,
 	
 	switch_param,
+	switch_case,
+	switch_default,
+
+	imports_list,
+	from_import,
 }

@@ -13,7 +13,7 @@ async function main() {
 	
 	// Load and parse the main entrypoint file
 	const entrypoint_file_contents = await input.read_entrypoint();
-	const entrypoint_ast = parse_bfec_schema(entrypoint_file_contents);
+	const entrypoint_ast = parse_bfec_schema(args.in.entrypoint_file, entrypoint_file_contents);
 
 	// Figure out what all we need to do based on what outputs we're generating
 	const ast_out = args.out.find((out) => out.format === output_format.ast_json);
@@ -44,7 +44,7 @@ async function main() {
 			// TODO: Validate / pre-process file path
 
 			const imported_contents = await input.read_file(path);
-			const imported_ast = parse_bfec_schema(imported_contents);
+			const imported_ast = parse_bfec_schema(path, imported_contents);
 			return imported_ast;
 		}
 	});

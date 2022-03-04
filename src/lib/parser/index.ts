@@ -5,6 +5,7 @@ import { ParserState } from './state';
 import { parser as log } from '../log';
 import { parse_struct } from './struct';
 import { parse_switch } from './switch';
+import { parse_from } from './from';
 
 export * as ast from './ast';
 
@@ -12,12 +13,14 @@ const parsers: Parser<ASTNode>[] = [
 	parse_struct,
 	parse_switch,
 	// parse_enum,
-	// parse_from,
+	parse_from,
 ];
 
-export function parse_bfec_schema(contents: string) : FileNode {
+export function parse_bfec_schema(name: string, contents: string) : FileNode {
 	const ast_node = new FileNode();
-	const state = new ParserState(contents);
+	const state = new ParserState(name, contents);
+	
+	state.trace('parse_bfec_schema', ast_node);
 
 	try {
 		read_loop:
@@ -39,6 +42,8 @@ export function parse_bfec_schema(contents: string) : FileNode {
 	
 			state.fatal('encountered unexpected/unknown token');
 		}
+
+		ast_node.children.push(...state.take_comments());
 	}
 
 	catch (error) {

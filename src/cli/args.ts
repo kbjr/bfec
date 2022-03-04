@@ -95,7 +95,7 @@ export async function parse_args(args: string[]) : Promise<Args> {
 		}
 	}
 
-	log.verbose('args', result);
+	log.debug('args', result);
 	validate_args(result);
 	return result;
 }

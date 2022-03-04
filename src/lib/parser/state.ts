@@ -2,15 +2,21 @@
 import { parser as log } from '../log';
 import { CommentToken, meta_line_comment, meta_newline, meta_whitespace, WhitespaceToken } from './tokens';
 
+const trace_indent = '  ';
+
 export class ParserState {
 	public raw: string;
+	public name: string;
 	public lines: string[];
 	public comments: CommentToken[] = [ ];
 	public line: number = 0;
 	public char: number = 0;
+	private trace_depth: number = 0;
+	private trace_indent: string = '';
 
-	constructor(raw: string) {
+	constructor(name: string, raw: string) {
 		this.raw = raw;
+		this.name = name;
 		this.lines = raw.split(meta_newline);
 	}
 
@@ -19,7 +25,7 @@ export class ParserState {
 	}
 
 	public pos() {
-		return `line=${this.line + 1}, char=${this.char}`;
+		return `file=${this.name}, line=${this.line + 1}, char=${this.char + 1}`;
 	}
 
 	public take_comments() {
@@ -27,22 +33,38 @@ export class ParserState {
 	}
 
 	public branch() {
-		const branch = new ParserState(this.raw);
+		this.trace('branch');
+
+		const branch = new ParserState(this.name, this.raw);
 
 		branch.comments = this.comments.slice();
 		branch.line = this.line;
 		branch.char = this.char;
+		branch.step_down();
 
 		return branch;
 	}
 
 	public commit_branch(branch: ParserState) {
+		this.trace('commit_branch');
 		this.comments = branch.comments;
 		this.line = branch.line;
 		this.char = branch.char;
 	}
 
+	public step_down() {
+		this.trace_depth++;
+		this.trace_indent = trace_indent.repeat(this.trace_depth);
+	}
+
+	public step_up() {
+		this.trace_depth--;
+		this.trace_indent = trace_indent.repeat(this.trace_depth);
+	}
+
 	public scan_through_comments_and_whitespace() {
+		this.trace('scan_through_comments_and_whitespace');
+
 		const comments: CommentToken[] = [ ];
 		const whitespace: WhitespaceToken[] = [ ];
 		const start_line = this.line;
@@ -69,8 +91,14 @@ export class ParserState {
 		return !! (this.line > start_line || comments.length || whitespace.length);
 	}
 
+	public trace(func_name: string, ...other: any[]) {
+		log.silly(`${this.trace_indent}${func_name}(${this.pos()})`, ...other);
+	}
+
 	public fatal(message: string) : never {
-		log.error(`${message} (${this.pos()})`);
+		log.error(`\nFatal: ${message} (${this.pos()})`);
+		log.error(`\n  ${this.lines[this.line].replace(/\t/g, ' ')}`);
+		log.error(`  ${' '.repeat(this.char)}^`);
 		throw new Error(`failed to parse bfec file: ${message} (${this.pos()})`);
 	}
 }

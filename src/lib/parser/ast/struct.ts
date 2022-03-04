@@ -4,7 +4,9 @@ import {
 	CommentToken,
 	NameToken_normal,
 	NameToken_root_schema,
+	PuncToken_close_brace,
 	PuncToken_close_paren,
+	PuncToken_open_brace,
 	PuncToken_open_paren
 } from '../tokens';
 
@@ -13,7 +15,9 @@ export class DeclareStructNode extends ASTNode {
 	public comments: CommentToken[];
 	public name: NameToken_normal | NameToken_root_schema;
 	public params: StructParamsListNode;
-	public children: ASTNode[];
+	public open_brace: PuncToken_open_brace;
+	public close_brace: PuncToken_close_brace;
+	public children: StructElem[];
 	public toJSON() {
 		return {
 			type: node_type[this.type],
@@ -47,5 +51,28 @@ export class StructParamNode extends ASTNode {
 			type: node_type[this.type],
 			// name: this.name,
 		};
+	}
+}
+
+export type StructElem = StructExpansion | StructSizePrefix | StructField | CommentToken ;
+
+export class StructExpansion extends ASTNode {
+	public type: node_type.struct_expansion = node_type.struct_expansion;
+	public toJSON(): object {
+		return { };
+	}
+}
+
+export class StructSizePrefix extends ASTNode {
+	public type: node_type.struct_size_prefix = node_type.struct_size_prefix;
+	public toJSON(): object {
+		return { };
+	}
+}
+
+export class StructField extends ASTNode {
+	public type: node_type.struct_field = node_type.struct_field;
+	public toJSON(): object {
+		return { };
 	}
 }
