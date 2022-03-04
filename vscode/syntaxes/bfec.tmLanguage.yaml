@@ -570,5 +570,7 @@ repository:
       - include: "#comments"
       - name: keyword.control.invalid.bfec
         match: \$invalid
+      - name: keyword.control.void.bfec
+        match: \$void
       - include: "#struct_expr"
 

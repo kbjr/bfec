@@ -1,6 +1,6 @@
 
 import { Token } from './token';
-import { ParserState } from '../state';
+import { ParserState } from '../../state';
 
 export class TokenMatcher<T extends Token> {
 	constructor(

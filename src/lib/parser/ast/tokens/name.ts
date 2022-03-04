@@ -1,14 +1,15 @@
 
-import { Token, token_type } from './token';
+import { Token } from './token';
+import { node_type } from '../node';
 import { SimpleTokenMatcher, TokenMatcher } from './matcher';
 
 export class NameToken_normal extends Token {
-	public type: token_type.name_root_schema = token_type.name_root_schema;
+	public type: node_type.name_normal = node_type.name_normal;
 }
 
 export class NameToken_root_schema extends Token {
-	public type: token_type.name_root_schema = token_type.name_root_schema;
-	public text: '.' = '.';
+	public type: node_type.name_root_schema = node_type.name_root_schema;
+	public text: '$' = '$';
 }
 
 export enum builtin_uint {
@@ -21,7 +22,7 @@ export enum builtin_uint {
 }
 
 export class NameToken_builtin_uint extends Token {
-	public type: token_type.name_builtin_uint = token_type.name_builtin_uint;
+	public type: node_type.name_builtin_uint = node_type.name_builtin_uint;
 	public text: builtin_uint;
 }
 
@@ -35,12 +36,12 @@ export enum builtin_sint {
 }
 
 export class NameToken_builtin_sint extends Token {
-	public type: token_type.name_builtin_sint = token_type.name_builtin_sint;
+	public type: node_type.name_builtin_sint = node_type.name_builtin_sint;
 	public text: builtin_sint;
 }
 
 export class NameToken_builtin_vint extends Token {
-	public type: token_type.name_builtin_vint = token_type.name_builtin_vint;
+	public type: node_type.name_builtin_vint = node_type.name_builtin_vint;
 	public text: 'varint' = 'varint';
 }
 
@@ -51,7 +52,7 @@ export enum builtin_bin_float {
 }
 
 export class NameToken_builtin_bin_float extends Token {
-	public type: token_type.name_builtin_bin_float = token_type.name_builtin_bin_float;
+	public type: node_type.name_builtin_bin_float = node_type.name_builtin_bin_float;
 	public text: builtin_bin_float;
 }
 
@@ -62,7 +63,7 @@ export enum builtin_dec_float {
 }
 
 export class NameToken_builtin_dec_float extends Token {
-	public type: token_type.name_builtin_dec_float = token_type.name_builtin_dec_float;
+	public type: node_type.name_builtin_dec_float = node_type.name_builtin_dec_float;
 	public text: builtin_dec_float;
 }
 
@@ -102,7 +103,7 @@ export enum builtin_bit {
 }
 
 export class NameToken_builtin_bit extends Token {
-	public type: token_type.name_builtin_bit = token_type.name_builtin_bit;
+	public type: node_type.name_builtin_bit = node_type.name_builtin_bit;
 	public text: builtin_bit;
 }
 
@@ -114,7 +115,7 @@ export enum builtin_text {
 }
 
 export class NameToken_builtin_text extends Token {
-	public type: token_type.name_builtin_text = token_type.name_builtin_text;
+	public type: node_type.name_builtin_text = node_type.name_builtin_text;
 	public text: builtin_text;
 }
 

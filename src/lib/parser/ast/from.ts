@@ -10,11 +10,12 @@ import {
 	PuncToken_open_brace,
 	PuncToken_separator,
 	PuncToken_terminator,
-} from '../tokens';
+} from './tokens';
 
 export class DeclareFromNode extends ASTNode {
 	public type: node_type.decl_from = node_type.decl_from;
 	public comments: CommentToken[];
+	public extraneous_comments: CommentToken[];
 	public source: ConstToken_ascii | ConstToken_unicode;
 	public imports: FromImportsListNode;
 	public root_import: NameToken_normal;
@@ -23,6 +24,7 @@ export class DeclareFromNode extends ASTNode {
 		return {
 			type: node_type[this.type],
 			comments: this.comments,
+			extraneous_comments: this.extraneous_comments,
 			source: this.source,
 			imports: this.imports,
 			root_import: this.root_import,

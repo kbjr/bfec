@@ -1,1 +1,133 @@
-null
+{
+  "type": "file",
+  "children": [
+    {
+      "type": "decl_from",
+      "comments": [
+        {
+          "type": "meta_line_comment",
+          "line": 1,
+          "char": 0,
+          "length": 46,
+          "text": "# from 'https://bfec.io/std/v1.bfec' { bool };"
+        }
+      ],
+      "extraneous_comments": [],
+      "source": {
+        "type": "const_unicode",
+        "line": 2,
+        "char": 5,
+        "length": 14,
+        "text": "'~/types.bfec'"
+      },
+      "imports": {
+        "type": "imports_list",
+        "open_brace": {
+          "type": "punc_open_brace",
+          "line": 2,
+          "char": 20,
+          "length": 1,
+          "text": "{"
+        },
+        "close_brace": {
+          "type": "punc_close_brace",
+          "line": 2,
+          "char": 27,
+          "length": 1,
+          "text": "}"
+        },
+        "imports": [
+          {
+            "type": "from_import",
+            "source_name": {
+              "type": "name_root_schema",
+              "line": 2,
+              "char": 22,
+              "length": 4,
+              "text": "bool"
+            },
+            "as_keyword": null,
+            "separator": null
+          }
+        ]
+      },
+      "root_import": null,
+      "terminator": {
+        "type": "punc_terminator",
+        "line": 2,
+        "char": 28,
+        "length": 1,
+        "text": ";"
+      }
+    },
+    {
+      "type": "decl_from",
+      "comments": [],
+      "extraneous_comments": [],
+      "source": {
+        "type": "const_unicode",
+        "line": 3,
+        "char": 5,
+        "length": 17,
+        "text": "'~/entities.bfec'"
+      },
+      "imports": {
+        "type": "imports_list",
+        "open_brace": {
+          "type": "punc_open_brace",
+          "line": 3,
+          "char": 23,
+          "length": 1,
+          "text": "{"
+        },
+        "close_brace": {
+          "type": "punc_close_brace",
+          "line": 3,
+          "char": 44,
+          "length": 1,
+          "text": "}"
+        },
+        "imports": [
+          {
+            "type": "from_import",
+            "source_name": {
+              "type": "name_root_schema",
+              "line": 3,
+              "char": 25,
+              "length": 6,
+              "text": "Entity"
+            },
+            "as_keyword": null,
+            "separator": {
+              "type": "punc_separator",
+              "line": 3,
+              "char": 31,
+              "length": 1,
+              "text": ","
+            }
+          },
+          {
+            "type": "from_import",
+            "source_name": {
+              "type": "name_root_schema",
+              "line": 3,
+              "char": 33,
+              "length": 10,
+              "text": "EntityType"
+            },
+            "as_keyword": null,
+            "separator": null
+          }
+        ]
+      },
+      "root_import": null,
+      "terminator": {
+        "type": "punc_terminator",
+        "line": 3,
+        "char": 45,
+        "length": 1,
+        "text": ";"
+      }
+    }
+  ]
+}

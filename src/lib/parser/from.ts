@@ -1,7 +1,7 @@
 
 import { ParserState } from './state';
 import { DeclareFromNode, FromImportNode, FromImportsListNode } from './ast';
-import { const_ascii, const_unicode, kw_as, kw_from, name_normal, punc_close_brace, punc_open_brace, punc_separator, punc_terminator } from './tokens';
+import { const_ascii, const_unicode, kw_as, kw_from, name_normal, punc_close_brace, punc_open_brace, punc_separator, punc_terminator } from './ast/tokens';
 
 export function parse_from(state: ParserState) : DeclareFromNode {
 	state.trace('parse_from');
@@ -29,6 +29,7 @@ export function parse_from(state: ParserState) : DeclareFromNode {
 	state.scan_through_comments_and_whitespace();
 
 	ast_node.root_import = name_normal.match(state);
+	ast_node.extraneous_comments = state.take_comments();
 
 	if (! ast_node.root_import) {
 		ast_node.imports = new FromImportsListNode();
@@ -89,9 +90,7 @@ export function parse_from(state: ParserState) : DeclareFromNode {
 	if (! ast_node.terminator) {
 		state.fatal('expected statement terminator ";"');
 	}
-
-	// TODO: Should we do something with these?
-	const extraneous_comments = state.take_comments();
-
+	
+	ast_node.extraneous_comments.push(...state.take_comments());
 	return ast_node;
 }

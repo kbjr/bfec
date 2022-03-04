@@ -8,11 +8,12 @@ import {
 	PuncToken_close_paren,
 	PuncToken_open_brace,
 	PuncToken_open_paren
-} from '../tokens';
+} from './tokens';
 
 export class DeclareStructNode extends ASTNode {
 	public type: node_type.decl_struct = node_type.decl_struct;
 	public comments: CommentToken[];
+	public extraneous_comments: CommentToken[];
 	public name: NameToken_normal | NameToken_root_schema;
 	public params: StructParamsListNode;
 	public open_brace: PuncToken_open_brace;
@@ -21,8 +22,12 @@ export class DeclareStructNode extends ASTNode {
 	public toJSON() {
 		return {
 			type: node_type[this.type],
+			comments: this.comments,
+			extraneous_comments: this.extraneous_comments,
 			name: this.name,
 			params: this.params,
+			open_brace: this.open_brace,
+			close_brace: this.close_brace,
 			children: this.children
 		};
 	}

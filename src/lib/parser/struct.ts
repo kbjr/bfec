@@ -2,7 +2,7 @@
 import { Parser } from './parser';
 import { ParserState } from './state';
 import { DeclareStructNode, StructElem, StructExpansion, StructField, StructSizePrefix } from './ast';
-import { kw_struct, name_normal, name_root_schema, PuncToken_close_brace, punc_close_brace, punc_open_brace } from './tokens';
+import { kw_struct, name_normal, name_root_schema, PuncToken_close_brace, punc_close_brace, punc_open_brace } from './ast/tokens';
 
 const struct_scope_parsers: Parser<StructElem>[] = [
 	parse_struct_field,
@@ -40,6 +40,7 @@ export function parse_struct(state: ParserState) : DeclareStructNode {
 	// TODO:  - params
 	// TODO:  - close paren
 
+	ast_node.extraneous_comments = state.take_comments();
 	ast_node.open_brace = punc_open_brace.match(state);
 
 	if (! ast_node.open_brace) {
@@ -47,12 +48,8 @@ export function parse_struct(state: ParserState) : DeclareStructNode {
 	}
 	
 	state.scan_through_comments_and_whitespace();
-
 	ast_node.close_brace = parse_struct_scope(state, ast_node.children);
-
-	// TODO: Should we do something with these?
-	const extraneous_comments = state.take_comments();
-
+	ast_node.extraneous_comments.push(...state.take_comments());
 	return ast_node;
 }
 

@@ -1,6 +1,6 @@
 
 import { parser as log } from '../log';
-import { CommentToken, meta_line_comment, meta_newline, meta_whitespace, WhitespaceToken } from './tokens';
+import { CommentToken, meta_line_comment, meta_newline, meta_whitespace, WhitespaceToken } from './ast/tokens';
 
 const trace_indent = '  ';
 

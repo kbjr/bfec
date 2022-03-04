@@ -1,13 +1,14 @@
 
+import { Token } from './token';
 import { TokenMatcher } from './matcher';
-import { Token, token_type } from './token';
+import { node_type } from '../node';
 
 export class WhitespaceToken extends Token {
-	public type: token_type.meta_whitespace = token_type.meta_whitespace;
+	public type: node_type.meta_whitespace = node_type.meta_whitespace;
 }
 
 export class CommentToken extends Token {
-	public type: token_type.meta_line_comment = token_type.meta_line_comment;
+	public type: node_type.meta_line_comment = node_type.meta_line_comment;
 }
 
 export const meta_newline = /(?:\r\n|\r|\n|\u202b|\u2029)+/g;
