@@ -28,6 +28,11 @@ export enum node_type {
 	from_import,
 
 	type_expr_vint,
+	type_expr_array,
+	type_expr_bin,
+	type_expr_named,
+	type_expr_params_list,
+	type_expr_param,
 
 	// ===== Tokens =====
 	
@@ -41,6 +46,7 @@ export enum node_type {
 
 	name_normal,
 	name_root_schema,
+	name_this_schema,
 	name_builtin_uint,
 	name_builtin_sint,
 	name_builtin_vint,

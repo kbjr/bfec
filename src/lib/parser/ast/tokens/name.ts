@@ -12,6 +12,11 @@ export class NameToken_root_schema extends Token {
 	public text: '$' = '$';
 }
 
+export class NameToken_this_schema extends Token {
+	public type: node_type.name_this_schema = node_type.name_this_schema;
+	public text: '@' = '@';
+}
+
 export enum builtin_uint {
 	u8   = 'u8',
 	u16  = 'u16',
@@ -121,6 +126,7 @@ export class NameToken_builtin_text extends Token {
 
 export const name_normal            = new TokenMatcher(NameToken_normal, /\b(?:[a-zA-Z_][a-zA-Z0-9_]*)\b/y);
 export const name_root_schema       = new SimpleTokenMatcher(NameToken_root_schema, /\$/y);
+export const name_this_schema       = new SimpleTokenMatcher(NameToken_this_schema, /@/y);
 export const name_builtin_uint      = new TokenMatcher(NameToken_builtin_uint, /\b(?:u8|u16|u24|u32|u64|u128)\b/y);
 export const name_builtin_sint      = new TokenMatcher(NameToken_builtin_sint, /\b(?:i8|i16|i24|i32|i64|i128)\b/y);
 export const name_builtin_vint      = new SimpleTokenMatcher(NameToken_builtin_vint, /\bvarint\b/y);

@@ -6,4 +6,4 @@ export { FileNode } from './file';
 export * from './from';
 export * from './struct';
 export * from './switch';
-// export * from './type-expr';
+export * from './type-expr';
