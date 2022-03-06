@@ -1,5 +1,6 @@
 
-import { StructElem } from '.';
+import { StructElem } from './struct';
+import { ValueExpr } from './value-expr';
 import { ASTNode, node_type } from './node';
 import {
 	NameToken_builtin_uint, NameToken_builtin_sint, NameToken_builtin_vint,
@@ -8,9 +9,13 @@ import {
 	NameToken_builtin_text,
 	PuncToken_open_paren, PuncToken_close_paren,
 	CommentToken,
-	ConstToken_int, ConstToken_hex_int, ConstToken_ascii, PuncToken_open_square_bracket, PuncToken_close_square_bracket, PuncToken_arrow, PuncToken_close_brace, PuncToken_open_brace, NameToken_normal, NameToken_root_schema, PuncToken_separator,
+	ConstToken_int, ConstToken_hex_int, ConstToken_ascii,
+	PuncToken_open_square_bracket, PuncToken_close_square_bracket,
+	PuncToken_arrow,
+	PuncToken_close_brace, PuncToken_open_brace,
+	NameToken_normal, NameToken_root_schema,
+	PuncToken_separator,
 } from './tokens';
-import { ValueExpr } from './value-expr';
 
 export type TypeExpr
 	= ConstToken_int
