@@ -19,9 +19,16 @@ struct Chunk (type: ChunkType) {
   # TODO: Add support for `_be` and `_le` types
   length: u32_be;
   type: type;
+  
   # TODO: Add support for `-> switch` refinements
+  # TODO: Should do `-> struct` as well?
+  # TODO: Remove `$size` meta-field; can be implemented with `u8[@.length] -> <refine>`
   data: u8[@.length] -> switch ChunkData(type);
-  crc: u8[4];
+  crc: u32_b3;
+
+  # TODO: Add support for `-> crc()` verification / population?
+  # crc: u32_b3 -> crc(@.data);
+  # crc: checksum<u32_be>(@.data, "crc32");
 }
 
 # TODO: Add support for string enums
@@ -61,11 +68,11 @@ switch ChunkData (ChunkType) {
   case text_data:                 TextData;
   case compressed_text_data:      CompressedTextData;
   case international_text_data:   InternationalTextData;
-  case background_color:          $void;
-  case image_histogram:           $void;
-  case physical_pixel_dimensions: $void;
-  case suggested_pallete:         $void;
-  case last_modified_timestamp:   $void;
+  case background_color:          BackgroundColorData($.image_header.color_type);
+  case image_histogram:           ImageHistogramData;
+  case physical_pixel_dimensions: PhysicalPixelDimensionsData;
+  case suggested_pallete:         SuggestedPalleteData;
+  case last_modified_timestamp:   LastModifiedTimestampData;
 
   # If we don't recognize the chunk type, just leave it as an
   # unprocessed byte array
@@ -182,8 +189,15 @@ struct ColorSignifigantBitsData {
   signifigant_alpha_bits?($.image_header.color_type == ColorType.truecolor_with_alpha): u8;
 }
 
+enum RGBRenderingIntent: u8 {
+  perceptual            = 0;
+  relative_colorimetric = 1;
+  saturation            = 2;
+  absolute_colorimetric = 3;
+}
+
 struct RGBColorSpaceData {
-  # 
+  rendering_intent: RGBRenderingIntent;
 }
 
 struct TextData {
@@ -210,4 +224,83 @@ struct InternationalTextData {
   language_tag: ascii<null>;
   translated_keyword: u8[null];
   text: InternationalTextDataBody(@.compression_flag);
+}
+
+switch BackgroundColorData (ColorType) {
+  case greyscale:            GreyscaleBackgroundData;
+  case greyscale_with_alpha: GreyscaleBackgroundData;
+  case truecolor:            TruecolorBackgroundData;
+  case truecolor_with_alpha: TruecolorBackgroundData;
+  case indexed_color:        IndexedColorBackgroundData;
+  default: $invalid;
+}
+
+struct GreyscaleBackgroundData {
+  greyscale: u16_be;
+}
+
+struct TruecolorBackgroundData {
+  red: u16_be;
+  green: u16_be;
+  blue: u16_be;
+}
+
+struct IndexedColorBackgroundData {
+  pallete_index: u8;
+}
+
+struct ImageHistogramData {
+  frequencies: u16_be[...];
+}
+
+enum PixelDimensionUnit: u8 {
+  unknown = 0;
+  meter   = 1;
+}
+
+struct PhysicalPixelDimensionsData {
+  ppu_x: u32_be;
+  ppu_y: u32_be;
+  unit: PixelDimensionUnit;
+}
+
+enum SampleDepth: u8 {
+  b8  = 8;
+  b16 = 16;
+}
+
+struct Sample8Bit {
+  red: u8;
+  green: u8;
+  blue: u8;
+  alpha: u8;
+}
+
+struct Sample16Bit {
+  red: u16_be;
+  green: u16_be;
+  blue: u16_be;
+  alpha: u16_be;
+}
+
+switch Sample (SampleDepth) {
+  case b8: Sample8Bit;
+  case b16: Sample16Bit;
+  default: $invalid;
+}
+
+struct SuggestedPalleteData {
+  pallete_name: ascii<null>;
+  sample_depth: SampleDepth;
+  ...Sample(@.sample_depth);
+  frequencies: u16_be[...];
+}
+
+struct LastModifiedTimestampData {
+  year: u16_be;
+  month: u8;
+  day: u8;
+  hour: u8;
+  minute: u8;
+  second: u8;
 }
