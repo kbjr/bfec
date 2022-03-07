@@ -90,7 +90,18 @@ function parse_struct_field(state: ParserState) : StructField {
 	state.step_down();
 	state.trace('parse_struct_field');
 
-	// 
+	// TODO: name_normal
+	// TODO: optional void condition
+	// TODO:  - opening ?
+	// TODO:  - opening paren
+	// TODO:  - bool_expr
+	// TODO:  - closing paren
+	// TODO: colon
+	// TODO: type_expr
+	// TODO: optional assignment
+	// TODO:  - assign operator
+	// TODO:  - value_expr
+	// TODO: terminator
 	
 	state.step_up();
 	return null;
@@ -100,7 +111,9 @@ function parse_struct_expansion(state: ParserState) : StructExpansion {
 	state.step_down();
 	state.trace('parse_struct_expansion');
 
-	// 
+	// TODO: ... operator
+	// TODO: type_expr
+	// TODO: terminator
 
 	state.step_up();
 	return null;
@@ -110,7 +123,10 @@ function parse_struct_size_prefix(state: ParserState) : StructSizePrefix {
 	state.step_down();
 	state.trace('parse_struct_size_prefix');
 
-	// 
+	// TODO: $size keyword
+	// TODO: colon
+	// TODO: type_expr
+	// TODO: terminator
 	
 	state.step_up();
 	return null;

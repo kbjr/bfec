@@ -1,0 +1,213 @@
+
+# 
+# PNG Image Format
+# https://www.w3.org/TR/PNG
+# 
+struct $ {
+  # Magic bytes to identify the PNG file format
+  magic_number: 0x8950_4e47_0d0a_1a0a;
+  
+  # Image header should always be the first chunk, and we need to reference data out
+  # of it, so we'll statically define it here so we can `$.image_header` elsewhere
+  image_header: Chunk(ChunkType.image_header);
+
+  # TODO: Array `[...]` syntax for "take all remaining"
+  chunks: Chunk[...];
+}
+
+struct Chunk (type: ChunkType) {
+  # TODO: Add support for `_be` and `_le` types
+  length: u32_be;
+  type: type;
+  # TODO: Add support for `-> switch` refinements
+  data: u8[@.length] -> switch ChunkData(type);
+  crc: u8[4];
+}
+
+# TODO: Add support for string enums
+# TODO: Add support for `<len>` syntax for string lengths (to differentiate from arrays)
+enum ChunkType: ascii<4> {
+  image_header              = "IHDR";
+  pallete                   = "PLTE";
+  image_data                = "IDAT";
+  image_trailer             = "IEND";
+  transparency              = "tRNS";
+  prim_chrom_wh_pt          = "cHRM";
+  image_gamma               = "gAMA";
+  icc_profile               = "iCCP";
+  signifigant_bits          = "sBIT";
+  rgb_color_space           = "sRGB";
+  text_data                 = "tEXt";
+  compressed_text_data      = "xTXt";
+  international_text_data   = "iTXt";
+  background_color          = "bKGD";
+  image_histogram           = "hIST";
+  physical_pixel_dimensions = "pHYs";
+  suggested_pallete         = "sPLT";
+  last_modified_timestamp   = "tIME";
+}
+
+switch ChunkData (ChunkType) {
+  case image_header:              ImageHeader;
+  case pallete:                   Pallete[...];
+  case image_data:                $void;
+  case image_trailer:             $void;
+  case transparency:              TransparencyData($.image_header.color_type);
+  case prim_chrom_wh_pt:          PrimaryChromaticitiesAndWhitePointData;
+  case image_gamma:               GammaData;
+  case icc_profile:               EmbeddedICCProfileData;
+  case signifigant_bits:          SignifigantBitsData($.image_header.color_type);
+  case rgb_color_space:           RGBColorSpaceData;
+  case text_data:                 TextData;
+  case compressed_text_data:      CompressedTextData;
+  case international_text_data:   InternationalTextData;
+  case background_color:          $void;
+  case image_histogram:           $void;
+  case physical_pixel_dimensions: $void;
+  case suggested_pallete:         $void;
+  case last_modified_timestamp:   $void;
+
+  # If we don't recognize the chunk type, just leave it as an
+  # unprocessed byte array
+  # TODO: Make sure $void when used as a refinement like this
+  # actually does leave the data in original form
+  default: $void;
+}
+
+enum BitDepth: u8 {
+  b1  = 1;
+  b2  = 2;
+  b4  = 4;
+  b8  = 8;
+  b16 = 16;
+}
+
+enum CompressionMethod: u8 {
+  zlib = 0;
+}
+
+enum FilterMethod: u8 {
+  adaptive = 0;
+}
+
+enum InterlaceMethod: u8 {
+  no_interlace    = 0;
+  adam7_interlace = 1;
+}
+
+struct ImageHeader {
+  width: u32_be;
+  height: u32_be;
+  bit_depth: BitDepth;
+  color_type: ColorType;
+  compression_method: CompressionMethod;
+  filter_method: FilterMethod;
+  interlace_method: InterlaceMethod;
+}
+
+enum ColorType: u8 {
+  greyscale            = 0;
+  truecolor            = 2;
+  indexed_color        = 3;
+  greyscale_with_alpha = 4;
+  truecolor_with_alpha = 6;
+}
+
+struct Pallete {
+  red: u8;
+  green: u8;
+  blue: u8;
+}
+
+switch TransparencyData (ColorType) {
+  case greyscale: GreyscaleTransparencyData;
+  case truecolor: TruecolorTransparencyData;
+  case indexed_color: IndexedColorTransparencyData;
+  default: $invalid;
+}
+
+struct GreyscaleTransparencyData {
+  grey_sample: u16_be;
+}
+
+struct TruecolorTransparencyData {
+  red_sample: u16_be;
+  green_sample: u16_be;
+  blue_sample: u16_be;
+}
+
+struct IndexedColorTransparencyData {
+  alpha_values: u8[...];
+}
+
+struct PrimaryChromaticitiesAndWhitePointData {
+  white_point_x: u32_be;
+  white_point_y: u32_be;
+  red_x: u32_be;
+  red_y: u32_be;
+  green_x: u32_be;
+  green_y: u32_be;
+  blue_x: u32_be;
+  blue_y: u32_be;
+}
+
+struct GammaData {
+  image_gamma: u32_be;
+}
+
+struct EmbeddedICCProfileData {
+  proile_name: ascii<null>;
+  compression_method: CompressionMethod;
+  compressed_profile: u8[...];
+}
+
+switch SignifigantBitsData (ColorType) {
+  case greyscale:            GreyscaleSignifigantBitsData;
+  case truecolor:            ColorSignifigantBitsData;
+  case indexed_color:        ColorSignifigantBitsData;
+  case greyscale_with_alpha: GreyscaleSignifigantBitsData;
+  case truecolor_with_alpha: ColorSignifigantBitsData;
+  default: $invalid;
+}
+
+struct GreyscaleSignifigantBitsData {
+  signifigant_greyscale_bits: u8;
+  signifigant_alpha_bits?($.image_header.color_type == ColorType.greysacle_with_alpha): u8;
+}
+
+struct ColorSignifigantBitsData {
+  signifigant_red_bits: u8;
+  signifigant_green_bits: u8;
+  signifigant_blue_bits: u8;
+  signifigant_alpha_bits?($.image_header.color_type == ColorType.truecolor_with_alpha): u8;
+}
+
+struct RGBColorSpaceData {
+  # 
+}
+
+struct TextData {
+  # TODO: Support for null-terminated string
+  keyword: ascii<null>;
+  text: ascii<...>;
+}
+
+struct CompressedTextData {
+  keyword: ascii<null>;
+  compression_method: u8;
+  compressed_text: u8[...];
+}
+
+switch InternationalTextDataBody(bool) {
+  case true: u8[...];
+  case false: utf8<...>;
+}
+
+struct InternationalTextData {
+  keyword: ascii<null>;
+  compression_flag: bool;
+  compression_method: u8;
+  language_tag: ascii<null>;
+  translated_keyword: u8[null];
+  text: InternationalTextDataBody(@.compression_flag);
+}
