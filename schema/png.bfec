@@ -18,16 +18,16 @@ struct $ {
 struct Chunk (type: ChunkType) {
   # TODO: Add support for `_be` and `_le` types
   length: u32_be;
-  type: type;
+  type: ChunkType = type;
   
   # TODO: Add support for `-> switch` refinements
   # TODO: Should do `-> struct` as well?
   # TODO: Remove `$size` meta-field; can be implemented with `u8[@.length] -> <refine>`
   data: u8[@.length] -> switch ChunkData(type);
-  crc: u32_b3;
+  crc: u32_be;
 
   # TODO: Add support for `-> crc()` verification / population?
-  # crc: u32_b3 -> crc(@.data);
+  # crc: u32_be -> crc(@.data);
   # crc: checksum<u32_be>(@.data, "crc32");
 }
 

@@ -4,105 +4,121 @@ from '~/types.bfec' { bool };
 from '~/entities.bfec' { Entity, EntityType };
 
 struct $ {
-	# First byte of the file is left 0 to softly indicate a binary file
-	top_byte: 0x00;
+  # First byte of the file is left 0 to softly indicate a binary file
+  top_byte: 0x00;
 
-	header: Header;
-	metadata: Metadata;
-	data_tables: DataTable[u32];
-	dependencies: Dependency[u32];
-	contents: FileContents($.header.file_type);
-	source_files?($.header.has_sources == bool.true): SourceFile[u32];
+  header: Header;
+  metadata: Metadata;
+  data_tables: DataTable[u32];
+  dependencies: Dependency[u32];
+  contents: FileContents($.header.file_type);
+  source_files?($.header.has_sources == bool.true): SourceFile[u32];
 }
 
 struct Header {
-	# 16-byte file format UUID to identify the type of file
-	format_uuid: 0xc7856256_dc49_11eb_abc4_00155db73e89;
+  # 16-byte file format UUID to identify the type of file
+  format_uuid: 0xc7856256_dc49_11eb_abc4_00155db73e89;
 
-	# One byte file format version
-	version: 0x01;
+  # One byte file format version
+  version: 0x01;
 
-	# 16-bits reserved for flags (11 unused)
-	...u16 -> bin {
-		# Indicates whether or not the file contains any cryptographic signature(s)
-		# to verify its contents
-		is_signed: bool;
+  # 16-bits reserved for flags (11 unused)
+  ...u16 -> bin {
+    # Indicates whether or not the file contains any cryptographic signature(s)
+    # to verify its contents
+    is_signed: bool;
 
-		# Indicates the specific sub-type of file
-		file_type: FileType;
+    # Indicates the specific sub-type of file
+    file_type: FileType;
 
-		# Indicates whether or not source position information (used in creating source
-		# maps), is included in the file
-		has_sources: bool;
-	};
+    # Indicates whether or not source position information (used in creating source
+    # maps), is included in the file
+    has_sources: bool;
+  };
 }
 
 enum FileType: b3 {
-	module_obj  = 0;   # *.o.w
-	static_lib  = 1;   # *.lib.w
-	dynamic_lib = 2;   # *.dll.w
-	program     = 3;   # *.p.w
-	extension   = 4;   # *.ext.w
-	host_obj    = 5;   # *.ho.w
-	header      = 6;   # *.h.w
+  module_obj  = 0;   # *.o.w
+  static_lib  = 1;   # *.lib.w
+  dynamic_lib = 2;   # *.dll.w
+  program     = 3;   # *.p.w
+  extension   = 4;   # *.ext.w
+  host_obj    = 5;   # *.ho.w
+  header      = 6;   # *.h.w
 }
 
 switch FileContents (FileType) {
-	case module_obj:  ModuleObjectContents;
-	case static_lib:  StaticLibraryContents;
-	case dynamic_lib: DynamicLibraryContents;
-	case program:     ProgramContents;
-	case extension:   ExtensionContents;
-	case host_obj:    HostObjectContents;
-	case header:      HeaderContents;
+  case module_obj:  ModuleObjectContents;
+  case static_lib:  StaticLibraryContents;
+  case dynamic_lib: DynamicLibraryContents;
+  case program:     ProgramContents;
+  case extension:   ExtensionContents;
+  case host_obj:    HostObjectContents;
+  case header:      HeaderContents;
 }
 
 struct Metadata {
-	$size: u32;
-	# ...
+  length: u32;
+  ...u8[@.length] -> struct {
+    # 
+  };
 }
 
 struct DataTable {
-	# ...
+  # ...
 }
 
 struct Dependency {
-	# ...
+  # ...
 }
 
 struct ModuleObjectContents {
-	$size: u32;
-	id_count: u32;
-	object: Entity(EntityType.namespace);
+  length: u32;
+  ...u8[@.length] -> struct {
+    id_count: u32;
+    object: Entity(EntityType.namespace);
+  };
 }
 
 struct StaticLibraryContents {
-	$size: u32;
-	# ...
+  length: u32;
+  ...u8[@.length] -> struct {
+    # ...
+  };
 }
 
 struct DynamicLibraryContents {
-	$size: u32;
-	# ...
+  length: u32;
+  ...u8[@.length] -> struct {
+    # ...
+  };
 }
 
 struct ProgramContents {
-	$size: u32;
-	# ...
+  length: u32;
+  ...u8[@.length] -> struct {
+    # ...
+  };
 }
 
 struct ExtensionContents {
-	$size: u32;
-	# ...
+  length: u32;
+  ...u8[@.length] -> struct {
+    # ...
+  };
 }
 
 struct HostObjectContents {
-	$size: u32;
-	# ...
+  length: u32;
+  ...u8[@.length] -> struct {
+    # ...
+  };
 }
 
 struct HeaderContents {
-	$size: u32;
-	# ...
+  length: u32;
+  ...u8[@.length] -> struct {
+    # ...
+  };
 }
 

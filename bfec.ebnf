@@ -65,14 +65,15 @@ int_literal = dec_int_literal | hex_int_literal ;
 
 # Built-in Types
 
-# TODO: More built-in types for endianness, e.g. "u32_le"/"u32_be"
-# NOTE: Currently, all types are little endian
+type_builtin_uint = "u8"    | "u16"    | "u24"    | "u32"    | "u64"    | "u128"
+                  | "u8_le" | "u16_le" | "u24_le" | "u32_le" | "u64_le" | "u128_le"
+                  | "u8_be" | "u16_be" | "u24_be" | "u32_be" | "u64_be" | "u128_be" ;
 
-type_builtin_uint = "u8" | "u16" | "u24" | "u32" | "u64" | "u128" ;
+type_builtin_sint = "i8"    | "i16"    | "i24"    | "i32"    | "i64"    | "i128"
+                  | "i8_le" | "i16_le" | "i24_le" | "i32_le" | "i64_le" | "i128_le"
+                  | "i8_be" | "i16_be" | "i24_be" | "i32_be" | "i64_be" | "i128_be" ;
 
-type_builtin_sint = "i8" | "i16" | "i24" | "i32" | "i64" | "i128" ;
-
-type_builtin_varint = "varint" , [ ignored ] , "(" , [ ignored ] , ( type_builtin_uint | type_builtin_sint ) , [ ignored ] , ")" ;
+type_builtin_varint = "varint" , [ ignored ] , "<" , [ ignored ] , ( type_builtin_uint | type_builtin_sint ) , [ ignored ] , ">" ;
 
 type_builtin_bin_float = "f16" | "f32" | "f64" ;
 
@@ -84,7 +85,11 @@ type_builtin_bits = "b1"  | "b2"  | "b3"  | "b4"  | "b5"  | "b6"  | "b7"  | "b8"
                   | "b25" | "b26" | "b27" | "b28" | "b29" | "b30" | "b31" | "b32"
                   ;
 
-type_builtin_text = "ascii" | "utf8" | "utf16" | "utf32" ;
+type_builtin_text = ( "ascii" | "utf8" | "utf16" | "utf32" )
+                  , [ ignored ] , "<"
+                  , [ ignored ] , ( type_builtin_uint | type_builtin_sint | "null" | int_literal | name_path )
+                  , [ ignored ] , ">"
+                  ;
 
 
 
@@ -147,9 +152,9 @@ type_expr_array = type_expr , [ ignored ]
 
 
 
-# Binary Expansion
+# Inline Struct Refinement
 
-type_bin_expansion = "->" , [ ignored ] , "bin" , [ ignored ] , "{" , [ ignored ] , [{ struct_field , [ ignored ] }] , "}" ;
+type_inline_struct_refine_expansion = "->" , [ ignored ] , ( "struct" | "bin" ) , [ ignored ] , "{" , [ ignored ] , [{ struct_field , [ ignored ] }] , "}" ;
 
 
 
@@ -161,7 +166,7 @@ param_name = identifier ;
 
 decl_param = param_name , [ ignored ] , ":" [ ignored ] , type_expr ;
 
-decl_struct = "struct" , ignored , struct_name , [ ignored ]
+decl_struct = ( "struct" | "bin" ) , ignored , struct_name , [ ignored ]
             , [ "(" , [
               [ ignored ] , decl_param , [{
                 [ ignored ] , "," , [ ignored ] , decl_param
@@ -175,7 +180,7 @@ struct_field_optional_condition = "?" , [ ignored ] , "(" [ ignored ] , bool_log
 
 struct_field_normal = identifier , [ ignored ] , ":" , [ ignored ] , type_expr , [ ignored ]
                     , [ struct_field_optional_condition , [ ignored ] ]
-                    , [ ( type_bin_expansion , [ ignored ] )
+                    , [ ( type_inline_struct_refine_expansion , [ ignored ] )
                       | ( "=" , [ ignored ] , value_expr , [ ignored ] )
                       ]
                     , ";"
@@ -183,7 +188,7 @@ struct_field_normal = identifier , [ ignored ] , ":" , [ ignored ] , type_expr ,
 
 struct_field_expansion = "..." , [ ignored ] , type_expr , [ ignored ]
                        , [ struct_field_optional_condition , [ ignored ] ]
-                       , [ type_bin_expansion , [ ignored ] ]
+                       , [ type_inline_struct_refine_expansion , [ ignored ] ]
                        , ";"
                        ;
 
