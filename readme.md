@@ -104,13 +104,13 @@ Examples:
 
 ```typescript
 import {
-  parse_bfec_schema,
-  compile_ast_to_schema,
-  compile_to_assemblyscript,
-  compile_to_html,
-  compile_to_markdown,
-  compile_to_typescript
-} from '@k/bfec';
+  parse_src_to_ast,
+  link_ast_to_schema,
+  compile_schema_to_assemblyscript,
+  compile_schema_to_html,
+  compile_schema_to_markdown,
+  compile_schema_to_typescript
+} from 'bfec';
 
 const contents = `
 struct $ {
@@ -120,10 +120,10 @@ struct $ {
 `;
 
 // Parse schema document into an AST (Abstract Syntax Tree)
-const ast = parse_bfec_schema(contents);
+const ast = parse_src_to_ast(contents);
 
 // Link AST into an intermediate Schema object
-const schema = compile_ast_to_schema(ast, {
+const schema = link_ast_to_schema(ast, {
   async resolve_import(path: string) {
     // Find referenced schema for imports....
     const imported_contents = '';
@@ -135,8 +135,8 @@ const schema = compile_ast_to_schema(ast, {
 });
 
 // Compile the Schema object to whatever format(s) you want
-const assemblyscript = compile_to_assemblyscript(schama);
-const html           = compile_to_html(schama);
-const markdown       = compile_to_markdown(schama);
-const typescript     = compile_to_typescript(schama);
+const assemblyscript = compile_schema_to_assemblyscript(schema);
+const html           = compile_schema_to_html(schema);
+const markdown       = compile_schema_to_markdown(schema);
+const typescript     = compile_schema_to_typescript(schema);
 ```

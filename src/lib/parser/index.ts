@@ -16,7 +16,7 @@ const parsers: Parser<ASTNode>[] = [
 	parse_from,
 ];
 
-export function parse_bfec_schema(name: string, contents: string) : FileNode {
+export function parse_src_to_ast(name: string, contents: string) : FileNode {
 	const ast_node = new FileNode();
 	const state = new ParserState(name, contents);
 	
