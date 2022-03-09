@@ -13,7 +13,7 @@ $ ./bin/bfec -h
 ## Installing From NPM
 
 ```bash
-$ npm i -g @k/bfec
+$ npm i -g bfec
 ```
 
 ## CLI Usage

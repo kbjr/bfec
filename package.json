@@ -1,5 +1,5 @@
 {
-	"name": "@k/bfec",
+	"name": "bfec",
 	"version": "0.1.0",
 	"main": "build/lib/main.js",
 	"bin": {
