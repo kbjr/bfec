@@ -314,7 +314,7 @@
           "name": "entity.name.function.bfec"
         }
       },
-      "end": "(?=\\s*[;\\[\\{])",
+      "end": "(?=\\s*[;\\[\\{>])",
       "patterns": [
         {
           "include": "#comments"
@@ -346,6 +346,9 @@
           "include": "#type_builtin"
         },
         {
+          "include": "#constant_int"
+        },
+        {
           "name": "keyword.control.null.bfec",
           "match": "null"
         },
@@ -364,7 +367,7 @@
     },
     "type_expr_param_list": {
       "name": "meta.type-expression.param-list.bfec",
-      "begin": "(?<=[a-zA-Z0-9_]*)\\s*(\\()",
+      "begin": "(?<=[a-zA-Z0-9_]*|>)\\s*(\\()",
       "beginCaptures": {
         "1": {
           "name": "punctuation.start-parems.open-paren.bfec"
@@ -410,8 +413,40 @@
     },
     "refine_switch_inline": {
       "name": "meta.refinement.inline-switch.bfec",
-      "begin": "(?<!\\})\\s*(->)\\s*(switch)\\s*(\\()",
-      "end": "(?<=\\})"
+      "begin": "(?<!\\})\\s*(->)\\s*(switch)\\s*",
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.operator.refine.bfec"
+        },
+        "2": {
+          "name": "keyword.control.switch.bfec"
+        }
+      },
+      "end": "(?<=\\})",
+      "patterns": [
+        {
+          "include": "#comments"
+        },
+        {
+          "include": "#name_path"
+        },
+        {
+          "name": "meta.type-param-list.bfec",
+          "begin": "(?<=\\s*switch\\s*)(<)\\s*",
+          "end": "\\s*(>)",
+          "patterns": [
+            {
+              "include": "#type_expr"
+            }
+          ]
+        },
+        {
+          "include": "#type_expr_param_list"
+        },
+        {
+          "include": "#switch_body"
+        }
+      ]
     },
     "refine_type_expr": {
       "name": "meta.refinement.type-expr.bfec",
@@ -883,16 +918,16 @@
         },
         {
           "name": "meta.declaration.switch-param-list.bfec",
-          "begin": "(?<=(?:[a-zA-Z_][a-zA-Z0-9_]*)\\s*)(\\()\\s*",
+          "begin": "(?<=(?:[a-zA-Z_][a-zA-Z0-9_]*)\\s*)(<)\\s*",
           "beginCaptures": {
             "1": {
-              "name": "punctuation.param-list-open.paren-left.bfec"
+              "name": "punctuation.type-param-list-open.angle-bracket-left.bfec"
             }
           },
-          "end": "\\)",
+          "end": "(>)",
           "endCaptures": {
-            "0": {
-              "name": "punctuation.param-list-open.paren-left.bfec"
+            "1": {
+              "name": "punctuation.type-param-list-open.angle-bracket-left.bfec"
             }
           },
           "patterns": [
@@ -905,24 +940,27 @@
           ]
         },
         {
-          "name": "meta.block.switch-body.bfec",
-          "begin": "\\{",
-          "beginCaptures": {
-            "0": {
-              "name": "punctuation.start-block.open-brace.bfec"
-            }
-          },
-          "end": "\\}",
-          "endCaptures": {
-            "0": {
-              "name": "punctuation.end-block.close-brace.bfec"
-            }
-          },
-          "patterns": [
-            {
-              "include": "#switch_scope"
-            }
-          ]
+          "include": "#switch_body"
+        }
+      ]
+    },
+    "switch_body": {
+      "name": "meta.block.switch-body.bfec",
+      "begin": "\\{",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.start-block.open-brace.bfec"
+        }
+      },
+      "end": "\\}",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.end-block.close-brace.bfec"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#switch_scope"
         }
       ]
     },

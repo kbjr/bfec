@@ -47,7 +47,7 @@ enum FileType: b3 {
   header      = 6;   # *.h.w
 }
 
-switch FileContents (FileType) {
+switch FileContents<FileType> {
   case module_obj:  ModuleObjectContents;
   case static_lib:  StaticLibraryContents;
   case dynamic_lib: DynamicLibraryContents;

@@ -23,7 +23,7 @@ struct Chunk (type: ChunkType) {
   # TODO: Add support for `-> switch` refinements
   # TODO: Should do `-> struct` as well?
   # TODO: Remove `$size` meta-field; can be implemented with `u8[@.length] -> <refine>`
-  data: u8[@.length] -> switch ChunkData(type);
+  data: u8[@.length] -> ChunkData(type);
   crc: u32_be;
 
   # TODO: Add support for `-> crc()` verification / population?
@@ -54,7 +54,7 @@ enum ChunkType: ascii<4> {
   last_modified_timestamp   = "tIME";
 }
 
-switch ChunkData (ChunkType) {
+switch ChunkData<ChunkType> {
   case image_header:              ImageHeader;
   case pallete:                   Pallete[...];
   case image_data:                $void;
@@ -126,7 +126,7 @@ struct Pallete {
   blue: u8;
 }
 
-switch TransparencyData (ColorType) {
+switch TransparencyData<ColorType> {
   case greyscale: GreyscaleTransparencyData;
   case truecolor: TruecolorTransparencyData;
   case indexed_color: IndexedColorTransparencyData;
@@ -168,7 +168,7 @@ struct EmbeddedICCProfileData {
   compressed_profile: u8[...];
 }
 
-switch SignifigantBitsData (ColorType) {
+switch SignifigantBitsData<ColorType> {
   case greyscale:            GreyscaleSignifigantBitsData;
   case truecolor:            ColorSignifigantBitsData;
   case indexed_color:        ColorSignifigantBitsData;
@@ -212,7 +212,7 @@ struct CompressedTextData {
   compressed_text: u8[...];
 }
 
-switch InternationalTextDataBody(bool) {
+switch InternationalTextDataBody<bool> {
   case true: u8[...];
   case false: utf8<...>;
 }
@@ -226,7 +226,7 @@ struct InternationalTextData {
   text: InternationalTextDataBody(@.compression_flag);
 }
 
-switch BackgroundColorData (ColorType) {
+switch BackgroundColorData<ColorType> {
   case greyscale:            GreyscaleBackgroundData;
   case greyscale_with_alpha: GreyscaleBackgroundData;
   case truecolor:            TruecolorBackgroundData;
@@ -283,7 +283,7 @@ struct Sample16Bit {
   alpha: u16_be;
 }
 
-switch Sample (SampleDepth) {
+switch Sample<SampleDepth> {
   case b8: Sample8Bit;
   case b16: Sample16Bit;
   default: $invalid;
@@ -292,7 +292,18 @@ switch Sample (SampleDepth) {
 struct SuggestedPalleteData {
   pallete_name: ascii<null>;
   sample_depth: SampleDepth;
+  
+  # TODO: To make this possible using a refinement, the length needs to be known.
+  # In this case, that could be calculated as (@.sample_depth / 2), but that requires
+  # allowing arithmetic expressions in length fields, which could get very complicated.
+  # Research and decide whether this is a useful enough feature to develop.
   ...Sample(@.sample_depth);
+  # ...u8[@.sample_depth / 2] -> switch<SampleDepth> (@.sample_depth) {
+  #   case b8: Sample8Bit;
+  #   case b16: Sample16Bit;
+  #   default: $invalid;
+  # };
+
   frequencies: u16_be[...];
 }
 

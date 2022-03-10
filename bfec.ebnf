@@ -227,7 +227,7 @@ enum_elem = ignored
 switch_name = identifier ;
 
 decl_switch = "switch" , ignored , switch_name
-            , [ ignored ] , "(" , [ ignored ] , type_expr , [ ignored ] , ")"
+            , [ ignored ] , "<" , [ ignored ] , type_expr , [ ignored ] , ">"
             , [ ignored ] , "{" , [{ switch_elem }] ,  "}"
             ;
 
