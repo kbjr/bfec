@@ -1,5 +1,5 @@
 
-# Character Classes
+(* Character Classes *)
 
 newline     = "\n" | "\r" | "\r\n" | "\u{202b}" | "\u{2029}" ;
 whitespace  = { "\u{0009}" | "\u{000b}" | "\u{000c}" | "\u{0020}" | "\u{00a0}" | "\u{feff}" | "\u{1680}" | "\u{2000}"
@@ -22,19 +22,19 @@ non_newline = any_char - newline ;
 
 
 
-# Comments
+(* Comments *)
 
 line_comment  = "#" , [{ non_newline }] ;
 
 
 
-# Valid in most any location, always ignored
+(* Valid in most any location, always ignored *)
 
 ignored = newline | whitespace | line_comment ;
 
 
 
-# Identifiers / Name Paths
+(* Identifiers / Name Paths *)
 
 identifier = ( alpha_lower | alpha_upper | "_" ) , [{ alpha_lower | alpha_upper | "_" | digit }] ;
 
@@ -42,7 +42,7 @@ name_path = ( identifier | "$" ) , [{ [ ignored ] , "." , [ ignored ] , identifi
 
 
 
-# Literals
+(* Literals *)
 
 escape_char = "\\" ;
 escape_control_char = "n" | "r" | "t" | "b" | "0" ;
@@ -63,7 +63,7 @@ int_literal = dec_int_literal | hex_int_literal ;
 
 
 
-# Built-in Types
+(* Built-in Types *)
 
 type_builtin_uint = "u8"    | "u16"    | "u24"    | "u32"    | "u64"    | "u128"
                   | "u8_le" | "u16_le" | "u24_le" | "u32_le" | "u64_le" | "u128_le"
@@ -108,7 +108,7 @@ type_builtin_checksum = "checksum"
 
 
 
-# Value Expression
+(* Value Expression *)
 
 value_expr = str_literal
            | int_literal
@@ -117,7 +117,7 @@ value_expr = str_literal
 
 
 
-# Boolean Logic Expression
+(* Boolean Logic Expression *)
 
 bool_logic_expr = ( ( value_expr , [ ignored ] , ( "=" | "!=" | "&" | "|" | "^" ) , [ ignored ] , value_expr )
                   | ( ( "!" ) , [ ignored ] , bool_logic_expr )
@@ -127,7 +127,7 @@ bool_logic_expr = ( ( value_expr , [ ignored ] , ( "=" | "!=" | "&" | "|" | "^" 
 
 
 
-# Type Expression
+(* Type Expression *)
 
 type_expr_int = type_builtin_uint
               | type_builtin_sint
@@ -150,7 +150,7 @@ type_expr = type_builtin_uint
 
 
 
-# Custom Named Type Expression
+(* Custom Named Type Expression *)
 
 type_expr_named = identifier , [
                   [ ignored ] , "(" , [ [ ignored ] , value_expr , [{ [ ignored ] , "," [ ignored ] , value_expr }] ] , ")"
@@ -159,7 +159,7 @@ type_expr_named = identifier , [
 
 
                 
-# Array Type Expression
+(* Array Type Expression *)
 
 type_expr_array = type_expr , [ ignored ]
                 , "[" , [ ignored ]
@@ -169,19 +169,19 @@ type_expr_array = type_expr , [ ignored ]
 
 
 
-# Inline Struct Refinement
+(* Inline Struct Refinement *)
 
 type_inline_struct_refine_expansion = "->" , [ ignored ] , ( "struct" | "bin" ) , [ ignored ] , "{" , [ ignored ] , [{ struct_field , [ ignored ] }] , "}" ;
 
 
 
-# Inline Switch Refinement
+(* Inline Switch Refinement *)
 
-# TODO: Inline switch refinement
+(* TODO: Inline switch refinement *)
 
 
 
-# Structs
+(* Structs *)
 
 struct_name = "$" | identifier ;
 
@@ -222,7 +222,7 @@ struct_elem = ignored
 
 
 
-# Enums
+(* Enums *)
 
 enum_name = identifier ;
 
@@ -242,7 +242,7 @@ enum_elem = ignored
 
 
 
-# Switches
+(* Switches *)
 
 switch_name = identifier ;
 
@@ -273,7 +273,7 @@ switch_elem = ignored
 
 
 
-# Froms
+(* Froms *)
 
 from_name = struct_name | enum_name | switch_name ;
 

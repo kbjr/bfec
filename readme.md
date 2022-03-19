@@ -16,6 +16,10 @@ $ ./bin/bfec -h
 $ npm i -g bfec
 ```
 
+## Schema Language Grammar
+
+See the wiki
+
 ## CLI Usage
 
 ```

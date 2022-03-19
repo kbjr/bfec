@@ -1123,12 +1123,20 @@
           "include": "#comments"
         },
         {
-          "name": "keyword.control.invalid.bfec",
-          "match": "\\invalid"
+          "match": "(invalid)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.control.invalid.bfec"
+            }
+          }
         },
         {
-          "name": "keyword.control.void.bfec",
-          "match": "\\void"
+          "match": "(void)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.control.void.bfec"
+            }
+          }
         },
         {
           "include": "#type_expr"

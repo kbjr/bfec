@@ -695,9 +695,13 @@ repository:
   switch_expr:
     patterns:
       - include: "#comments"
-      - name: keyword.control.invalid.bfec
-        match: \invalid
-      - name: keyword.control.void.bfec
-        match: \void
+      - match: (invalid)\b
+        captures:
+          "1":
+            name: keyword.control.invalid.bfec
+      - match: (void)\b
+        captures:
+          "1":
+            name: keyword.control.void.bfec
       - include: "#type_expr"
 
