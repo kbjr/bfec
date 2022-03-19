@@ -132,6 +132,21 @@ repository:
       - include: "#comments"
       - include: "#type_expr_builtin_int"
 
+  type_expr_builtin_len:
+    begin: \b(len)\s*(<)\s*
+    beginCaptures:
+      "1":
+        name: support.function.bfec entity.name.builtin.len.bfec
+      "2":
+        name: punctuation.type-param-open.angle-bracket-left.bfec
+    end: \s*(>)
+    endCaptures:
+      "1":
+        name: punctuation.type-param-close.angle-bracket-right.bfec
+    patterns:
+      - include: "#comments"
+      - include: "#type_expr_builtin_int"
+
   type_expr_builtin_float:
     match: \b(f16|f32|f64|d16|d32|d6)\b
     captures:
@@ -159,14 +174,52 @@ repository:
       - name: keyword.operator.expansion.bfec
         match: \.\.\.
 
+  type_expr_builtin_checksum:
+    begin: \b(checksum)\s*(<)\s*
+    beginCaptures:
+      "1":
+        name: support.function.bfec entity.name.builtin.checksum.bfec
+      "2":
+        name: punctuation.type-param-open.angle-bracket-left.bfec
+    end: \s*(\))
+    endCaptures:
+      "1":
+        name: punctuation.param-close.paren-right.bfec
+    patterns:
+      - include: "#comments"
+      - name: meta.type-expression-checksum.type-param-list.bfec
+        begin: (?<=<\s*)
+        end: \s*(>)
+        endCaptures:
+          "1":
+            name: punctuation.type-param-close.angle-bracket-right.bfec
+        patterns:
+          - include: "#comments"
+          - include: "#type_expr_builtin_int"
+          # TODO: - include: "#type_expr_builtin_static_byte_array"
+      - name: meta.type-expression-checksum.param-list.bfec
+        begin: (?<=>)\s*(\()
+        beginCaptures:
+          "1":
+            name: punctuation.start-params.open-paren.bfec
+        end: (?=\s*\))
+        patterns:
+          - include: "#comments"
+          - include: "#name_path"
+          - include: "#charstring"
+          - include: "#string"
+          - include: "#separator"
+
   type_builtin:
     name: meta.type-expression.builtin.bfec
     patterns:
       - include: "#type_expr_builtin_int"
       - include: "#type_expr_builtin_bit"
       - include: "#type_expr_builtin_varint"
+      - include: "#type_expr_builtin_len"
       - include: "#type_expr_builtin_float"
       - include: "#type_expr_builtin_string"
+      - include: "#type_expr_builtin_checksum"
     
   param_expr:
     patterns:
@@ -227,11 +280,11 @@ repository:
     begin: (?<=[a-zA-Z0-9_]*|>)\s*(\()
     beginCaptures:
       "1":
-        name: punctuation.start-parems.open-paren.bfec
+        name: punctuation.start-params.open-paren.bfec
     end: \s*(\))
     endCaptures:
       "1":
-        name: punctuation.end-parems.close-paren.bfec
+        name: punctuation.end-params.close-paren.bfec
     patterns:
       - include: "#param_expr"
 
@@ -643,8 +696,8 @@ repository:
     patterns:
       - include: "#comments"
       - name: keyword.control.invalid.bfec
-        match: \$invalid
+        match: \invalid
       - name: keyword.control.void.bfec
-        match: \$void
+        match: \void
       - include: "#type_expr"
 

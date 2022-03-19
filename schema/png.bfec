@@ -17,18 +17,17 @@ struct $ {
 
 struct Chunk (type: ChunkType) {
   # TODO: Add support for `_be` and `_le` types
-  length: u32_be;
+  # TODO: Add support for `len<int>` type to hint at an auto-generated length field?
+  length: len<u32_be>;
   type: ChunkType = type;
   
   # TODO: Add support for `-> switch` refinements
   # TODO: Should do `-> struct` as well?
   # TODO: Remove `$size` meta-field; can be implemented with `u8[@.length] -> <refine>`
   data: u8[@.length] -> ChunkData(type);
-  crc: u32_be;
 
-  # TODO: Add support for `-> crc()` verification / population?
-  # crc: u32_be -> crc(@.data);
-  # crc: checksum<u32_be>(@.data, "crc32");
+  # TODO: Add support for `checksum` verification / population?
+  crc: checksum<u32_be>(@.data, 'crc32');
 }
 
 # TODO: Add support for string enums
@@ -57,8 +56,8 @@ enum ChunkType: ascii<4> {
 switch ChunkData<ChunkType> {
   case image_header:              ImageHeader;
   case pallete:                   Pallete[...];
-  case image_data:                $void;
-  case image_trailer:             $void;
+  case image_data:                void;
+  case image_trailer:             void;
   case transparency:              TransparencyData($.image_header.color_type);
   case prim_chrom_wh_pt:          PrimaryChromaticitiesAndWhitePointData;
   case image_gamma:               GammaData;
@@ -76,9 +75,9 @@ switch ChunkData<ChunkType> {
 
   # If we don't recognize the chunk type, just leave it as an
   # unprocessed byte array
-  # TODO: Make sure $void when used as a refinement like this
+  # TODO: Make sure void when used as a refinement like this
   # actually does leave the data in original form
-  default: $void;
+  default: void;
 }
 
 enum BitDepth: u8 {
@@ -130,7 +129,7 @@ switch TransparencyData<ColorType> {
   case greyscale: GreyscaleTransparencyData;
   case truecolor: TruecolorTransparencyData;
   case indexed_color: IndexedColorTransparencyData;
-  default: $invalid;
+  default: invalid;
 }
 
 struct GreyscaleTransparencyData {
@@ -174,7 +173,7 @@ switch SignifigantBitsData<ColorType> {
   case indexed_color:        ColorSignifigantBitsData;
   case greyscale_with_alpha: GreyscaleSignifigantBitsData;
   case truecolor_with_alpha: ColorSignifigantBitsData;
-  default: $invalid;
+  default: invalid;
 }
 
 struct GreyscaleSignifigantBitsData {
@@ -232,7 +231,7 @@ switch BackgroundColorData<ColorType> {
   case truecolor:            TruecolorBackgroundData;
   case truecolor_with_alpha: TruecolorBackgroundData;
   case indexed_color:        IndexedColorBackgroundData;
-  default: $invalid;
+  default: invalid;
 }
 
 struct GreyscaleBackgroundData {
@@ -286,7 +285,7 @@ struct Sample16Bit {
 switch Sample<SampleDepth> {
   case b8: Sample8Bit;
   case b16: Sample16Bit;
-  default: $invalid;
+  default: invalid;
 }
 
 struct SuggestedPalleteData {
@@ -301,7 +300,7 @@ struct SuggestedPalleteData {
   # ...u8[@.sample_depth / 2] -> switch<SampleDepth> (@.sample_depth) {
   #   case b8: Sample8Bit;
   #   case b16: Sample16Bit;
-  #   default: $invalid;
+  #   default: invalid;
   # };
 
   frequencies: u16_be[...];

@@ -10,7 +10,7 @@ enum EntityType : u8 {
 
 switch EntityContents<EntityType> {
 	case namespace: NamespaceEntityContents;
-	default: $invalid;
+	default: invalid;
 }
 
 struct NamespaceEntityContents {

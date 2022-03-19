@@ -75,6 +75,8 @@ type_builtin_sint = "i8"    | "i16"    | "i24"    | "i32"    | "i64"    | "i128"
 
 type_builtin_varint = "varint" , [ ignored ] , "<" , [ ignored ] , ( type_builtin_uint | type_builtin_sint ) , [ ignored ] , ">" ;
 
+type_builtin_len = "len" , [ ignored ] , "<" , [ ignored ] , ( type_builtin_uint | type_builtin_sint ) , [ ignored ] , ">" ;
+
 type_builtin_bin_float = "f16" | "f32" | "f64" ;
 
 type_builtin_dec_float = "d16" | "d32" | "d64" ;
@@ -90,6 +92,19 @@ type_builtin_text = ( "ascii" | "utf8" | "utf16" | "utf32" )
                   , [ ignored ] , ( type_builtin_uint | type_builtin_sint | "null" | int_literal | name_path )
                   , [ ignored ] , ">"
                   ;
+
+type_builtin_static_byte_array = "u8" , [ ignored ] , "[" , [ ignored ] , int_literal , [ ignored ] , "]"
+
+type_builtin_checksum = "checksum"
+                      , [ ignored ] , "<"
+                        , [ ignored ] , ( type_builtin_uint | type_builtin_sint | type_builtin_byte_array )
+                      , [ ignored ] , ">"
+                      , [ ignored ] , "("
+                        , [ ignored ] , name_path
+                        , [ ignored ] , ","
+                        , [ ignored ] , str_literal
+                      , [ ignored ] , ")"
+                      ;
 
 
 
@@ -122,10 +137,12 @@ type_expr_int = type_builtin_uint
 type_expr = type_builtin_uint
           | type_builtin_sint
           | type_builtin_varint
+          | type_builtin_len
           | type_builtin_bin_float
           | type_builtin_dec_float
           | type_builtin_bits
           | type_builtin_text
+          | type_builtin_checksum
           | hex_int_literal
           | type_expr_named
           | type_expr_array
@@ -146,7 +163,7 @@ type_expr_named = identifier , [
 
 type_expr_array = type_expr , [ ignored ]
                 , "[" , [ ignored ]
-                , ( type_expr_int | int_literal | name_path )
+                , ( type_expr_int | int_literal | name_path | "..." )
                 , [ ignored ] , "]"
                 ;
 
@@ -155,6 +172,12 @@ type_expr_array = type_expr , [ ignored ]
 # Inline Struct Refinement
 
 type_inline_struct_refine_expansion = "->" , [ ignored ] , ( "struct" | "bin" ) , [ ignored ] , "{" , [ ignored ] , [{ struct_field , [ ignored ] }] , "}" ;
+
+
+
+# Inline Switch Refinement
+
+# TODO: Inline switch refinement
 
 
 
@@ -192,12 +215,9 @@ struct_field_expansion = "..." , [ ignored ] , type_expr , [ ignored ]
                        , ";"
                        ;
 
-struct_field_size_prefix = "$size" , [ ignored ] , ":" , [ ignored ] , type_expr_int , [ ignored ] , ";" ;
-
 struct_elem = ignored
             | struct_field
             | struct_field_expansion
-            | struct_field_size_prefix
             ;
 
 
@@ -231,8 +251,8 @@ decl_switch = "switch" , ignored , switch_name
             , [ ignored ] , "{" , [{ switch_elem }] ,  "}"
             ;
 
-switch_invalid = "$invalid" ;
-switch_void    = "$invalid" ;
+switch_invalid = "invalid" ;
+switch_void    = "void" ;
 
 switch_case = "case" , ignored , enum_member_name
             , [ ignored ] , ":"
