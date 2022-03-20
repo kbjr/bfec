@@ -23,11 +23,6 @@ export class KeywordToken_bin extends Token {
 	public text: 'bin' = 'bin';
 }
 
-export class KeywordToken_$size extends Token {
-	public type: node_type.kw_$size = node_type.kw_$size;
-	public text: '$size' = '$size';
-}
-
 export class KeywordToken_case extends Token {
 	public type: node_type.kw_case = node_type.kw_case;
 	public text: 'case' = 'case';
@@ -38,14 +33,14 @@ export class KeywordToken_default extends Token {
 	public text: 'default' = 'default';
 }
 
-export class KeywordToken_$void extends Token {
-	public type: node_type.kw_$void = node_type.kw_$void;
-	public text: '$void' = '$void';
+export class KeywordToken_void extends Token {
+	public type: node_type.kw_void = node_type.kw_void;
+	public text: 'void' = 'void';
 }
 
-export class KeywordToken_$invalid extends Token {
-	public type: node_type.kw_$invalid = node_type.kw_$invalid;
-	public text: '$invalid' = '$invalid';
+export class KeywordToken_invalid extends Token {
+	public type: node_type.kw_invalid = node_type.kw_invalid;
+	public text: 'invalid' = 'invalid';
 }
 
 export class KeywordToken_from extends Token {
@@ -62,10 +57,9 @@ export const kw_struct   = new SimpleTokenMatcher(KeywordToken_struct, /\bstruct
 export const kw_switch   = new SimpleTokenMatcher(KeywordToken_switch, /\bswitch\b/y);
 export const kw_enum     = new SimpleTokenMatcher(KeywordToken_enum, /\benum\b/y);
 export const kw_bin      = new SimpleTokenMatcher(KeywordToken_bin, /\bbin\b/y);
-export const kw_$size    = new SimpleTokenMatcher(KeywordToken_$size, /\$size\b/y);
 export const kw_case     = new SimpleTokenMatcher(KeywordToken_case, /\bcase\b/y);
 export const kw_default  = new SimpleTokenMatcher(KeywordToken_default, /\bdefault\b/y);
-export const kw_$void    = new SimpleTokenMatcher(KeywordToken_$void, /\$void\b/y);
-export const kw_$invalid = new SimpleTokenMatcher(KeywordToken_$invalid, /\$invalid\b/y);
+export const kw_void     = new SimpleTokenMatcher(KeywordToken_void, /\bvoid\b/y);
+export const kw_invalid  = new SimpleTokenMatcher(KeywordToken_invalid, /\binvalid\b/y);
 export const kw_from     = new SimpleTokenMatcher(KeywordToken_from, /\bfrom\b/y);
 export const kw_as       = new SimpleTokenMatcher(KeywordToken_as, /\bas\b/y);

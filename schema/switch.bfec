@@ -1,5 +1,5 @@
 
-switch EntityContents(EntityType) {
+switch EntityContents<EntityType> {
 	case namespace: NamespaceEntityContents;
-	default: $invalid;
+	default: invalid;
 }

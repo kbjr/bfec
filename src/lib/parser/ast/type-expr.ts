@@ -15,6 +15,7 @@ import {
 	PuncToken_close_brace, PuncToken_open_brace,
 	NameToken_normal, NameToken_root_schema,
 	PuncToken_separator,
+	PuncToken_open_angle_bracket, PuncToken_close_angle_bracket, NameToken_builtin_len, NameToken_builtin_checksum, ConstToken_unicode, OpToken_expansion,
 } from './tokens';
 
 export type TypeExpr
@@ -24,11 +25,14 @@ export type TypeExpr
 	| NameToken_builtin_uint
 	| NameToken_builtin_sint
 	| TypeExpr_builtin_vint
+	| TypeExpr_builtin_len
 	| NameToken_builtin_bin_float
 	| NameToken_builtin_dec_float
 	| NameToken_builtin_bit
-	| NameToken_builtin_text
+	| TypeExpr_builtin_text
+	| TypeExpr_builtin_checksum
 	| TypeExpr_named
+	| TypeExpr_array
 	;
 
 export type TypeExpr_int
@@ -44,8 +48,8 @@ export class TypeExpr_builtin_vint extends ASTNode {
 	public type: node_type.type_expr_vint = node_type.type_expr_vint;
 	public extraneous_comments: CommentToken[];
 	public varint_keyword: NameToken_builtin_vint;
-	public open_paren: PuncToken_open_paren;
-	public close_paren: PuncToken_close_paren;
+	public open_bracket: PuncToken_open_angle_bracket;
+	public close_bracket: PuncToken_close_angle_bracket;
 	public real_type: TypeExpr;
 
 	public toJSON(): object {
@@ -53,8 +57,28 @@ export class TypeExpr_builtin_vint extends ASTNode {
 			type: node_type[this.type],
 			extraneous_comments: this.extraneous_comments,
 			varint_keyword: this.varint_keyword,
-			open_paren: this.open_paren,
-			close_paren: this.close_paren,
+			open_bracket: this.open_bracket,
+			close_bracket: this.close_bracket,
+			real_type: this.real_type,
+		};
+	}
+}
+
+export class TypeExpr_builtin_len extends ASTNode {
+	public type: node_type.type_expr_len = node_type.type_expr_len;
+	public extraneous_comments: CommentToken[];
+	public len_keyword: NameToken_builtin_len;
+	public open_bracket: PuncToken_open_angle_bracket;
+	public close_bracket: PuncToken_close_angle_bracket;
+	public real_type: TypeExpr;
+
+	public toJSON(): object {
+		return {
+			type: node_type[this.type],
+			extraneous_comments: this.extraneous_comments,
+			len_keyword: this.len_keyword,
+			open_bracket: this.open_bracket,
+			close_bracket: this.close_bracket,
 			real_type: this.real_type,
 		};
 	}
@@ -66,7 +90,7 @@ export class TypeExpr_array extends ASTNode {
 	public elem_type: TypeExpr;
 	public open_bracket: PuncToken_open_square_bracket;
 	public close_bracket: PuncToken_close_square_bracket;
-	public length_type: TypeExpr;
+	public length_type: TypeExpr | OpToken_expansion;
 
 	public toJSON(): object {
 		return {
@@ -148,6 +172,51 @@ export class TypeExprParam extends ASTNode {
 			extraneous_comments: this.extraneous_comments,
 			param: this.param,
 			separator: this.separator,
+		};
+	}
+}
+
+export class TypeExpr_builtin_text extends ASTNode {
+	public type: node_type.type_expr_text = node_type.type_expr_text;
+	public extraneous_comments: CommentToken[];
+	public text_keyword: NameToken_builtin_text;
+	public open_bracket: PuncToken_open_angle_bracket;
+	public close_bracket: PuncToken_close_angle_bracket;
+	public length_type: TypeExpr;
+
+	public toJSON(): object {
+		return {
+			type: node_type[this.type],
+			extraneous_comments: this.extraneous_comments,
+			text_keyword: this.text_keyword,
+			open_bracket: this.open_bracket,
+			close_bracket: this.close_bracket,
+			length_type: this.length_type,
+		};
+	}
+}
+
+export class TypeExpr_builtin_checksum extends ASTNode {
+	public type: node_type.type_expr_checksum = node_type.type_expr_checksum;
+	public extraneous_comments: CommentToken[];
+	public checksum_keyword: NameToken_builtin_checksum;
+	public open_bracket: PuncToken_open_angle_bracket;
+	public close_bracket: PuncToken_close_angle_bracket;
+	public real_type: TypeExpr;
+	public open_paren: PuncToken_open_paren;
+	public close_paren: PuncToken_close_paren;
+	public data_expr: ValueExpr;
+	public checksum_func: ConstToken_ascii | ConstToken_unicode;
+
+	public toJSON(): object {
+		return {
+			type: node_type[this.type],
+			extraneous_comments: this.extraneous_comments,
+			checksum_keyword: this.checksum_keyword,
+			open_bracket: this.open_bracket,
+			close_bracket: this.close_bracket,
+			real_type: this.real_type,
+			checksum_func: this.checksum_func,
 		};
 	}
 }

@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://bfec.io/schemas/config/v1.json",
+  "type": "object",
+  "properties": {
+    "in": {
+      "type": "object",
+      "description": "Input",
+      "required": ["dir", "file"],
+      "properties": {
+        "dir": {
+          "type": "string",
+          "description": "The root input directory; All local schema files included must be under this directory."
+        },
+        "file": {
+          "type": "string",
+          "description": "The entrypoint file that contains the root \"$\" schema definition, relative to the root directory."
+        }
+      }
+    },
+    "out": {
+      "type": "object",
+      "description": "Outputs",
+      "properties": {
+        "as": {
+          "type": "string"
+        },
+        "ast_json": {
+          "type": "string"
+        },
+        "html": {
+          "type": "string"
+        },
+        "md": {
+          "type": "string"
+        },
+        "sch_json": {
+          "type": "string"
+        },
+        "ts": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

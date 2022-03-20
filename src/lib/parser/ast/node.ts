@@ -19,6 +19,7 @@ export enum node_type {
 	struct_expansion,
 	struct_size_prefix,
 	struct_field,
+	struct_field_optional_condition,
 	
 	switch_param,
 	switch_case,
@@ -28,9 +29,12 @@ export enum node_type {
 	from_import,
 
 	type_expr_vint,
+	type_expr_len,
 	type_expr_array,
 	type_expr_bin,
 	type_expr_named,
+	type_expr_text,
+	type_expr_checksum,
 	type_expr_params_list,
 	type_expr_param,
 
@@ -50,10 +54,12 @@ export enum node_type {
 	name_builtin_uint,
 	name_builtin_sint,
 	name_builtin_vint,
+	name_builtin_len,
 	name_builtin_bin_float,
 	name_builtin_dec_float,
 	name_builtin_bit,
 	name_builtin_text,
+	name_builtin_checksum,
 	
 	punc_property_access,
 	punc_terminator,
@@ -82,11 +88,10 @@ export enum node_type {
 	kw_switch,
 	kw_enum,
 	kw_bin,
-	kw_$size,
 	kw_case,
 	kw_default,
-	kw_$invalid,
-	kw_$void,
+	kw_invalid,
+	kw_void,
 	kw_from,
 	kw_as,
 }

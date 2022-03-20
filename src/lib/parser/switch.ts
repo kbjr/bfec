@@ -2,7 +2,7 @@
 import { Parser } from './parser';
 import { ParserState } from './state';
 import { DeclareSwitchNode, SwitchCase, SwitchDefault, SwitchElem, SwitchParam, SwitchSelection } from './ast';
-import { kw_$invalid, kw_$void, kw_case, kw_default, kw_switch, name_normal, PuncToken_close_brace, punc_close_brace, punc_close_paren, punc_colon, punc_open_brace, punc_open_paren, punc_terminator } from './ast/tokens';
+import { kw_invalid, kw_void, kw_case, kw_default, kw_switch, name_normal, PuncToken_close_brace, punc_close_brace, punc_close_paren, punc_colon, punc_open_brace, punc_open_paren, punc_terminator, punc_open_angle_bracket, punc_close_angle_bracket } from './ast/tokens';
 import { parse_type_expr } from './type-expr';
 
 const switch_scope_parsers: Parser<SwitchElem>[] = [
@@ -37,10 +37,10 @@ export function parse_switch(state: ParserState) : DeclareSwitchNode {
 	ast_node.extraneous_comments = state.take_comments();
 
 	ast_node.param = new SwitchParam();
-	ast_node.param.open_paren = punc_open_paren.match(state);
+	ast_node.param.open_bracket = punc_open_angle_bracket.match(state);
 
-	if (! ast_node.param.open_paren) {
-		state.fatal('expected to find switch parameter opening paren "("');
+	if (! ast_node.param.open_bracket) {
+		state.fatal('expected to find switch parameter opening bracket "<"');
 	}
 	
 	state.scan_through_comments_and_whitespace();
@@ -48,15 +48,15 @@ export function parse_switch(state: ParserState) : DeclareSwitchNode {
 	ast_node.param.name = name_normal.match(state);
 
 	if (! ast_node.param.name) {
-		state.fatal('expected to find switch parameter name');
+		state.fatal('expected to find switch parameter type name');
 	}
 
 	state.scan_through_comments_and_whitespace();
 	ast_node.param.extraneous_comments = state.take_comments();
-	ast_node.param.close_paren = punc_close_paren.match(state);
+	ast_node.param.close_bracket = punc_close_angle_bracket.match(state);
 
-	if (! ast_node.param.close_paren) {
-		state.fatal('expected to find switch parameter closing paren ")"');
+	if (! ast_node.param.close_bracket) {
+		state.fatal('expected to find switch parameter closing bracket ">"');
 	}
 
 	state.scan_through_comments_and_whitespace();
@@ -189,16 +189,16 @@ function parse_switch_default(state: ParserState) : SwitchDefault {
 }
 
 function parse_switch_expr(state: ParserState) : SwitchSelection {
-	const $void = kw_$void.match(state);
+	const void_keyword = kw_void.match(state);
 
-	if ($void) {
-		return $void;
+	if (void_keyword) {
+		return void_keyword;
 	}
 
-	const $invalid = kw_$invalid.match(state);
+	const invalid_keyword = kw_invalid.match(state);
 
-	if ($invalid) {
-		return $invalid;
+	if (invalid_keyword) {
+		return invalid_keyword;
 	}
 	
 	return parse_type_expr(state);

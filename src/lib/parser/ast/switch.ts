@@ -2,14 +2,16 @@
 import { ASTNode, node_type } from './node';
 import {
 	CommentToken,
-	KeywordToken_$invalid,
-	KeywordToken_$void,
+	KeywordToken_invalid,
+	KeywordToken_void,
 	KeywordToken_case,
 	KeywordToken_default,
 	NameToken_normal,
+	PuncToken_close_angle_bracket,
 	PuncToken_close_brace,
 	PuncToken_close_paren,
 	PuncToken_colon,
+	PuncToken_open_angle_bracket,
 	PuncToken_open_brace,
 	PuncToken_open_paren,
 	PuncToken_terminator
@@ -45,8 +47,8 @@ export class SwitchParam extends ASTNode {
 	public type: node_type.switch_param = node_type.switch_param;
 	public comments: CommentToken[];
 	public extraneous_comments: CommentToken[];
-	public open_paren: PuncToken_open_paren;
-	public close_paren: PuncToken_close_paren;
+	public open_bracket: PuncToken_open_angle_bracket;
+	public close_bracket: PuncToken_close_angle_bracket;
 	public name: NameToken_normal;
 	public toJSON() {
 		return {
@@ -54,13 +56,13 @@ export class SwitchParam extends ASTNode {
 			name: this.name,
 			comments: this.comments,
 			extraneous_comments: this.extraneous_comments,
-			open_paren: this.open_paren,
-			close_paren: this.close_paren,
+			open_bracket: this.open_bracket,
+			close_bracket: this.close_bracket,
 		};
 	}
 }
 
-export type SwitchSelection = KeywordToken_$invalid | KeywordToken_$void | TypeExpr ;
+export type SwitchSelection = KeywordToken_invalid | KeywordToken_void | TypeExpr ;
 
 export class SwitchCase extends ASTNode {
 	public type: node_type.switch_case = node_type.switch_case;

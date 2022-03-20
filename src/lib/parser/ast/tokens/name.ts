@@ -50,6 +50,11 @@ export class NameToken_builtin_vint extends Token {
 	public text: 'varint' = 'varint';
 }
 
+export class NameToken_builtin_len extends Token {
+	public type: node_type.name_builtin_len = node_type.name_builtin_len;
+	public text: 'len' = 'len';
+}
+
 export enum builtin_bin_float {
 	f16 = 'f16',
 	f32 = 'f32',
@@ -124,13 +129,20 @@ export class NameToken_builtin_text extends Token {
 	public text: builtin_text;
 }
 
+export class NameToken_builtin_checksum extends Token {
+	public type: node_type.name_builtin_checksum = node_type.name_builtin_checksum;
+	public text: 'checksum' = 'checksum';
+}
+
 export const name_normal            = new TokenMatcher(NameToken_normal, /\b(?:[a-zA-Z_][a-zA-Z0-9_]*)\b/y);
 export const name_root_schema       = new SimpleTokenMatcher(NameToken_root_schema, /\$/y);
 export const name_this_schema       = new SimpleTokenMatcher(NameToken_this_schema, /@/y);
 export const name_builtin_uint      = new TokenMatcher(NameToken_builtin_uint, /\b(?:u8|u16|u24|u32|u64|u128)\b/y);
 export const name_builtin_sint      = new TokenMatcher(NameToken_builtin_sint, /\b(?:i8|i16|i24|i32|i64|i128)\b/y);
 export const name_builtin_vint      = new SimpleTokenMatcher(NameToken_builtin_vint, /\bvarint\b/y);
+export const name_builtin_len       = new SimpleTokenMatcher(NameToken_builtin_len, /\blen\b/y);
 export const name_builtin_bin_float = new TokenMatcher(NameToken_builtin_bin_float, /\b(?:f16|f32|f64)\b/y);
 export const name_builtin_dec_float = new TokenMatcher(NameToken_builtin_dec_float, /\b(?:d16|d32|d64)\b/y);
 export const name_builtin_bit       = new TokenMatcher(NameToken_builtin_bit, /\bb(?:1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31|32)\b/y);
 export const name_builtin_text      = new TokenMatcher(NameToken_builtin_text, /\b(?:ascii|utf8|utf16|utf32)\b/y);
+export const name_builtin_checksum  = new SimpleTokenMatcher(NameToken_builtin_checksum, /\bchecksum\b/y);

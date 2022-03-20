@@ -1,13 +1,13 @@
 
 import { Parser } from './parser';
 import { ParserState } from './state';
-import { DeclareStructNode, StructElem, StructExpansion, StructField, StructSizePrefix } from './ast';
-import { kw_struct, name_normal, name_root_schema, PuncToken_close_brace, punc_close_brace, punc_open_brace } from './ast/tokens';
+import { parse_type_expr } from './type-expr';
+import { DeclareStructNode, StructElem, StructExpansion, StructField } from './ast';
+import { kw_struct, name_normal, name_root_schema, op_expansion, PuncToken_close_brace, punc_close_brace, punc_colon, punc_open_brace, punc_terminator } from './ast/tokens';
 
 const struct_scope_parsers: Parser<StructElem>[] = [
 	parse_struct_field,
 	parse_struct_expansion,
-	parse_struct_size_prefix,
 ];
 
 export function parse_struct(state: ParserState) : DeclareStructNode {
@@ -47,7 +47,6 @@ export function parse_struct(state: ParserState) : DeclareStructNode {
 		state.fatal('expected beginning of struct body opening brace "{"');
 	}
 	
-	state.scan_through_comments_and_whitespace();
 	ast_node.close_brace = parse_struct_scope(state, ast_node.children);
 	ast_node.extraneous_comments.push(...state.take_comments());
 	return ast_node;
@@ -90,44 +89,66 @@ function parse_struct_field(state: ParserState) : StructField {
 	state.step_down();
 	state.trace('parse_struct_field');
 
-	// TODO: name_normal
-	// TODO: optional void condition
+	const field_name = name_normal.match(state);
+
+	if (! field_name) {
+		return null;
+	}
+
+	const field = new StructField();
+	field.field_name = field_name;
+
+	// TODO: optional bool condition
 	// TODO:  - opening ?
 	// TODO:  - opening paren
 	// TODO:  - bool_expr
 	// TODO:  - closing paren
-	// TODO: colon
-	// TODO: type_expr
+
+	state.scan_through_comments_and_whitespace();
+
+	field.field_type_colon = punc_colon.match(state);
+
+	if (! field.field_type_colon) {
+		state.fatal('expected struct field type declaration opening colon ":"');
+	}
+
+	state.scan_through_comments_and_whitespace();
+
+	field.field_type = parse_type_expr(state);
+
+	if (! field.field_type) {
+		state.fatal('expected struct field type declaration');
+	}
+
+	state.scan_through_comments_and_whitespace();
+
 	// TODO: optional assignment
 	// TODO:  - assign operator
 	// TODO:  - value_expr
-	// TODO: terminator
+
+	field.terminator = punc_terminator.match(state);
+
+	if (! field.terminator) {
+		state.fatal('expected struct field terminator ";"');
+	}
 	
 	state.step_up();
-	return null;
+	return field;
 }
 
 function parse_struct_expansion(state: ParserState) : StructExpansion {
 	state.step_down();
 	state.trace('parse_struct_expansion');
 
-	// TODO: ... operator
+	const expansion_op = op_expansion.match(state);
+
+	if (! expansion_op) {
+		return null;
+	}
+
 	// TODO: type_expr
 	// TODO: terminator
 
-	state.step_up();
-	return null;
-}
-
-function parse_struct_size_prefix(state: ParserState) : StructSizePrefix {
-	state.step_down();
-	state.trace('parse_struct_size_prefix');
-
-	// TODO: $size keyword
-	// TODO: colon
-	// TODO: type_expr
-	// TODO: terminator
-	
 	state.step_up();
 	return null;
 }
