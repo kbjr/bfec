@@ -2,6 +2,7 @@
 import { ASTNode, node_type } from './node';
 import {
 	CommentToken,
+	WhitespaceToken,
 	NameToken_normal,
 	NameToken_root_schema,
 	PuncToken_close_brace,
@@ -9,7 +10,8 @@ import {
 	PuncToken_colon,
 	PuncToken_open_brace,
 	PuncToken_open_paren,
-	PuncToken_terminator
+	PuncToken_terminator,
+	OpToken_expansion
 } from './tokens';
 import { TypeExpr } from './type-expr';
 
@@ -18,7 +20,7 @@ export class DeclareStructNode extends ASTNode {
 	public name: NameToken_normal | NameToken_root_schema;
 	public params: StructParamsListNode;
 	public body: StructBody;
-	public children: CommentToken[] = [ ];
+	public children: (CommentToken | WhitespaceToken)[] = [ ];
 	public toJSON() {
 		return {
 			type: node_type[this.type],
@@ -75,8 +77,16 @@ export type StructElem = StructExpansion | StructField | CommentToken ;
 
 export class StructExpansion extends ASTNode {
 	public type: node_type.struct_expansion = node_type.struct_expansion;
+	public expansion_op: OpToken_expansion;
+	public expanded_type: TypeExpr;
+	public children: (CommentToken | WhitespaceToken)[] = [ ];
 	public toJSON(): object {
-		return { };
+		return {
+			type: node_type[this.type],
+			expansion_op: this.expansion_op,
+			expanded_type: this.expanded_type,
+			children: this.children,
+		};
 	}
 }
 
@@ -87,7 +97,7 @@ export class StructField extends ASTNode {
 	public field_type_colon: PuncToken_colon;
 	public field_type: TypeExpr;
 	public terminator: PuncToken_terminator;
-	public children: CommentToken[] = [ ];
+	public children: (CommentToken | WhitespaceToken)[] = [ ];
 	public toJSON(): object {
 		return {
 			type: node_type[this.type],
@@ -103,7 +113,7 @@ export class StructField extends ASTNode {
 
 export class StructFieldOptionalCondition extends ASTNode {
 	public type: node_type.struct_field_optional_condition = node_type.struct_field_optional_condition;
-	public children: CommentToken[] = [ ];
+	public children: (CommentToken | WhitespaceToken)[] = [ ];
 	public toJSON(): object {
 		return {
 			type: node_type[this.type],

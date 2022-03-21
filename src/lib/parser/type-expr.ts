@@ -15,6 +15,7 @@ import {
 	punc_open_square_bracket, punc_close_square_bracket,
 	name_builtin_vint,
 	punc_open_paren, punc_close_paren,
+	punc_arrow,
 	name_builtin_bin_float, name_builtin_dec_float, name_builtin_text,
 	name_normal,
 	punc_open_angle_bracket,
@@ -22,7 +23,7 @@ import {
 	name_builtin_len,
 	name_builtin_checksum,
 	op_expansion,
-	NameToken_normal
+	CommentToken, WhitespaceToken,
 } from './ast/tokens';
 
 export function parse_type_expr(state: ParserState) : TypeExpr {
@@ -37,11 +38,10 @@ export function parse_type_expr(state: ParserState) : TypeExpr {
 	const fixed_int = parse_type_expr_fixed_int(state);
 
 	if (fixed_int) {
-		let lh_expr = parse_optional_arrays(state, fixed_int);
+		const lh_expr = parse_optional_arrays(state, fixed_int);
+		const refinement = parse_type_expr_refinement(state, lh_expr);
 
-		// TODO: optional struct/bin/switch/named refinement
-
-		return lh_expr;
+		return refinement || lh_expr;
 	}
 
 	const varint = parse_type_expr_varint(state);
@@ -225,8 +225,15 @@ function parse_type_expr_checksum(state: ParserState) : TypeExpr_builtin_checksu
 	const checksum = new TypeExpr_builtin_checksum();
 
 	// TODO: real type
-	// TODO: data source expr
-	// TODO: checksum function
+	// TODO:  - open angle bracket
+	// TODO:  - type expr
+	// TODO:  - close angle bracket
+	// TODO: params
+	// TODO:  - open paren
+	// TODO:  - data source expr
+	// TODO:  - separator
+	// TODO:  - checksum function name string
+	// TODO:  - close paren
 
 	return checksum;
 }
@@ -243,9 +250,45 @@ function parse_type_expr_named(state: ParserState) : TypeExpr {
 	const ast_node: TypeExpr = new TypeExpr_named();
 	ast_node.name = name;
 
-	// TODO: optional params
+	const branch = state.branch();
+	branch.scan_through_comments_and_whitespace(ast_node.children);
+
+	const open_paren = punc_open_paren.match(branch);
+
+	if (! open_paren) {
+		return ast_node;
+	}
+
+	state.commit_branch(branch);
+	state.scan_through_comments_and_whitespace(ast_node.children);
+
+	// TODO: params
+	// TODO: close paren
 
 	return ast_node;
+}
+
+function parse_type_expr_refinement(state: ParserState, lh_expr: TypeExpr) {
+	state.trace('parse_type_expr_refinement');
+
+	const branch = state.branch();
+	const arrow = punc_arrow.match(branch);
+	
+	if (! arrow) {
+		return null;
+	}
+
+	const children: (CommentToken | WhitespaceToken)[] = [ ];
+
+	state.commit_branch(branch);
+	state.scan_through_comments_and_whitespace(children);
+
+	// TODO: one of:
+	// TODO:  - struct refinement
+	// TODO:  - switch refinement
+	// TODO:  - named refinement
+
+	return null;
 }
 
 function parse_type_expr_struct_refinement(state: ParserState, lh_expr: TypeExpr) : TypeExpr_struct_refinement {

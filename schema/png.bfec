@@ -28,6 +28,8 @@ struct Chunk (type: ChunkType) {
 
   # TODO: Add support for `checksum` verification / population?
   crc: checksum<u32_be>(@.data, 'crc32');
+  # TODO: Alternate function versions different output formats??
+  # crc: checksum<ascii<8>>(@.data, 'crc32_hex');
 }
 
 # TODO: Add support for string enums

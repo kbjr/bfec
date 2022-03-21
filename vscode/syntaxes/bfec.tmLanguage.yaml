@@ -196,6 +196,7 @@ repository:
         patterns:
           - include: "#comments"
           - include: "#type_expr_builtin_int"
+          - include: "#type_expr_builtin_string"
           # TODO: - include: "#type_expr_builtin_static_byte_array"
       - name: meta.type-expression-checksum.param-list.bfec
         begin: (?<=>)\s*(\()

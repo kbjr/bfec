@@ -302,6 +302,9 @@
             },
             {
               "include": "#type_expr_builtin_int"
+            },
+            {
+              "include": "#type_expr_builtin_string"
             }
           ]
         },

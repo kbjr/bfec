@@ -97,7 +97,7 @@ type_builtin_static_byte_array = "u8" , [ ignored ] , "[" , [ ignored ] , int_li
 
 type_builtin_checksum = "checksum"
                       , [ ignored ] , "<"
-                        , [ ignored ] , ( type_builtin_uint | type_builtin_sint | type_builtin_byte_array )
+                        , [ ignored ] , ( type_builtin_uint | type_builtin_sint | type_builtin_text | type_builtin_byte_array )
                       , [ ignored ] , ">"
                       , [ ignored ] , "("
                         , [ ignored ] , name_path

@@ -2,6 +2,7 @@
 import { ASTNode, node_type } from './node';
 import {
 	CommentToken,
+	WhitespaceToken,
 	ConstToken_ascii,
 	ConstToken_unicode,
 	KeywordToken_as,
@@ -18,7 +19,7 @@ export class DeclareFromNode extends ASTNode {
 	public imports: FromImportsListNode;
 	public root_import: NameToken_normal;
 	public terminator: PuncToken_terminator;
-	public children: CommentToken[] = [ ];
+	public children: (CommentToken | WhitespaceToken)[] = [ ];
 	public toJSON() {
 		return {
 			type: node_type[this.type],

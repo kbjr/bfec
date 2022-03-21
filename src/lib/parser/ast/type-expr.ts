@@ -9,7 +9,7 @@ import {
 	NameToken_normal, NameToken_root_schema,
 	NameToken_builtin_len,
 	NameToken_builtin_checksum,
-	CommentToken,
+	CommentToken, WhitespaceToken,
 	KeywordToken_bin, KeywordToken_struct, KeywordToken_switch,
 	ConstToken_int, ConstToken_hex_int, ConstToken_ascii, ConstToken_unicode,
 	PuncToken_open_paren, PuncToken_close_paren,
@@ -54,7 +54,7 @@ export class TypeExpr_builtin_vint extends ASTNode {
 	public open_bracket: PuncToken_open_angle_bracket;
 	public close_bracket: PuncToken_close_angle_bracket;
 	public real_type: TypeExpr;
-	public children: CommentToken[] = [ ];
+	public children: (CommentToken | WhitespaceToken)[] = [ ];
 
 	public toJSON(): object {
 		return {
@@ -74,7 +74,7 @@ export class TypeExpr_builtin_len extends ASTNode {
 	public open_bracket: PuncToken_open_angle_bracket;
 	public close_bracket: PuncToken_close_angle_bracket;
 	public real_type: TypeExpr;
-	public children: CommentToken[] = [ ];
+	public children: (CommentToken | WhitespaceToken)[] = [ ];
 
 	public toJSON(): object {
 		return {
@@ -94,7 +94,7 @@ export class TypeExpr_array extends ASTNode {
 	public open_bracket: PuncToken_open_square_bracket;
 	public close_bracket: PuncToken_close_square_bracket;
 	public length_type: TypeExpr | OpToken_expansion;
-	public children: CommentToken[] = [ ];
+	public children: (CommentToken | WhitespaceToken)[] = [ ];
 
 	public toJSON(): object {
 		return {
@@ -114,7 +114,7 @@ export class TypeExpr_struct_refinement extends ASTNode {
 	public arrow: PuncToken_arrow;
 	public struct_keyword: KeywordToken_bin | KeywordToken_struct;
 	public body: StructBody;
-	public children: CommentToken[] = [ ];
+	public children: (CommentToken | WhitespaceToken)[] = [ ];
 
 	public toJSON(): object {
 		return {
@@ -134,7 +134,7 @@ export class TypeExpr_switch_refinement extends ASTNode {
 	public arrow: PuncToken_arrow;
 	public switch_keyword: KeywordToken_switch;
 	public body: SwitchBody;
-	public children: CommentToken[] = [ ];
+	public children: (CommentToken | WhitespaceToken)[] = [ ];
 
 	public toJSON(): object {
 		return {
@@ -153,7 +153,7 @@ export class TypeExpr_named_refinement extends ASTNode {
 	public parent_type: TypeExpr;
 	public arrow: PuncToken_arrow;
 	public refined_type: TypeExpr;
-	public children: CommentToken[] = [ ];
+	public children: (CommentToken | WhitespaceToken)[] = [ ];
 
 	public toJSON(): object {
 		return {
@@ -170,7 +170,7 @@ export class TypeExpr_named extends ASTNode {
 	public type: node_type.type_expr_named = node_type.type_expr_named;
 	public name: NameToken_normal | NameToken_root_schema;
 	public params: TypeExprParamsList;
-	public children: CommentToken[];
+	public children: (CommentToken | WhitespaceToken)[] = [ ];
 
 	public toJSON(): object {
 		return {
@@ -187,7 +187,7 @@ export class TypeExprParamsList extends ASTNode {
 	public open_paren: PuncToken_open_paren;
 	public close_paren: PuncToken_close_paren;
 	public params: TypeExprParam[];
-	public children: CommentToken[];
+	public children: (CommentToken | WhitespaceToken)[] = [ ];
 
 	public toJSON(): object {
 		return {
@@ -204,7 +204,7 @@ export class TypeExprParam extends ASTNode {
 	public type: node_type.type_expr_param = node_type.type_expr_param;
 	public param: ValueExpr;
 	public separator: PuncToken_separator;
-	public children: CommentToken[];
+	public children: (CommentToken | WhitespaceToken)[] = [ ];
 
 	public toJSON(): object {
 		return {
@@ -222,7 +222,7 @@ export class TypeExpr_builtin_text extends ASTNode {
 	public open_bracket: PuncToken_open_angle_bracket;
 	public close_bracket: PuncToken_close_angle_bracket;
 	public length_type: TypeExpr;
-	public children: CommentToken[];
+	public children: (CommentToken | WhitespaceToken)[] = [ ];
 
 	public toJSON(): object {
 		return {
@@ -246,7 +246,7 @@ export class TypeExpr_builtin_checksum extends ASTNode {
 	public close_paren: PuncToken_close_paren;
 	public data_expr: ValueExpr;
 	public checksum_func: ConstToken_ascii | ConstToken_unicode;
-	public children: CommentToken[];
+	public children: (CommentToken | WhitespaceToken)[] = [ ];
 
 	public toJSON(): object {
 		return {
