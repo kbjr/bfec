@@ -2,7 +2,7 @@
 import { Parser } from './parser';
 import { ParserState } from './state';
 import { parse_type_expr } from './type-expr';
-import { DeclareStructNode, StructElem, StructExpansion, StructField } from './ast';
+import { DeclareStructNode, StructBody, StructElem, StructExpansion, StructField } from './ast';
 import { kw_struct, name_normal, name_root_schema, op_expansion, PuncToken_close_brace, punc_close_brace, punc_colon, punc_open_brace, punc_terminator } from './ast/tokens';
 
 const struct_scope_parsers: Parser<StructElem>[] = [
@@ -13,34 +13,34 @@ const struct_scope_parsers: Parser<StructElem>[] = [
 export function parse_struct(state: ParserState) : DeclareStructNode {
 	state.trace('parse_struct');
 
-	const branch = state.branch();
-	const preceeding_comments = branch.take_comments();
-	const struct_keyword = kw_struct.match(branch);
+	const struct_keyword = kw_struct.match(state);
 
 	if (! struct_keyword) {
 		return null;
 	}
-
-	state.commit_branch(branch);
-	state.scan_through_comments_and_whitespace();
-
+	
 	const ast_node = new DeclareStructNode();
-
-	ast_node.comments = preceeding_comments;
+	state.scan_through_comments_and_whitespace(ast_node.children);
 	ast_node.name = name_root_schema.match(state) || name_normal.match(state);
 
 	if (! ast_node.name) {
 		state.fatal('expected to find struct name following "struct" keyword');
 	}
 	
-	state.scan_through_comments_and_whitespace();
+	state.scan_through_comments_and_whitespace(ast_node.children);
 
 	// TODO: optional struct params
 	// TODO:  - open paren
 	// TODO:  - params
 	// TODO:  - close paren
 
-	ast_node.extraneous_comments = state.take_comments();
+	ast_node.body = parse_struct_body(state);
+	return ast_node;
+}
+
+export function parse_struct_body(state: ParserState) {
+	const ast_node = new StructBody();
+
 	ast_node.open_brace = punc_open_brace.match(state);
 
 	if (! ast_node.open_brace) {
@@ -48,7 +48,7 @@ export function parse_struct(state: ParserState) : DeclareStructNode {
 	}
 	
 	ast_node.close_brace = parse_struct_scope(state, ast_node.children);
-	ast_node.extraneous_comments.push(...state.take_comments());
+
 	return ast_node;
 }
 
@@ -58,7 +58,7 @@ function parse_struct_scope(state: ParserState, children: StructElem[]) : PuncTo
 
 	read_loop:
 	while (! state.eof()) {
-		if (state.scan_through_comments_and_whitespace()) {
+		if (state.scan_through_comments_and_whitespace(children)) {
 			if (state.eof()) {
 				state.fatal('unexpected eof while parsing struct scope');
 			}
@@ -68,7 +68,6 @@ function parse_struct_scope(state: ParserState, children: StructElem[]) : PuncTo
 
 		if (close_brace) {
 			state.step_up();
-			children.push(...state.take_comments());
 			return close_brace;
 		}
 
@@ -104,7 +103,7 @@ function parse_struct_field(state: ParserState) : StructField {
 	// TODO:  - bool_expr
 	// TODO:  - closing paren
 
-	state.scan_through_comments_and_whitespace();
+	state.scan_through_comments_and_whitespace(field.children);
 
 	field.field_type_colon = punc_colon.match(state);
 
@@ -112,7 +111,7 @@ function parse_struct_field(state: ParserState) : StructField {
 		state.fatal('expected struct field type declaration opening colon ":"');
 	}
 
-	state.scan_through_comments_and_whitespace();
+	state.scan_through_comments_and_whitespace(field.children);
 
 	field.field_type = parse_type_expr(state);
 
@@ -120,7 +119,7 @@ function parse_struct_field(state: ParserState) : StructField {
 		state.fatal('expected struct field type declaration');
 	}
 
-	state.scan_through_comments_and_whitespace();
+	state.scan_through_comments_and_whitespace(field.children);
 
 	// TODO: optional assignment
 	// TODO:  - assign operator

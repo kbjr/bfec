@@ -6,30 +6,25 @@ import { const_ascii, const_unicode, kw_as, kw_from, name_normal, punc_close_bra
 export function parse_from(state: ParserState) : DeclareFromNode {
 	state.trace('parse_from');
 
-	const branch = state.branch();
-	const preceeding_comments = branch.take_comments();
-	const from_keyword = kw_from.match(branch);
+	const from_keyword = kw_from.match(state);
 
 	if (! from_keyword) {
 		return null;
 	}
 
-	state.commit_branch(branch);
-	state.scan_through_comments_and_whitespace();
-
 	const ast_node = new DeclareFromNode();
+	
+	state.scan_through_comments_and_whitespace(ast_node.children);
 
-	ast_node.comments = preceeding_comments;
 	ast_node.source = const_ascii.match(state) || const_unicode.match(state);
 
 	if (! ast_node.source) {
 		state.fatal('expected to find from source following "from" keyword');
 	}
 	
-	state.scan_through_comments_and_whitespace();
+	state.scan_through_comments_and_whitespace(ast_node.children);
 
 	ast_node.root_import = name_normal.match(state);
-	ast_node.extraneous_comments = state.take_comments();
 
 	if (! ast_node.root_import) {
 		ast_node.imports = new FromImportsListNode();
@@ -39,7 +34,7 @@ export function parse_from(state: ParserState) : DeclareFromNode {
 			state.fatal('expected import name or list opening brace "{"');
 		}
 	
-		state.scan_through_comments_and_whitespace();
+		state.scan_through_comments_and_whitespace(ast_node.children);
 
 		while (true) {
 			const imported = new FromImportNode();
@@ -50,19 +45,19 @@ export function parse_from(state: ParserState) : DeclareFromNode {
 				break;
 			}
 
-			state.scan_through_comments_and_whitespace();
+			state.scan_through_comments_and_whitespace(ast_node.children);
 
 			imported.as_keyword = kw_as.match(state);
 
 			if (imported.as_keyword) {
-				state.scan_through_comments_and_whitespace();
+				state.scan_through_comments_and_whitespace(ast_node.children);
 				imported.alias_name = name_normal.match(state);
 
 				if (! imported.alias_name) {
 					state.fatal('expected import alias name after "as" keyword');
 				}
 
-				state.scan_through_comments_and_whitespace();
+				state.scan_through_comments_and_whitespace(ast_node.children);
 			}
 
 			imported.separator = punc_separator.match(state);
@@ -73,7 +68,7 @@ export function parse_from(state: ParserState) : DeclareFromNode {
 				break;
 			}
 
-			state.scan_through_comments_and_whitespace();
+			state.scan_through_comments_and_whitespace(ast_node.children);
 		}
 
 		ast_node.imports.close_brace = punc_close_brace.match(state);
@@ -83,7 +78,7 @@ export function parse_from(state: ParserState) : DeclareFromNode {
 		}
 	}
 	
-	state.scan_through_comments_and_whitespace();
+	state.scan_through_comments_and_whitespace(ast_node.children);
 
 	ast_node.terminator = punc_terminator.match(state);
 
@@ -91,6 +86,5 @@ export function parse_from(state: ParserState) : DeclareFromNode {
 		state.fatal('expected statement terminator ";"');
 	}
 	
-	ast_node.extraneous_comments.push(...state.take_comments());
 	return ast_node;
 }

@@ -1,6 +1,14 @@
 
 import { ParserState } from './state';
-import { TypeExpr, TypeExpr_array, TypeExpr_bin, TypeExpr_builtin_checksum, TypeExpr_builtin_len, TypeExpr_builtin_text, TypeExpr_builtin_vint, TypeExpr_int, TypeExpr_named } from './ast';
+import {
+	TypeExpr,
+	TypeExpr_array,
+	TypeExpr_struct_refinement, TypeExpr_switch_refinement, TypeExpr_named_refinement,
+	TypeExpr_builtin_checksum, TypeExpr_builtin_len,
+	TypeExpr_builtin_text,
+	TypeExpr_builtin_vint, TypeExpr_int,
+	TypeExpr_named,
+} from './ast';
 import {
 	name_builtin_bit, name_builtin_sint, name_builtin_uint,
 	const_int, const_hex_int, const_ascii,
@@ -89,7 +97,6 @@ function parse_optional_arrays(state: ParserState, lh_expr: TypeExpr) : TypeExpr
 
 function parse_type_expr_varint(state: ParserState) : TypeExpr_builtin_vint {
 	state.trace('parse_type_expr_varint');
-	state.scan_through_comments_and_whitespace();
 
 	const varint_keyword = name_builtin_vint.match(state);
 
@@ -100,21 +107,21 @@ function parse_type_expr_varint(state: ParserState) : TypeExpr_builtin_vint {
 	const ast_node = new TypeExpr_builtin_vint();
 	ast_node.varint_keyword = varint_keyword;
 	
-	state.scan_through_comments_and_whitespace();
+	state.scan_through_comments_and_whitespace(ast_node.children);
 	ast_node.open_bracket = punc_open_angle_bracket.match(state);
 
 	if (! ast_node.open_bracket) {
 		state.fatal('expected opening bracket "<" to preceed varint real type');
 	}
 	
-	state.scan_through_comments_and_whitespace();
+	state.scan_through_comments_and_whitespace(ast_node.children);
 	ast_node.real_type = parse_type_expr_fixed_int(state);
 
 	if (! ast_node.real_type) {
 		state.fatal('expected a fixed int type expr for varint real type');
 	}
 	
-	state.scan_through_comments_and_whitespace();
+	state.scan_through_comments_and_whitespace(ast_node.children);
 	ast_node.close_bracket = punc_close_angle_bracket.match(state);
 
 	if (! ast_node.close_bracket) {
@@ -126,7 +133,6 @@ function parse_type_expr_varint(state: ParserState) : TypeExpr_builtin_vint {
 
 function parse_type_expr_len(state: ParserState) : TypeExpr_builtin_len {
 	state.trace('parse_type_expr_len');
-	state.scan_through_comments_and_whitespace();
 
 	const len_keyword = name_builtin_len.match(state);
 
@@ -137,21 +143,21 @@ function parse_type_expr_len(state: ParserState) : TypeExpr_builtin_len {
 	const ast_node = new TypeExpr_builtin_len();
 	ast_node.len_keyword = len_keyword;
 	
-	state.scan_through_comments_and_whitespace();
+	state.scan_through_comments_and_whitespace(ast_node.children);
 	ast_node.open_bracket = punc_open_angle_bracket.match(state);
 
 	if (! ast_node.open_bracket) {
 		state.fatal('expected opening bracket "<" to preceed len real type');
 	}
 	
-	state.scan_through_comments_and_whitespace();
+	state.scan_through_comments_and_whitespace(ast_node.children);
 	ast_node.real_type = parse_type_expr_fixed_int(state) || parse_type_expr_varint(state);
 
 	if (! ast_node.real_type) {
 		state.fatal('expected a fixed int type expr for len real type');
 	}
 	
-	state.scan_through_comments_and_whitespace();
+	state.scan_through_comments_and_whitespace(ast_node.children);
 	ast_node.close_bracket = punc_close_angle_bracket.match(state);
 
 	if (! ast_node.close_bracket) {
@@ -163,7 +169,6 @@ function parse_type_expr_len(state: ParserState) : TypeExpr_builtin_len {
 
 function parse_type_expr_array(state: ParserState, lh_expr: TypeExpr) : TypeExpr_array {
 	state.trace('parse_type_expr_array');
-	state.scan_through_comments_and_whitespace();
 
 	const open_bracket = punc_open_square_bracket.match(state);
 
@@ -175,27 +180,25 @@ function parse_type_expr_array(state: ParserState, lh_expr: TypeExpr) : TypeExpr
 	ast_node.open_bracket = open_bracket;
 	ast_node.elem_type = lh_expr;
 	
-	state.scan_through_comments_and_whitespace();
+	state.scan_through_comments_and_whitespace(ast_node.children);
 	ast_node.length_type = parse_type_expr_fixed_int(state) || parse_type_expr_varint(state) || op_expansion.match(state);
 
 	if (! ast_node.length_type) {
 		state.fatal('expected array length type definition between square brackets "[" / "]"');
 	}
 	
-	state.scan_through_comments_and_whitespace();
+	state.scan_through_comments_and_whitespace(ast_node.children);
 	ast_node.close_bracket = punc_close_square_bracket.match(state);
 
 	if (! ast_node.close_bracket) {
 		state.fatal('expected closing square bracket "]" at end of array type expr');
 	}
 
-	ast_node.extraneous_comments = state.take_comments();
 	return ast_node;
 }
 
 function parse_type_expr_text(state: ParserState) : TypeExpr_builtin_text {
 	state.trace('parse_type_expr_text');
-	state.scan_through_comments_and_whitespace();
 
 	const text_keyword = name_builtin_text.match(state);
 
@@ -212,7 +215,6 @@ function parse_type_expr_text(state: ParserState) : TypeExpr_builtin_text {
 
 function parse_type_expr_checksum(state: ParserState) : TypeExpr_builtin_checksum {
 	state.trace('parse_type_expr_checksum');
-	state.scan_through_comments_and_whitespace();
 
 	const checksum_keyword = name_builtin_checksum.match(state);
 
@@ -231,7 +233,6 @@ function parse_type_expr_checksum(state: ParserState) : TypeExpr_builtin_checksu
 
 function parse_type_expr_named(state: ParserState) : TypeExpr {
 	state.trace('parse_type_expr_named');
-	state.scan_through_comments_and_whitespace();
 
 	const name = name_normal.match(state);
 
@@ -247,9 +248,21 @@ function parse_type_expr_named(state: ParserState) : TypeExpr {
 	return ast_node;
 }
 
-function parse_type_expr_bin(state: ParserState, lh_expr: TypeExpr) : TypeExpr_bin {
-	state.trace('parse_type_expr_bin');
-	// TODO: parse_type_expr_bin
+function parse_type_expr_struct_refinement(state: ParserState, lh_expr: TypeExpr) : TypeExpr_struct_refinement {
+	state.trace('parse_type_expr_struct_refinement');
+	// TODO: parse_type_expr_struct_refinement
+	return null;
+}
+
+function parse_type_expr_switch_refinement(state: ParserState, lh_expr: TypeExpr) : TypeExpr_switch_refinement {
+	state.trace('parse_type_expr_switch_refinement');
+	// TODO: parse_type_expr_switch_refinement
+	return null;
+}
+
+function parse_type_expr_named_refinement(state: ParserState, lh_expr: TypeExpr) : TypeExpr_named_refinement {
+	state.trace('parse_type_expr_named_refinement');
+	// TODO: parse_type_expr_named_refinement
 	return null;
 }
 

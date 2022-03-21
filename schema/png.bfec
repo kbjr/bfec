@@ -292,16 +292,15 @@ struct SuggestedPalleteData {
   pallete_name: ascii<null>;
   sample_depth: SampleDepth;
   
-  # TODO: To make this possible using a refinement, the length needs to be known.
-  # In this case, that could be calculated as (@.sample_depth / 2), but that requires
-  # allowing arithmetic expressions in length fields, which could get very complicated.
-  # Research and decide whether this is a useful enough feature to develop.
   ...Sample(@.sample_depth);
-  # ...u8[@.sample_depth / 2] -> switch<SampleDepth> (@.sample_depth) {
-  #   case b8: Sample8Bit;
-  #   case b16: Sample16Bit;
-  #   default: invalid;
-  # };
+  # Alternative version of the above to demonstrate expanding an inline switch
+  # from a dynamic-length range (is it at all reasonable to use `b4` this way??
+  # this is just array length arithmetic with more steps...):
+  #   ...b4[@.sample_depth] -> switch<SampleDepth> (@.sample_depth) {
+  #     case b8: Sample8Bit;
+  #     case b16: Sample16Bit;
+  #     default: invalid;
+  #   };
 
   frequencies: u16_be[...];
 }

@@ -1,1 +1,186 @@
-{"type":"file","children":[{"type":"decl_switch","comments":[],"extraneous_comments":[],"name":{"type":"name_normal","line":1,"char":7,"length":14,"text":"EntityContents"},"param":{"type":"switch_param","name":{"type":"name_normal","line":1,"char":22,"length":10,"text":"EntityType"},"comments":[],"extraneous_comments":[],"open_bracket":{"type":"punc_open_angle_bracket","line":1,"char":21,"length":1,"text":"<"},"close_bracket":{"type":"punc_close_angle_bracket","line":1,"char":32,"length":1,"text":">"}},"open_brace":{"type":"punc_open_brace","line":1,"char":34,"length":1,"text":"{"},"close_brace":{"type":"punc_close_brace","line":4,"char":0,"length":1,"text":"}"},"children":[{"type":"switch_case","comments":[],"case_keyword":{"type":"kw_case","line":2,"char":1,"length":4,"text":"case"},"condition_name":{"type":"name_normal","line":2,"char":6,"length":9,"text":"namespace"},"colon":{"type":"punc_colon","line":2,"char":15,"length":1,"text":":"},"selection":{"type":"type_expr_named","name":{"type":"name_normal","line":2,"char":17,"length":23,"text":"NamespaceEntityContents"}},"terminator":{"type":"punc_terminator","line":2,"char":40,"length":1,"text":";"}},{"type":"switch_default","comments":[],"default_keyword":{"type":"kw_default","line":3,"char":1,"length":7,"text":"default"},"colon":{"type":"punc_colon","line":3,"char":8,"length":1,"text":":"},"selection":{"type":"kw_invalid","line":3,"char":10,"length":7,"text":"invalid"},"terminator":{"type":"punc_terminator","line":3,"char":17,"length":1,"text":";"}}]}]}
+{
+  "type": "file",
+  "children": [
+    {
+      "type": "decl_switch",
+      "name": {
+        "type": "name_normal",
+        "line": 1,
+        "char": 7,
+        "length": 14,
+        "text": "EntityContents"
+      },
+      "param": {
+        "type": "switch_param",
+        "name": {
+          "type": "name_normal",
+          "line": 1,
+          "char": 22,
+          "length": 10,
+          "text": "EntityType"
+        },
+        "open_bracket": {
+          "type": "punc_open_angle_bracket",
+          "line": 1,
+          "char": 21,
+          "length": 1,
+          "text": "<"
+        },
+        "close_bracket": {
+          "type": "punc_close_angle_bracket",
+          "line": 1,
+          "char": 32,
+          "length": 1,
+          "text": ">"
+        },
+        "children": []
+      },
+      "body": {
+        "type": "switch_body",
+        "open_brace": {
+          "type": "punc_open_brace",
+          "line": 1,
+          "char": 34,
+          "length": 1,
+          "text": "{"
+        },
+        "close_brace": {
+          "type": "punc_close_brace",
+          "line": 4,
+          "char": 0,
+          "length": 1,
+          "text": "}"
+        },
+        "children": [
+          {
+            "type": "meta_whitespace",
+            "line": 2,
+            "char": 0,
+            "length": 1,
+            "text": "\t"
+          },
+          {
+            "type": "switch_case",
+            "case_keyword": {
+              "type": "kw_case",
+              "line": 2,
+              "char": 1,
+              "length": 4,
+              "text": "case"
+            },
+            "condition_name": {
+              "type": "name_normal",
+              "line": 2,
+              "char": 6,
+              "length": 9,
+              "text": "namespace"
+            },
+            "colon": {
+              "type": "punc_colon",
+              "line": 2,
+              "char": 15,
+              "length": 1,
+              "text": ":"
+            },
+            "selection": {
+              "type": "type_expr_named",
+              "name": {
+                "type": "name_normal",
+                "line": 2,
+                "char": 17,
+                "length": 23,
+                "text": "NamespaceEntityContents"
+              }
+            },
+            "terminator": {
+              "type": "punc_terminator",
+              "line": 2,
+              "char": 40,
+              "length": 1,
+              "text": ";"
+            },
+            "children": [
+              {
+                "type": "meta_whitespace",
+                "line": 2,
+                "char": 5,
+                "length": 1,
+                "text": " "
+              },
+              {
+                "type": "meta_whitespace",
+                "line": 2,
+                "char": 16,
+                "length": 1,
+                "text": " "
+              }
+            ]
+          },
+          {
+            "type": "meta_whitespace",
+            "line": 3,
+            "char": 0,
+            "length": 1,
+            "text": "\t"
+          },
+          {
+            "type": "switch_default",
+            "default_keyword": {
+              "type": "kw_default",
+              "line": 3,
+              "char": 1,
+              "length": 7,
+              "text": "default"
+            },
+            "colon": {
+              "type": "punc_colon",
+              "line": 3,
+              "char": 8,
+              "length": 1,
+              "text": ":"
+            },
+            "selection": {
+              "type": "kw_invalid",
+              "line": 3,
+              "char": 10,
+              "length": 7,
+              "text": "invalid"
+            },
+            "terminator": {
+              "type": "punc_terminator",
+              "line": 3,
+              "char": 17,
+              "length": 1,
+              "text": ";"
+            },
+            "children": [
+              {
+                "type": "meta_whitespace",
+                "line": 3,
+                "char": 9,
+                "length": 1,
+                "text": " "
+              }
+            ]
+          }
+        ]
+      },
+      "children": [
+        {
+          "type": "meta_whitespace",
+          "line": 1,
+          "char": 6,
+          "length": 1,
+          "text": " "
+        },
+        {
+          "type": "meta_whitespace",
+          "line": 1,
+          "char": 33,
+          "length": 1,
+          "text": " "
+        }
+      ]
+    }
+  ]
+}
