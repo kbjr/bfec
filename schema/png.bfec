@@ -28,8 +28,6 @@ struct Chunk (type: ChunkType) {
 
   # TODO: Add support for `checksum` verification / population?
   crc: checksum<u32_be>(@.data, 'crc32');
-  # TODO: Alternate function versions different output formats??
-  # crc: checksum<ascii<8>>(@.data, 'crc32_hex');
 }
 
 # TODO: Add support for string enums
@@ -293,17 +291,7 @@ switch Sample<SampleDepth> {
 struct SuggestedPalleteData {
   pallete_name: ascii<null>;
   sample_depth: SampleDepth;
-  
   ...Sample(@.sample_depth);
-  # Alternative version of the above to demonstrate expanding an inline switch
-  # from a dynamic-length range (is it at all reasonable to use `b4` this way??
-  # this is just array length arithmetic with more steps...):
-  #   ...b4[@.sample_depth] -> switch<SampleDepth> (@.sample_depth) {
-  #     case b8: Sample8Bit;
-  #     case b16: Sample16Bit;
-  #     default: invalid;
-  #   };
-
   frequencies: u16_be[...];
 }
 

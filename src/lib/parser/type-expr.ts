@@ -8,6 +8,9 @@ import {
 	TypeExpr_builtin_text,
 	TypeExpr_builtin_vint, TypeExpr_int,
 	TypeExpr_named,
+	TypeExprParamsList,
+	TypeExprParam,
+	ValueExpr,
 } from './ast';
 import {
 	name_builtin_bit, name_builtin_sint, name_builtin_uint,
@@ -23,8 +26,9 @@ import {
 	name_builtin_len,
 	name_builtin_checksum,
 	op_expansion,
-	CommentToken, WhitespaceToken,
+	CommentToken, WhitespaceToken, punc_separator,
 } from './ast/tokens';
+import { parse_value_expr } from './value-expr';
 
 export function parse_type_expr(state: ParserState) : TypeExpr {
 	state.trace('parse_type_expr');
@@ -228,7 +232,7 @@ function parse_type_expr_checksum(state: ParserState) : TypeExpr_builtin_checksu
 	// TODO:  - open angle bracket
 	// TODO:  - type expr
 	// TODO:  - close angle bracket
-	// TODO: params
+	// TODO: params 
 	// TODO:  - open paren
 	// TODO:  - data source expr
 	// TODO:  - separator
@@ -238,7 +242,7 @@ function parse_type_expr_checksum(state: ParserState) : TypeExpr_builtin_checksu
 	return checksum;
 }
 
-function parse_type_expr_named(state: ParserState) : TypeExpr {
+function parse_type_expr_named(state: ParserState) : TypeExpr_named {
 	state.trace('parse_type_expr_named');
 
 	const name = name_normal.match(state);
@@ -247,7 +251,7 @@ function parse_type_expr_named(state: ParserState) : TypeExpr {
 		return null;
 	}
 	
-	const ast_node: TypeExpr = new TypeExpr_named();
+	const ast_node = new TypeExpr_named();
 	ast_node.name = name;
 
 	const branch = state.branch();
@@ -260,10 +264,39 @@ function parse_type_expr_named(state: ParserState) : TypeExpr {
 	}
 
 	state.commit_branch(branch);
-	state.scan_through_comments_and_whitespace(ast_node.children);
 
-	// TODO: params
-	// TODO: close paren
+	const params = new TypeExprParamsList();
+	params.open_paren = open_paren;
+
+	state.scan_through_comments_and_whitespace(params.children);
+
+	let value_expr: ValueExpr;
+
+	while (value_expr = parse_value_expr(state)) {
+		const param = new TypeExprParam();
+		params.params.push(param);
+		param.param = value_expr;
+
+		state.scan_through_comments_and_whitespace(params.children);
+
+		param.separator = punc_separator.match(state);
+
+		if (! param.separator) {
+			break;
+		}
+
+		state.scan_through_comments_and_whitespace(params.children);
+	}
+
+	params.close_paren = punc_close_paren.match(state);
+
+	if (! params.close_paren) {
+		if (params.params.length) {
+			state.fatal('expected closing paren ")" or a separator "," followed by more params');
+		}
+		
+		state.fatal('expected closing paren ")" or list of params');
+	}
 
 	return ast_node;
 }
@@ -285,7 +318,7 @@ function parse_type_expr_refinement(state: ParserState, lh_expr: TypeExpr) {
 
 	// TODO: one of:
 	// TODO:  - struct refinement
-	// TODO:  - switch refinement
+	// TODO:  - switch refinement 
 	// TODO:  - named refinement
 
 	return null;

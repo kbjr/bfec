@@ -186,7 +186,7 @@ export class TypeExprParamsList extends ASTNode {
 	public type: node_type.type_expr_params_list = node_type.type_expr_params_list;
 	public open_paren: PuncToken_open_paren;
 	public close_paren: PuncToken_close_paren;
-	public params: TypeExprParam[];
+	public params: TypeExprParam[] = [ ];
 	public children: (CommentToken | WhitespaceToken)[] = [ ];
 
 	public toJSON(): object {
@@ -204,14 +204,12 @@ export class TypeExprParam extends ASTNode {
 	public type: node_type.type_expr_param = node_type.type_expr_param;
 	public param: ValueExpr;
 	public separator: PuncToken_separator;
-	public children: (CommentToken | WhitespaceToken)[] = [ ];
 
 	public toJSON(): object {
 		return {
 			type: node_type[this.type],
 			param: this.param,
 			separator: this.separator,
-			children: this.children,
 		};
 	}
 }

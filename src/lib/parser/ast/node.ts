@@ -41,6 +41,9 @@ export enum node_type {
 	type_expr_params_list,
 	type_expr_param,
 
+	value_expr_path,
+	value_expr_path_access,
+
 	// ===== Tokens =====
 	
 	meta_whitespace,
