@@ -5,11 +5,12 @@ import { ParserState } from '../../state';
 export class TokenMatcher<T extends Token> {
 	constructor(
 		public readonly Type: new () => T,
-		public readonly pattern: RegExp
+		public readonly pattern: RegExp,
+		public readonly name?: string
 	) { }
 
 	public match(state: ParserState) : T {
-		state.trace('match', this.pattern);
+		state.trace('match', this.name || this.pattern);
 
 		if (! advance_state_to_next_non_empty_line(state)) {
 			return null;
@@ -40,11 +41,12 @@ export class TokenMatcher<T extends Token> {
 export class SimpleTokenMatcher<T extends Token> {
 	constructor(
 		public readonly Type: new () => T,
-		public readonly pattern: RegExp
+		public readonly pattern: RegExp,
+		public readonly name?: string
 	) { }
 
 	public match(state: ParserState) : T {
-		state.trace('match', this.pattern);
+		state.trace('match', this.name || this.pattern);
 
 		if (! advance_state_to_next_non_empty_line(state)) {
 			return null;
@@ -74,11 +76,12 @@ export class FencedTokenMatcher<T extends Token> {
 	constructor(
 		public readonly Type: new () => T,
 		public readonly open_pattern: RegExp,
-		public readonly close_pattern: RegExp
+		public readonly close_pattern: RegExp,
+		public readonly name?: string
 	) { }
 
 	public match(state: ParserState) : T {
-		state.trace('match', this.open_pattern, this.close_pattern);
+		state.trace('match', this.name || `${this.open_pattern} => ${this.close_pattern}`);
 
 		if (! advance_state_to_next_non_empty_line(state)) {
 			return null;
@@ -103,7 +106,6 @@ export class FencedTokenMatcher<T extends Token> {
 				match = this.close_pattern.exec(line);
 				
 				if (match) {
-					console.log('close', match[0], state.line, state.char);
 					const offset = line.indexOf(match[0], state.char);
 					const substr = line.slice(state.char, offset) + match[0];
 

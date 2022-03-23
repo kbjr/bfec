@@ -19,6 +19,7 @@ Version ${require('../../package.json').version}
 Usage:
 
   bfec ${flag('-in')} ${param('<dir>')} ${param('<file>')} { ${flag('-out')} ${param('<format>')} ${param('<dir>')} } ${options('[ OPTIONS ]')}
+  bfec ${flag('-conf')} ${param('<conf_file>')} ${options('[ OPTIONS ]')}
 
 
 Input:
@@ -50,6 +51,14 @@ Outputs:
 
   ${cyan('<dir>')}
     Directory where the generated output should be written
+
+
+Config File:
+
+  ${flag('-conf')} ${param('<conf_file>')}
+
+  ${param('<conf_file>')}
+    Path to a JSONC configuration file in place of the typical input / output args
 
 
 Options:
@@ -87,6 +96,6 @@ Examples:
   ${comment('# Parse to an AST and enable debug logging in the parser')}
   bfec ${flag('-in')} ${string('"./schemas"')} ${string('"main.bfec"')} ${flag('-out')} ast ${string('"./ast"')} ${flag('-log:parser')} ${number('5')}
     
-  ${comment('# Compile to a TypeScript library, and disable all non-error logging')}
-  bfec ${flag('-in')} ${string('"./schemas"')} ${string('"main.bfec"')} ${flag('-out')} ts ${string('"./src"')} ${flag('-log')} ${number('1')}
+  ${comment('# Compile using options from a config file, and disable all non-error logging')}
+  bfec ${flag('-conf')} ${string('"./conf.jsonc"')} ${flag('-log')} ${number('1')}
 `);

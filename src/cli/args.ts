@@ -1,9 +1,12 @@
 
 import { print_help, print_version } from './help';
-import { main as log, set_log_level } from './log';
+import { log_level, main as log, set_log_level } from './log';
 import { exit_error, exit_successful } from './exit';
+import { jsonc } from 'jsonc';
+import { ConfLoader } from './fs';
 
 export interface Args {
+	conf?: string;
 	in: Input;
 	out: Output[];
 	quiet?: boolean;
@@ -23,6 +26,7 @@ export enum output_format {
 	as       = 'as',
 	ast_json = 'ast_json',
 	html     = 'html',
+	md       = 'md',
 	sch_json = 'sch_json',
 	ts       = 'ts',
 }
@@ -50,6 +54,39 @@ export async function parse_args(args: string[]) : Promise<Args> {
 				result.quiet = true;
 				break;
 
+			case '-conf':
+				const conf_file = args[index++];
+
+				if (result.conf) {
+					await exit_error(1, 'Cannot provide more than one "-conf" option');
+				}
+
+				const loader = new ConfLoader();
+				const conf = await loader.read_file(conf_file);
+
+				if (conf.in) {
+					if (result.in) {
+						await exit_error(1, 'Cannot provide more than one "-in" option (including any input defined in a config file)');
+					}
+
+					result.in = {
+						directory: conf.in.dir,
+						entrypoint_file: conf.in.file
+					};
+				}
+
+				if (conf.out) {
+					for (const [out_format, out_dir] of Object.entries(conf.out)) {
+						result.out = result.out || [ ];
+						result.out.push({
+							format: out_format as output_format,
+							directory: out_dir
+						});
+					}
+				}
+
+				break;
+
 			case '-log':
 			case `-log:main`:
 			case `-log:parser`:
@@ -67,7 +104,7 @@ export async function parse_args(args: string[]) : Promise<Args> {
 				const in_file = args[index++];
 
 				if (result.in) {
-					await exit_error(1, 'Cannot provide more than one "-in" option');
+					await exit_error(1, 'Cannot provide more than one "-in" option (including any input defined in a config file)');
 				}
 
 				result.in = {
@@ -80,7 +117,9 @@ export async function parse_args(args: string[]) : Promise<Args> {
 				const out_format = args[index++] as output_format;
 				const out_dir = args[index++];
 
-				// TODO: Validate output format
+				if (output_format[out_format] == null) {
+					await exit_error(1, `Unknown output format "${out_format}"`);
+				}
 
 				result.out = result.out || [ ];
 				result.out.push({
@@ -93,6 +132,10 @@ export async function parse_args(args: string[]) : Promise<Args> {
 				await exit_error(1, `unknown or unexpected option "${arg}"`);
 				break;
 		}
+	}
+
+	if (result.quiet) {
+		set_log_level('*', log_level.none);
 	}
 
 	log.debug('args', result);
