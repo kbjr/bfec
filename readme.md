@@ -1,7 +1,9 @@
 
 `bfec` - Binary Format Encoder Compiler
 
-Compiles the [bfec schema language](https://github.com/kbjr/bfec/wiki/Grammar) into various output formats, including fully functional encoder/decoder libraries
+Compiles the [bfec schema language](https://github.com/kbjr/bfec/wiki/Grammar) into various output formats, including fully functional encoder/decoder libraries.
+
+The schema language can be used to describe existing binary file formats or for designing entirely new formats. For an example, here's [a schema for the PNG image format](./examples/png/).
 
 #### Output Types:
 

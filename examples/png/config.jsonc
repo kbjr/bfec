@@ -1,13 +1,13 @@
 {
-  "$schema": "./config.schema.json",
+  "$schema": "../../schema/config.schema.json",
   // "$schema": "https://bfec.io/schemas/config/v1.json",
   "in": {
     "dir": ".",
     "file": "png.bfec"
   },
   "out": {
-    "ts": "./out/ts",
-    "as": "./out/as",
-    "md": "./out/md"
+    "ts": "./ts",
+    "as": "./as",
+    "md": "./md"
   }
 }
