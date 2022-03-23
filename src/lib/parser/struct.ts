@@ -2,8 +2,8 @@
 import { Parser } from './parser';
 import { ParserState } from './state';
 import { parse_type_expr } from './type-expr';
-import { DeclareStructNode, StructBody, StructElem, StructExpansion, StructField } from './ast';
-import { kw_struct, name_normal, name_root_schema, op_expansion, PuncToken_close_brace, punc_close_brace, punc_colon, punc_open_brace, punc_terminator } from './ast/tokens';
+import { DeclareStructNode, StructBody, StructElem, StructExpansion, StructField, StructParamsListNode } from './ast';
+import { kw_struct, name_normal, name_root_schema, op_expansion, PuncToken_close_brace, punc_close_brace, punc_close_paren, punc_colon, punc_open_brace, punc_open_paren, punc_terminator } from './ast/tokens';
 
 const struct_scope_parsers: Parser<StructElem>[] = [
 	parse_struct_field,
@@ -29,10 +29,11 @@ export function parse_struct(state: ParserState) : DeclareStructNode {
 	
 	state.scan_through_comments_and_whitespace(ast_node.children);
 
-	// TODO: optional struct params
-	// TODO:  - open paren
-	// TODO:  - params
-	// TODO:  - close paren
+	ast_node.params = parse_struct_params(state);
+
+	if (ast_node.params) {
+		state.scan_through_comments_and_whitespace(ast_node.children)
+	}
 
 	ast_node.body = parse_struct_body(state);
 	return ast_node;
@@ -50,6 +51,31 @@ export function parse_struct_body(state: ParserState) {
 	ast_node.close_brace = parse_struct_scope(state, ast_node.children);
 
 	return ast_node;
+}
+
+function parse_struct_params(state: ParserState) : StructParamsListNode {
+	const open_paren = punc_open_paren.match(state);
+
+	if (! open_paren) {
+		return null;
+	}
+
+	const param_list = new StructParamsListNode();
+	param_list.open_paren = open_paren;
+
+	// TODO: params
+
+	param_list.close_paren = punc_close_paren.match(state);
+
+	if (! param_list.close_paren) {
+		if (param_list.params.length) {
+			state.fatal('expected closing paren ")" or a separator "," followed by more params');
+		}
+		
+		state.fatal('expected closing paren ")" or list of params');
+	}
+
+	return param_list;
 }
 
 function parse_struct_scope(state: ParserState, children: StructElem[]) : PuncToken_close_brace {

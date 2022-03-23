@@ -8,6 +8,7 @@ export enum node_type {
 	file,
 	whitespace,
 	comment_line,
+	comment_block,
 
 	decl_struct,
 	decl_enum,

@@ -51,12 +51,14 @@ export class StructParamsListNode extends ASTNode {
 	public type: node_type.struct_params_list = node_type.struct_params_list;
 	public open_paren: PuncToken_open_paren;
 	public close_paren: PuncToken_close_paren;
-	public children: (StructParamNode | CommentToken)[] = [ ];
+	public params: StructParamNode[] = [ ];
+	public children: (CommentToken | WhitespaceToken)[] = [ ];
 	public toJSON() {
 		return {
 			type: node_type[this.type],
 			open_paren: this.open_paren,
 			close_paren: this.close_paren,
+			params: this.params,
 			children: this.children,
 		};
 	}

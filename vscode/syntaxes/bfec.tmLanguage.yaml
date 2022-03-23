@@ -6,6 +6,12 @@ patterns:
 repository:
   comments:
     patterns:
+      - name: comment.block.bfec
+        begin: "#--"
+        end: "#--"
+        contentName: meta.embedded.block.markdown
+        patterns:
+          - include: "text.html.markdown"
       - name: comment.line.hash.bfec
         match: "#.*"
   

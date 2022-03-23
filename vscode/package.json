@@ -20,7 +20,10 @@
       "grammars": [{
           "language": "bfec",
           "scopeName": "source.bfec",
-          "path": "./syntaxes/bfec.tmLanguage.json"
+          "path": "./syntaxes/bfec.tmLanguage.json",
+          "embeddedLanguages": {
+            "meta.embedded.block.markdown": "markdown"
+          }
       }],
       "snippets": [{
         "language": "bfec",

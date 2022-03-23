@@ -1,7 +1,7 @@
 
 import { parser as log } from '../log';
 import { ASTNode } from './ast';
-import { meta_line_comment, meta_newline, meta_whitespace } from './ast/tokens';
+import { meta_block_comment, meta_line_comment, meta_newline, meta_whitespace } from './ast/tokens';
 
 const trace_indent = '  ';
 
@@ -63,7 +63,7 @@ export class ParserState {
 		const start_line = this.line;
 
 		while (true) {
-			const match1 = meta_line_comment.match(this);
+			const match1 = meta_block_comment.match(this);
 
 			if (match1) {
 				found_nodes = true;
@@ -71,11 +71,19 @@ export class ParserState {
 				continue;
 			}
 
-			const match2 = meta_whitespace.match(this);
+			const match2 = meta_line_comment.match(this);
 
 			if (match2) {
 				found_nodes = true;
 				write_to.push(match2);
+				continue;
+			}
+
+			const match3 = meta_whitespace.match(this);
+
+			if (match3) {
+				found_nodes = true;
+				write_to.push(match3);
 				continue;
 			}
 

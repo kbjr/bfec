@@ -24,7 +24,11 @@ non_newline = any_char - newline ;
 
 (* Comments *)
 
-line_comment  = "#" , [{ non_newline }] ;
+line_comment = "#" , [{ non_newline }] ;
+
+block_comment = "#--" , block_comment_markdown_contents , "#--" ;
+
+block_comment_markdown_contents = ? Any content other than the ending "#--" interpretted as markdown ? ;
 
 
 
