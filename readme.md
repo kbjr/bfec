@@ -47,6 +47,7 @@ Version 0.1.0
 Usage:
 
   bfec -in <dir> <file> { -out <format> <dir> } [ OPTIONS ]
+  bfec -conf <conf_file> [ OPTIONS ]
 
 
 Input:
@@ -80,6 +81,14 @@ Outputs:
     Directory where the generated output should be written
 
 
+Config File:
+
+  -conf <conf_file>
+
+  <conf_file>
+    Path to a JSONC configuration file in place of the typical input / output args
+
+
 Options:
 
   -quiet
@@ -91,6 +100,7 @@ Options:
     Loggers:
       "main"
       "parser"
+      "linker"
       "c_as"
       "c_html"
       "c_md"
@@ -114,8 +124,8 @@ Examples:
   # Parse to an AST and enable debug logging in the parser
   bfec -in "./schemas" "main.bfec" -out ast "./ast" -log:parser 5
     
-  # Compile to a TypeScript library, and disable all non-error logging
-  bfec -in "./schemas" "main.bfec" -out ts "./src" -log 1
+  # Compile using options from a config file, and disable all non-error logging
+  bfec -conf "./conf.jsonc" -log 1
 
 
 ```
