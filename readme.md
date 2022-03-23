@@ -1,4 +1,16 @@
 
+`bfec` - Binary Format Encoder Compiler
+
+Compiles the [bfec schema language](https://github.com/kbjr/bfec/wiki/Grammar) into various output formats, including fully functional encoder/decoder libraries
+
+#### Output Types:
+
+- TypeScript
+- AssemblyScript
+- HTML Documentation
+- Markdown Documentation
+- More to be added over time ....
+
 ## Building / Running From Source
 
 ```bash
@@ -19,6 +31,8 @@ $ npm i -g bfec
 ## Schema Language Grammar
 
 See the wiki
+
+- GitHub: https://github.com/kbjr/bfec/wiki/Grammar
 
 ## CLI Usage
 
