@@ -34,7 +34,7 @@ block_comment_markdown_contents = ? Any content other than the ending "#--" inte
 
 (* Valid in most any location, always ignored *)
 
-ignored = newline | whitespace | line_comment ;
+ignored = newline | whitespace | line_comment | block_comment ;
 
 
 
