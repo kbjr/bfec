@@ -168,7 +168,7 @@ function parse_type_expr_len(state: ParserState) : TypeExpr_builtin_len {
 		state.fatal('expected closing bracket ">" after len real type');
 	}
 
-	return null;
+	return ast_node;
 }
 
 function parse_type_expr_array(state: ParserState, lh_expr: TypeExpr) : TypeExpr_array {

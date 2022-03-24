@@ -137,8 +137,8 @@ export class NameToken_builtin_checksum extends Token {
 export const name_normal            = new TokenMatcher(NameToken_normal, /\b(?:[a-zA-Z_][a-zA-Z0-9_]*)\b/y);
 export const name_root_schema       = new SimpleTokenMatcher(NameToken_root_schema, /\$/y);
 export const name_this_schema       = new SimpleTokenMatcher(NameToken_this_schema, /@/y);
-export const name_builtin_uint      = new TokenMatcher(NameToken_builtin_uint, /\b(?:u8|u16|u24|u32|u64|u128)\b/y);
-export const name_builtin_sint      = new TokenMatcher(NameToken_builtin_sint, /\b(?:i8|i16|i24|i32|i64|i128)\b/y);
+export const name_builtin_uint      = new TokenMatcher(NameToken_builtin_uint, /\b(?:u8|u16|u24|u32|u64|u128)(?:_be|_le)?\b/y);
+export const name_builtin_sint      = new TokenMatcher(NameToken_builtin_sint, /\b(?:i8|i16|i24|i32|i64|i128)(?:_be|_le)?\b/y);
 export const name_builtin_vint      = new SimpleTokenMatcher(NameToken_builtin_vint, /\bvarint\b/y);
 export const name_builtin_len       = new SimpleTokenMatcher(NameToken_builtin_len, /\blen\b/y);
 export const name_builtin_bin_float = new TokenMatcher(NameToken_builtin_bin_float, /\b(?:f16|f32|f64)\b/y);
