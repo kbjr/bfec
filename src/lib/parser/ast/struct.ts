@@ -11,7 +11,8 @@ import {
 	PuncToken_open_brace,
 	PuncToken_open_paren,
 	PuncToken_terminator,
-	OpToken_expansion
+	OpToken_expansion,
+	PuncToken_separator
 } from './tokens';
 import { TypeExpr } from './type-expr';
 
@@ -66,11 +67,18 @@ export class StructParamsListNode extends ASTNode {
 
 export class StructParamNode extends ASTNode {
 	public type: node_type.struct_param = node_type.struct_param;
-	// 
+	public name: NameToken_normal;
+	public punc_colon: PuncToken_colon;
+	public param_type: TypeExpr;
+	public separator: PuncToken_separator;
+	
 	public toJSON() {
 		return {
 			type: node_type[this.type],
-			// name: this.name,
+			name: this.name,
+			punc_colon: this.punc_colon,
+			param_type: this.param_type,
+			separator: this.separator,
 		};
 	}
 }

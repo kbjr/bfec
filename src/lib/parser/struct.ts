@@ -2,8 +2,8 @@
 import { Parser } from './parser';
 import { ParserState } from './state';
 import { parse_type_expr } from './type-expr';
-import { DeclareStructNode, StructBody, StructElem, StructExpansion, StructField, StructParamsListNode } from './ast';
-import { kw_struct, name_normal, name_root_schema, op_expansion, PuncToken_close_brace, punc_close_brace, punc_close_paren, punc_colon, punc_open_brace, punc_open_paren, punc_terminator } from './ast/tokens';
+import { DeclareStructNode, StructBody, StructElem, StructExpansion, StructField, StructParamNode, StructParamsListNode } from './ast';
+import { kw_struct, NameToken_normal, name_normal, name_root_schema, op_expansion, PuncToken_close_brace, punc_close_brace, punc_close_paren, punc_colon, punc_open_brace, punc_open_paren, punc_separator, punc_terminator } from './ast/tokens';
 
 const struct_scope_parsers: Parser<StructElem>[] = [
 	parse_struct_field,
@@ -63,7 +63,41 @@ function parse_struct_params(state: ParserState) : StructParamsListNode {
 	const param_list = new StructParamsListNode();
 	param_list.open_paren = open_paren;
 
-	// TODO: params
+	state.scan_through_comments_and_whitespace(param_list.children);
+
+	let name: NameToken_normal;
+
+	while (name = name_normal.match(state)) {
+		const param = new StructParamNode();
+		param_list.params.push(param);
+		param.name = name;
+
+		state.scan_through_comments_and_whitespace(param_list.children);
+
+		param.punc_colon = punc_colon.match(state);
+
+		if (! param.punc_colon) {
+			state.fatal('expected colon ":" after param name to begin type definition');
+		}
+
+		state.scan_through_comments_and_whitespace(param_list.children);
+
+		param.param_type = parse_type_expr(state);
+
+		if (! param.param_type) {
+			state.fatal('expected param type definition');
+		}
+
+		state.scan_through_comments_and_whitespace(param_list.children);
+
+		param.separator = punc_separator.match(state);
+
+		if (! param.separator) {
+			break;
+		}
+
+		state.scan_through_comments_and_whitespace(param_list.children);
+	}
 
 	param_list.close_paren = punc_close_paren.match(state);
 

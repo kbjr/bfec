@@ -26,6 +26,8 @@ $ ./bin/bfec -h
 
 ## Installing From NPM
 
+> _Note: Still in very early development; no versions have yet been published_
+
 ```bash
 $ npm i -g bfec
 ```

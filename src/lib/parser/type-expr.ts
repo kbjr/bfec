@@ -265,19 +265,19 @@ function parse_type_expr_named(state: ParserState) : TypeExpr_named {
 
 	state.commit_branch(branch);
 
-	const params = new TypeExprParamsList();
-	params.open_paren = open_paren;
+	const param_list = new TypeExprParamsList();
+	param_list.open_paren = open_paren;
 
-	state.scan_through_comments_and_whitespace(params.children);
+	state.scan_through_comments_and_whitespace(param_list.children);
 
 	let value_expr: ValueExpr;
 
 	while (value_expr = parse_value_expr(state)) {
 		const param = new TypeExprParam();
-		params.params.push(param);
+		param_list.params.push(param);
 		param.param = value_expr;
 
-		state.scan_through_comments_and_whitespace(params.children);
+		state.scan_through_comments_and_whitespace(param_list.children);
 
 		param.separator = punc_separator.match(state);
 
@@ -285,13 +285,13 @@ function parse_type_expr_named(state: ParserState) : TypeExpr_named {
 			break;
 		}
 
-		state.scan_through_comments_and_whitespace(params.children);
+		state.scan_through_comments_and_whitespace(param_list.children);
 	}
 
-	params.close_paren = punc_close_paren.match(state);
+	param_list.close_paren = punc_close_paren.match(state);
 
-	if (! params.close_paren) {
-		if (params.params.length) {
+	if (! param_list.close_paren) {
+		if (param_list.params.length) {
 			state.fatal('expected closing paren ")" or a separator "," followed by more params');
 		}
 		

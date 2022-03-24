@@ -6,13 +6,14 @@ import { parser as log } from '../log';
 import { parse_struct } from './struct';
 import { parse_switch } from './switch';
 import { parse_from } from './from';
+import { parse_enum } from './enum';
 
 export * as ast from './ast';
 
 const parsers: Parser<ASTNode>[] = [
 	parse_struct,
 	parse_switch,
-	// parse_enum,
+	parse_enum,
 	parse_from,
 ];
 
