@@ -1,6 +1,6 @@
 
 import { ASTNode, node_type } from './node';
-import { CommentToken, NameToken_normal, NameToken_root_schema, NameToken_this_schema, PuncToken_property_access, WhitespaceToken } from './tokens';
+import { Ignored, NameToken_normal, NameToken_root_schema, NameToken_this_schema, PuncToken_property_access } from './tokens';
 
 export type ValueExpr = ValueExpr_path ;
 
@@ -10,7 +10,7 @@ export class ValueExpr_path extends ASTNode {
 	public type: node_type.value_expr_path = node_type.value_expr_path;
 	public lh_name: LeftHandName;
 	public rh_names: ValueExpr_path_access[] = [ ];
-	public children: (CommentToken | WhitespaceToken)[] = [ ];
+	public children: Ignored[] = [ ];
 
 	public toJSON(): object {
 		return {

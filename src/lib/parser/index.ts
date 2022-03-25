@@ -1,5 +1,4 @@
 
-import { ASTNode, FileNode } from './ast';
 import { Parser } from './parser';
 import { ParserState } from './state';
 import { parser as log } from '../log';
@@ -7,10 +6,11 @@ import { parse_struct } from './struct';
 import { parse_switch } from './switch';
 import { parse_from } from './from';
 import { parse_enum } from './enum';
+import { FileNode, FileNodeElem } from './ast';
 
 export * as ast from './ast';
 
-const parsers: Parser<ASTNode>[] = [
+const parsers: Parser<FileNodeElem>[] = [
 	parse_struct,
 	parse_switch,
 	parse_enum,

@@ -3,6 +3,8 @@ import { Token } from './token';
 import { FencedTokenMatcher, TokenMatcher } from './matcher';
 import { node_type } from '../node';
 
+export type Ignored = WhitespaceToken | CommentToken ;
+
 export class WhitespaceToken extends Token {
 	public type: node_type.meta_whitespace = node_type.meta_whitespace;
 }

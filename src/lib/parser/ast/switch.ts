@@ -14,6 +14,7 @@ import {
 	PuncToken_open_angle_bracket,
 	PuncToken_open_brace,
 	PuncToken_terminator,
+	Ignored,
 } from './tokens';
 import { TypeExpr } from './type-expr';
 
@@ -24,7 +25,7 @@ export class DeclareSwitchNode extends ASTNode {
 	public name: NameToken_normal;
 	public param: SwitchParam;
 	public body: SwitchBody;
-	public children: (CommentToken | WhitespaceToken)[] = [ ];
+	public children: Ignored[] = [ ];
 	
 	public toJSON() {
 		return {
@@ -62,7 +63,7 @@ export class SwitchParam extends ASTNode {
 	public open_bracket: PuncToken_open_angle_bracket;
 	public close_bracket: PuncToken_close_angle_bracket;
 	public name: NameToken_normal;
-	public children: (CommentToken | WhitespaceToken)[] = [ ];
+	public children: Ignored[] = [ ];
 	
 	public toJSON() {
 		return {
@@ -84,7 +85,7 @@ export class SwitchCase extends ASTNode {
 	public colon: PuncToken_colon;
 	public selection: SwitchSelection;
 	public terminator: PuncToken_terminator;
-	public children: (CommentToken | WhitespaceToken)[] = [ ];
+	public children: Ignored[] = [ ];
 
 	public toJSON(): object {
 		return {
@@ -105,7 +106,7 @@ export class SwitchDefault extends ASTNode {
 	public colon: PuncToken_colon;
 	public selection: SwitchSelection;
 	public terminator: PuncToken_terminator;
-	public children: (CommentToken | WhitespaceToken)[] = [ ];
+	public children: Ignored[] = [ ];
 	
 	public toJSON(): object {
 		return {

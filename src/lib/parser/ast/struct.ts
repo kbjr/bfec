@@ -2,7 +2,6 @@
 import { ASTNode, node_type } from './node';
 import {
 	CommentToken,
-	WhitespaceToken,
 	NameToken_normal,
 	NameToken_root_schema,
 	PuncToken_close_brace,
@@ -12,16 +11,19 @@ import {
 	PuncToken_open_paren,
 	PuncToken_terminator,
 	OpToken_expansion,
-	PuncToken_separator
+	PuncToken_separator,
+	PuncToken_assign,
+	Ignored
 } from './tokens';
 import { TypeExpr } from './type-expr';
+import { ValueExpr } from './value-expr';
 
 export class DeclareStructNode extends ASTNode {
 	public type: node_type.decl_struct = node_type.decl_struct;
 	public name: NameToken_normal | NameToken_root_schema;
 	public params: StructParamsListNode;
 	public body: StructBody;
-	public children: (CommentToken | WhitespaceToken)[] = [ ];
+	public children: Ignored[] = [ ];
 	public toJSON() {
 		return {
 			type: node_type[this.type],
@@ -53,7 +55,7 @@ export class StructParamsListNode extends ASTNode {
 	public open_paren: PuncToken_open_paren;
 	public close_paren: PuncToken_close_paren;
 	public params: StructParamNode[] = [ ];
-	public children: (CommentToken | WhitespaceToken)[] = [ ];
+	public children: Ignored[] = [ ];
 	public toJSON() {
 		return {
 			type: node_type[this.type],
@@ -89,7 +91,7 @@ export class StructExpansion extends ASTNode {
 	public type: node_type.struct_expansion = node_type.struct_expansion;
 	public expansion_op: OpToken_expansion;
 	public expanded_type: TypeExpr;
-	public children: (CommentToken | WhitespaceToken)[] = [ ];
+	public children: Ignored[] = [ ];
 	public toJSON(): object {
 		return {
 			type: node_type[this.type],
@@ -106,8 +108,10 @@ export class StructField extends ASTNode {
 	public optional_condition: StructFieldOptionalCondition;
 	public field_type_colon: PuncToken_colon;
 	public field_type: TypeExpr;
+	public optional_assign: PuncToken_assign;
+	public optional_value: ValueExpr;
 	public terminator: PuncToken_terminator;
-	public children: (CommentToken | WhitespaceToken)[] = [ ];
+	public children: Ignored[] = [ ];
 	public toJSON(): object {
 		return {
 			type: node_type[this.type],
@@ -115,6 +119,8 @@ export class StructField extends ASTNode {
 			optional_condition: this.optional_condition,
 			field_type_colon: this.field_type_colon,
 			field_type: this.field_type,
+			optional_assign: this.optional_assign,
+			optional_value: this.optional_value,
 			terminator: this.terminator,
 			children: this.children
 		};
@@ -123,7 +129,7 @@ export class StructField extends ASTNode {
 
 export class StructFieldOptionalCondition extends ASTNode {
 	public type: node_type.struct_field_optional_condition = node_type.struct_field_optional_condition;
-	public children: (CommentToken | WhitespaceToken)[] = [ ];
+	public children: Ignored[] = [ ];
 	public toJSON(): object {
 		return {
 			type: node_type[this.type],

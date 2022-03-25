@@ -26,7 +26,7 @@ import {
 	name_builtin_len,
 	name_builtin_checksum,
 	op_expansion,
-	CommentToken, WhitespaceToken, punc_separator,
+	punc_separator, Ignored, PuncToken_arrow, const_unicode,
 } from './ast/tokens';
 import { parse_value_expr } from './value-expr';
 
@@ -185,7 +185,7 @@ function parse_type_expr_array(state: ParserState, lh_expr: TypeExpr) : TypeExpr
 	ast_node.elem_type = lh_expr;
 	
 	state.scan_through_comments_and_whitespace(ast_node.children);
-	ast_node.length_type = parse_type_expr_fixed_int(state) || parse_type_expr_varint(state) || op_expansion.match(state);
+	ast_node.length_type = parse_type_expr_fixed_int(state) || parse_type_expr_varint(state) || op_expansion.match(state) || parse_value_expr(state);
 
 	if (! ast_node.length_type) {
 		state.fatal('expected array length type definition between square brackets "[" / "]"');
@@ -228,16 +228,71 @@ function parse_type_expr_checksum(state: ParserState) : TypeExpr_builtin_checksu
 
 	const checksum = new TypeExpr_builtin_checksum();
 
-	// TODO: real type
-	// TODO:  - open angle bracket
-	// TODO:  - type expr
-	// TODO:  - close angle bracket
-	// TODO: params 
-	// TODO:  - open paren
-	// TODO:  - data source expr
-	// TODO:  - separator
-	// TODO:  - checksum function name string
-	// TODO:  - close paren
+	checksum.checksum_keyword = checksum_keyword;
+
+	state.scan_through_comments_and_whitespace(checksum.children);
+
+	checksum.open_bracket = punc_open_angle_bracket.match(state);
+
+	if (! checksum.open_bracket) {
+		state.fatal('expected opening angle bracket "<" preceeding checksum real type');
+	}
+
+	state.scan_through_comments_and_whitespace(checksum.children);
+
+	checksum.real_type = parse_type_expr(state);
+
+	if (! checksum.real_type) {
+		state.fatal('expected type expression for checksum real type');
+	}
+
+	state.scan_through_comments_and_whitespace(checksum.children);
+
+	checksum.close_bracket = punc_close_angle_bracket.match(state);
+
+	if (! checksum.close_bracket) {
+		state.fatal('expected closing angle bracket ">" following checksum real type');
+	}
+
+	state.scan_through_comments_and_whitespace(checksum.children);
+
+	checksum.open_paren = punc_open_paren.match(state);
+
+	if (! checksum.open_paren) {
+		state.fatal('expected opening paren "(" preceeding checksum params');
+	}
+
+	state.scan_through_comments_and_whitespace(checksum.children);
+
+	checksum.data_expr = parse_value_expr(state);
+
+	if (! checksum.data_expr) {
+		state.fatal('expected value expression for checksum data source');
+	}
+
+	state.scan_through_comments_and_whitespace(checksum.children);
+
+	checksum.param_separator = punc_separator.match(state);
+
+	if (! checksum.param_separator) {
+		state.fatal('expected separator "," between checksum params');
+	}
+
+	state.scan_through_comments_and_whitespace(checksum.children);
+
+	checksum.checksum_func = const_ascii.match(state) || const_unicode.match(state);
+
+	if (! checksum.checksum_func) {
+		state.fatal('expected string literal with checksum function name');
+	}
+
+	state.scan_through_comments_and_whitespace(checksum.children);
+
+	checksum.close_paren = punc_close_paren.match(state);
+
+	if (! checksum.close_paren) {
+		state.fatal('expected closing paren ")" following checksum params');
+	}
 
 	return checksum;
 }
@@ -305,41 +360,61 @@ function parse_type_expr_refinement(state: ParserState, lh_expr: TypeExpr) {
 	state.trace('parse_type_expr_refinement');
 
 	const branch = state.branch();
+	const skipped: Ignored[] = [ ];
+
+	branch.scan_through_comments_and_whitespace(skipped);
+
 	const arrow = punc_arrow.match(branch);
-	
+
 	if (! arrow) {
 		return null;
 	}
 
-	const children: (CommentToken | WhitespaceToken)[] = [ ];
-
 	state.commit_branch(branch);
-	state.scan_through_comments_and_whitespace(children);
+	state.scan_through_comments_and_whitespace(skipped);
 
-	// TODO: one of:
-	// TODO:  - struct refinement
-	// TODO:  - switch refinement 
-	// TODO:  - named refinement
+	const refinement
+		= parse_type_expr_struct_refinement(state, lh_expr, arrow, skipped)
+		|| parse_type_expr_switch_refinement(state, lh_expr, arrow, skipped)
+		|| parse_type_expr_named_refinement(state, lh_expr, arrow, skipped)
+		;
 
-	return null;
+	if (! refinement) {
+		state.fatal('expected a valid refinement target (named type expression or inline struct / switch)');
+	}
+
+	return refinement;
 }
 
-function parse_type_expr_struct_refinement(state: ParserState, lh_expr: TypeExpr) : TypeExpr_struct_refinement {
+function parse_type_expr_struct_refinement(state: ParserState, lh_expr: TypeExpr, arrow: PuncToken_arrow, skipped: Ignored[]) : TypeExpr_struct_refinement {
 	state.trace('parse_type_expr_struct_refinement');
 	// TODO: parse_type_expr_struct_refinement
 	return null;
 }
 
-function parse_type_expr_switch_refinement(state: ParserState, lh_expr: TypeExpr) : TypeExpr_switch_refinement {
+function parse_type_expr_switch_refinement(state: ParserState, lh_expr: TypeExpr, arrow: PuncToken_arrow, skipped: Ignored[]) : TypeExpr_switch_refinement {
 	state.trace('parse_type_expr_switch_refinement');
 	// TODO: parse_type_expr_switch_refinement
 	return null;
 }
 
-function parse_type_expr_named_refinement(state: ParserState, lh_expr: TypeExpr) : TypeExpr_named_refinement {
+function parse_type_expr_named_refinement(state: ParserState, lh_expr: TypeExpr, arrow: PuncToken_arrow, skipped: Ignored[]) : TypeExpr_named_refinement {
 	state.trace('parse_type_expr_named_refinement');
-	// TODO: parse_type_expr_named_refinement
-	return null;
+	
+	const rh_expr = parse_type_expr_named(state);
+
+	if (! rh_expr) {
+		return null;
+	}
+	
+	const ast_node = new TypeExpr_named_refinement();
+
+	ast_node.children = skipped;
+	ast_node.parent_type = lh_expr;
+	ast_node.arrow = arrow;
+	ast_node.refined_type = rh_expr;
+	
+	return ast_node;
 }
 
 function parse_type_expr_fixed_int(state: ParserState) : TypeExpr_int {

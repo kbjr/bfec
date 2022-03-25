@@ -1,6 +1,6 @@
 
 export { ASTNode, node_type } from './node';
-export { FileNode } from './file';
+export { FileNode, FileNodeElem } from './file';
 
 export * from './enum';
 export * from './from';

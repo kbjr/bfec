@@ -3,7 +3,8 @@ import { Parser } from './parser';
 import { ParserState } from './state';
 import { parse_type_expr } from './type-expr';
 import { DeclareStructNode, StructBody, StructElem, StructExpansion, StructField, StructParamNode, StructParamsListNode } from './ast';
-import { kw_struct, NameToken_normal, name_normal, name_root_schema, op_expansion, PuncToken_close_brace, punc_close_brace, punc_close_paren, punc_colon, punc_open_brace, punc_open_paren, punc_separator, punc_terminator } from './ast/tokens';
+import { kw_struct, NameToken_normal, name_normal, name_root_schema, op_expansion, PuncToken_close_brace, punc_assign, punc_close_brace, punc_close_paren, punc_colon, punc_open_brace, punc_open_paren, punc_separator, punc_terminator } from './ast/tokens';
+import { parse_value_expr } from './value-expr';
 
 const struct_scope_parsers: Parser<StructElem>[] = [
 	parse_struct_field,
@@ -181,9 +182,19 @@ function parse_struct_field(state: ParserState) : StructField {
 
 	state.scan_through_comments_and_whitespace(field.children);
 
-	// TODO: optional assignment
-	// TODO:  - assign operator
-	// TODO:  - value_expr
+	field.optional_assign = punc_assign.match(state);
+
+	if (field.optional_assign) {
+		state.scan_through_comments_and_whitespace(field.children);
+
+		field.optional_value = parse_value_expr(state);
+
+		if (! field.optional_value) {
+			state.fatal('expected value expression following assignment operator');
+		}
+
+		state.scan_through_comments_and_whitespace(field.children);
+	}
 
 	field.terminator = punc_terminator.match(state);
 

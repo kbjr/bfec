@@ -11,6 +11,7 @@ import {
 	PuncToken_open_brace,
 	PuncToken_separator,
 	PuncToken_terminator,
+	Ignored,
 } from './tokens';
 
 export class DeclareFromNode extends ASTNode {
@@ -19,7 +20,7 @@ export class DeclareFromNode extends ASTNode {
 	public imports: FromImportsListNode;
 	public root_import: NameToken_normal;
 	public terminator: PuncToken_terminator;
-	public children: (CommentToken | WhitespaceToken)[] = [ ];
+	public children: Ignored[] = [ ];
 	public toJSON() {
 		return {
 			type: node_type[this.type],

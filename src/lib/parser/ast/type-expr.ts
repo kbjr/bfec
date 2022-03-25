@@ -18,6 +18,7 @@ import {
 	PuncToken_arrow,
 	PuncToken_separator,
 	OpToken_expansion,
+	Ignored,
 } from './tokens';
 import { StructBody } from './struct';
 import { SwitchBody } from './switch';
@@ -37,6 +38,9 @@ export type TypeExpr
 	| TypeExpr_builtin_checksum
 	| TypeExpr_named
 	| TypeExpr_array
+	| TypeExpr_named_refinement
+	| TypeExpr_struct_refinement
+	| TypeExpr_switch_refinement
 	;
 
 export type TypeExpr_int
@@ -54,7 +58,7 @@ export class TypeExpr_builtin_vint extends ASTNode {
 	public open_bracket: PuncToken_open_angle_bracket;
 	public close_bracket: PuncToken_close_angle_bracket;
 	public real_type: TypeExpr;
-	public children: (CommentToken | WhitespaceToken)[] = [ ];
+	public children: Ignored[] = [ ];
 
 	public toJSON(): object {
 		return {
@@ -74,7 +78,7 @@ export class TypeExpr_builtin_len extends ASTNode {
 	public open_bracket: PuncToken_open_angle_bracket;
 	public close_bracket: PuncToken_close_angle_bracket;
 	public real_type: TypeExpr;
-	public children: (CommentToken | WhitespaceToken)[] = [ ];
+	public children: Ignored[] = [ ];
 
 	public toJSON(): object {
 		return {
@@ -93,8 +97,8 @@ export class TypeExpr_array extends ASTNode {
 	public elem_type: TypeExpr;
 	public open_bracket: PuncToken_open_square_bracket;
 	public close_bracket: PuncToken_close_square_bracket;
-	public length_type: TypeExpr | OpToken_expansion;
-	public children: (CommentToken | WhitespaceToken)[] = [ ];
+	public length_type: TypeExpr | OpToken_expansion | ValueExpr;
+	public children: Ignored[] = [ ];
 
 	public toJSON(): object {
 		return {
@@ -114,7 +118,7 @@ export class TypeExpr_struct_refinement extends ASTNode {
 	public arrow: PuncToken_arrow;
 	public struct_keyword: KeywordToken_bin | KeywordToken_struct;
 	public body: StructBody;
-	public children: (CommentToken | WhitespaceToken)[] = [ ];
+	public children: Ignored[] = [ ];
 
 	public toJSON(): object {
 		return {
@@ -134,7 +138,7 @@ export class TypeExpr_switch_refinement extends ASTNode {
 	public arrow: PuncToken_arrow;
 	public switch_keyword: KeywordToken_switch;
 	public body: SwitchBody;
-	public children: (CommentToken | WhitespaceToken)[] = [ ];
+	public children: Ignored[] = [ ];
 
 	public toJSON(): object {
 		return {
@@ -153,7 +157,7 @@ export class TypeExpr_named_refinement extends ASTNode {
 	public parent_type: TypeExpr;
 	public arrow: PuncToken_arrow;
 	public refined_type: TypeExpr;
-	public children: (CommentToken | WhitespaceToken)[] = [ ];
+	public children: Ignored[] = [ ];
 
 	public toJSON(): object {
 		return {
@@ -170,7 +174,7 @@ export class TypeExpr_named extends ASTNode {
 	public type: node_type.type_expr_named = node_type.type_expr_named;
 	public name: NameToken_normal | NameToken_root_schema;
 	public params: TypeExprParamsList;
-	public children: (CommentToken | WhitespaceToken)[] = [ ];
+	public children: Ignored[] = [ ];
 
 	public toJSON(): object {
 		return {
@@ -187,7 +191,7 @@ export class TypeExprParamsList extends ASTNode {
 	public open_paren: PuncToken_open_paren;
 	public close_paren: PuncToken_close_paren;
 	public params: TypeExprParam[] = [ ];
-	public children: (CommentToken | WhitespaceToken)[] = [ ];
+	public children: Ignored[] = [ ];
 
 	public toJSON(): object {
 		return {
@@ -220,7 +224,7 @@ export class TypeExpr_builtin_text extends ASTNode {
 	public open_bracket: PuncToken_open_angle_bracket;
 	public close_bracket: PuncToken_close_angle_bracket;
 	public length_type: TypeExpr;
-	public children: (CommentToken | WhitespaceToken)[] = [ ];
+	public children: Ignored[] = [ ];
 
 	public toJSON(): object {
 		return {
@@ -243,8 +247,9 @@ export class TypeExpr_builtin_checksum extends ASTNode {
 	public open_paren: PuncToken_open_paren;
 	public close_paren: PuncToken_close_paren;
 	public data_expr: ValueExpr;
+	public param_separator: PuncToken_separator;
 	public checksum_func: ConstToken_ascii | ConstToken_unicode;
-	public children: (CommentToken | WhitespaceToken)[] = [ ];
+	public children: Ignored[] = [ ];
 
 	public toJSON(): object {
 		return {
@@ -254,6 +259,7 @@ export class TypeExpr_builtin_checksum extends ASTNode {
 			open_bracket: this.open_bracket,
 			close_bracket: this.close_bracket,
 			real_type: this.real_type,
+			param_separator: this.param_separator,
 			checksum_func: this.checksum_func,
 		};
 	}
