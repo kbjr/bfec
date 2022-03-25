@@ -38,6 +38,11 @@ export class KeywordToken_void extends Token {
 	public text: 'void' = 'void';
 }
 
+export class KeywordToken_null extends Token {
+	public type: node_type.kw_null = node_type.kw_null;
+	public text: 'null' = 'null';
+}
+
 export class KeywordToken_invalid extends Token {
 	public type: node_type.kw_invalid = node_type.kw_invalid;
 	public text: 'invalid' = 'invalid';
@@ -60,6 +65,7 @@ export const kw_bin      = new SimpleTokenMatcher(KeywordToken_bin, /\bbin\b/y);
 export const kw_case     = new SimpleTokenMatcher(KeywordToken_case, /\bcase\b/y);
 export const kw_default  = new SimpleTokenMatcher(KeywordToken_default, /\bdefault\b/y);
 export const kw_void     = new SimpleTokenMatcher(KeywordToken_void, /\bvoid\b/y);
+export const kw_null     = new SimpleTokenMatcher(KeywordToken_null, /\bnull\b/y);
 export const kw_invalid  = new SimpleTokenMatcher(KeywordToken_invalid, /\binvalid\b/y);
 export const kw_from     = new SimpleTokenMatcher(KeywordToken_from, /\bfrom\b/y);
 export const kw_as       = new SimpleTokenMatcher(KeywordToken_as, /\bas\b/y);

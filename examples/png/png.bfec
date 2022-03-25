@@ -11,22 +11,13 @@ struct $ {
   # of it, so we'll statically define it here so we can `$.image_header` elsewhere
   image_header: Chunk(ChunkType.image_header);
 
-  # TODO: Array `[...]` syntax for "take all remaining"
   chunks: Chunk[...];
 }
 
 struct Chunk (type: ChunkType) {
-  # TODO: Add support for `_be` and `_le` types
-  # TODO: Add support for `len<int>` type to hint at an auto-generated length field?
   length: len<u32_be>;
   type: ChunkType = type;
-  
-  # TODO: Add support for `-> switch` refinements
-  # TODO: Should do `-> struct` as well?
-  # TODO: Remove `$size` meta-field; can be implemented with `u8[@.length] -> <refine>`
   data: u8[@.length] -> ChunkData(type);
-
-  # TODO: Add support for `checksum` verification / population?
   crc: checksum<u32_be>(@.data, 'crc32');
 }
 
@@ -200,7 +191,6 @@ struct RGBColorSpaceData {
 }
 
 struct TextData {
-  # TODO: Support for null-terminated string
   keyword: ascii<null>;
   text: ascii<...>;
 }

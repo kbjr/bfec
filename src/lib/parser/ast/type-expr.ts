@@ -19,6 +19,7 @@ import {
 	PuncToken_separator,
 	OpToken_expansion,
 	Ignored,
+	KeywordToken_null,
 } from './tokens';
 import { StructBody } from './struct';
 import { SwitchBody } from './switch';
@@ -97,7 +98,7 @@ export class TypeExpr_array extends ASTNode {
 	public elem_type: TypeExpr;
 	public open_bracket: PuncToken_open_square_bracket;
 	public close_bracket: PuncToken_close_square_bracket;
-	public length_type: TypeExpr | OpToken_expansion | ValueExpr;
+	public length_type: TypeExpr | OpToken_expansion | ValueExpr | KeywordToken_null;
 	public children: Ignored[] = [ ];
 
 	public toJSON(): object {

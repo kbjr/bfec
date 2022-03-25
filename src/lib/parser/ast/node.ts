@@ -99,6 +99,7 @@ export enum node_type {
 	kw_default,
 	kw_invalid,
 	kw_void,
+	kw_null,
 	kw_from,
 	kw_as,
 }

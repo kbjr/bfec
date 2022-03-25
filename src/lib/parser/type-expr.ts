@@ -26,7 +26,7 @@ import {
 	name_builtin_len,
 	name_builtin_checksum,
 	op_expansion,
-	punc_separator, Ignored, PuncToken_arrow, const_unicode,
+	punc_separator, Ignored, PuncToken_arrow, const_unicode, kw_null,
 } from './ast/tokens';
 import { parse_value_expr } from './value-expr';
 
@@ -185,7 +185,7 @@ function parse_type_expr_array(state: ParserState, lh_expr: TypeExpr) : TypeExpr
 	ast_node.elem_type = lh_expr;
 	
 	state.scan_through_comments_and_whitespace(ast_node.children);
-	ast_node.length_type = parse_type_expr_fixed_int(state) || parse_type_expr_varint(state) || op_expansion.match(state) || parse_value_expr(state);
+	ast_node.length_type = parse_type_expr_fixed_int(state) || parse_type_expr_varint(state) || op_expansion.match(state) || parse_value_expr(state) || kw_null.match(state);
 
 	if (! ast_node.length_type) {
 		state.fatal('expected array length type definition between square brackets "[" / "]"');
@@ -213,6 +213,13 @@ function parse_type_expr_text(state: ParserState) : TypeExpr_builtin_text {
 	const text = new TypeExpr_builtin_text();
 
 	// TODO: text length
+	// TODO:  - open angle bracket
+	// TODO:  - one of:
+	// TODO:    - type expression
+	// TODO:    - int literal
+	// TODO:    - expansion
+	// TODO:    - null
+	// TODO:  - close angle bracket
 
 	return text;
 }
