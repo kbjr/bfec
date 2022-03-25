@@ -1,5 +1,5 @@
 
-import { BoolExpr } from '../bool-expr';
+import { BoolExpr } from './bool-expr';
 import { ASTNode, node_type } from './node';
 import {
 	CommentToken,
@@ -26,6 +26,7 @@ export class DeclareStructNode extends ASTNode {
 	public params: StructParamsListNode;
 	public body: StructBody;
 	public children: Ignored[] = [ ];
+
 	public toJSON() {
 		return {
 			type: node_type[this.type],
@@ -42,6 +43,7 @@ export class StructBody extends ASTNode {
 	public open_brace: PuncToken_open_brace;
 	public close_brace: PuncToken_close_brace;
 	public children: StructElem[] = [ ];
+
 	public toJSON() {
 		return {
 			type: node_type[this.type],
@@ -58,6 +60,7 @@ export class StructParamsListNode extends ASTNode {
 	public close_paren: PuncToken_close_paren;
 	public params: StructParamNode[] = [ ];
 	public children: Ignored[] = [ ];
+
 	public toJSON() {
 		return {
 			type: node_type[this.type],
@@ -93,12 +96,15 @@ export class StructExpansion extends ASTNode {
 	public type: node_type.struct_expansion = node_type.struct_expansion;
 	public expansion_op: OpToken_expansion;
 	public expanded_type: TypeExpr;
+	public terminator: PuncToken_terminator;
 	public children: Ignored[] = [ ];
+
 	public toJSON(): object {
 		return {
 			type: node_type[this.type],
 			expansion_op: this.expansion_op,
 			expanded_type: this.expanded_type,
+			terminator: this.terminator,
 			children: this.children,
 		};
 	}
@@ -114,6 +120,7 @@ export class StructField extends ASTNode {
 	public optional_value: ValueExpr;
 	public terminator: PuncToken_terminator;
 	public children: Ignored[] = [ ];
+
 	public toJSON(): object {
 		return {
 			type: node_type[this.type],
@@ -136,6 +143,7 @@ export class StructFieldOptionalCondition extends ASTNode {
 	public close_paren: PuncToken_close_paren;
 	public condition: BoolExpr;
 	public children: Ignored[] = [ ];
+
 	public toJSON(): object {
 		return {
 			type: node_type[this.type],

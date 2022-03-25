@@ -92,4 +92,4 @@ export const punc_close_square_bracket = new SimpleTokenMatcher(PuncToken_close_
 export const punc_open_angle_bracket   = new SimpleTokenMatcher(PuncToken_open_angle_bracket, /\</y);
 export const punc_close_angle_bracket  = new SimpleTokenMatcher(PuncToken_close_angle_bracket, /\>/y);
 export const punc_arrow                = new SimpleTokenMatcher(PuncToken_arrow, /-\>/y);
-export const punc_condition            = new SimpleTokenMatcher(PuncToken_arrow, /\?/y);
+export const punc_condition            = new SimpleTokenMatcher(PuncToken_condition, /\?/y);

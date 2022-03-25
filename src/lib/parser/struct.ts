@@ -2,9 +2,10 @@
 import { Parser } from './parser';
 import { ParserState } from './state';
 import { parse_type_expr } from './type-expr';
-import { DeclareStructNode, StructBody, StructElem, StructExpansion, StructField, StructParamNode, StructParamsListNode } from './ast';
-import { kw_struct, NameToken_normal, name_normal, name_root_schema, op_expansion, PuncToken_close_brace, punc_assign, punc_close_brace, punc_close_paren, punc_colon, punc_open_brace, punc_open_paren, punc_separator, punc_terminator } from './ast/tokens';
+import { DeclareStructNode, StructBody, StructElem, StructExpansion, StructField, StructFieldOptionalCondition, StructParamNode, StructParamsListNode } from './ast';
+import { kw_struct, NameToken_normal, name_normal, name_root_schema, op_expansion, PuncToken_close_brace, punc_assign, punc_close_brace, punc_close_paren, punc_colon, punc_condition, punc_open_brace, punc_open_paren, punc_separator, punc_terminator } from './ast/tokens';
 import { parse_value_expr } from './value-expr';
+import { parse_bool_expr } from './bool-expr';
 
 const struct_scope_parsers: Parser<StructElem>[] = [
 	parse_struct_field,
@@ -41,6 +42,8 @@ export function parse_struct(state: ParserState) : DeclareStructNode {
 }
 
 export function parse_struct_body(state: ParserState) {
+	state.trace('parse_struct_body');
+
 	const ast_node = new StructBody();
 
 	ast_node.open_brace = punc_open_brace.match(state);
@@ -158,11 +161,9 @@ function parse_struct_field(state: ParserState) : StructField {
 	const field = new StructField();
 	field.field_name = field_name;
 
-	// TODO: optional bool condition
-	// TODO:  - opening ?
-	// TODO:  - opening paren
-	// TODO:  - bool_expr
-	// TODO:  - closing paren
+	state.scan_through_comments_and_whitespace(field.children);
+
+	field.optional_condition = parse_struct_field_optional_condition(state);
 
 	state.scan_through_comments_and_whitespace(field.children);
 
@@ -206,6 +207,45 @@ function parse_struct_field(state: ParserState) : StructField {
 	return field;
 }
 
+function parse_struct_field_optional_condition(state: ParserState) : StructFieldOptionalCondition {
+	state.trace('parse_struct_field_optional_condition');
+
+	const question = punc_condition.match(state);
+
+	if (! question) {
+		return null;
+	}
+
+	const ast_node = new StructFieldOptionalCondition();
+	ast_node.question = question;
+
+	state.scan_through_comments_and_whitespace(ast_node.children);
+
+	ast_node.open_paren = punc_open_paren.match(state);
+
+	if (! ast_node.open_paren) {
+		state.fatal('expected opening paren "(" preceeding conditional bool expression');
+	}
+
+	state.scan_through_comments_and_whitespace(ast_node.children);
+
+	ast_node.condition = parse_bool_expr(state);
+
+	if (! ast_node) {
+		state.fatal('expected conditional bool expression');
+	}
+
+	state.scan_through_comments_and_whitespace(ast_node.children);
+
+	if (! ast_node.close_paren) {
+		state.fatal('expected closing paren ")" following conditional bool expression');
+	}
+
+	state.scan_through_comments_and_whitespace(ast_node.children);
+
+	return ast_node;
+}
+
 function parse_struct_expansion(state: ParserState) : StructExpansion {
 	state.step_down();
 	state.trace('parse_struct_expansion');
@@ -216,9 +256,25 @@ function parse_struct_expansion(state: ParserState) : StructExpansion {
 		return null;
 	}
 
-	// TODO: type_expr
-	// TODO: terminator
+	const ast_node = new StructExpansion();
+	ast_node.expansion_op = expansion_op;
+
+	state.scan_through_comments_and_whitespace(ast_node.children);
+
+	ast_node.expanded_type = parse_type_expr(state);
+
+	if (! ast_node.expanded_type) {
+		state.fatal('expected type expression following struct expansion op "..."');
+	}
+
+	state.scan_through_comments_and_whitespace(ast_node.children);
+
+	ast_node.terminator = punc_terminator.match(state);
+
+	if (! ast_node.terminator) {
+		state.fatal('expected terminator ";" following struct expansion');
+	}
 
 	state.step_up();
-	return null;
+	return ast_node;
 }
