@@ -138,6 +138,12 @@ export class TypeExpr_switch_refinement extends ASTNode {
 	public parent_type: TypeExpr;
 	public arrow: PuncToken_arrow;
 	public switch_keyword: KeywordToken_switch;
+	public open_bracket: PuncToken_open_angle_bracket;
+	public close_bracket: PuncToken_close_angle_bracket;
+	public value_type: TypeExpr;
+	public open_paren: PuncToken_open_paren;
+	public close_paren: PuncToken_close_paren;
+	public value_expr: ValueExpr;
 	public body: SwitchBody;
 	public children: Ignored[] = [ ];
 
@@ -147,6 +153,12 @@ export class TypeExpr_switch_refinement extends ASTNode {
 			parent_type: this.parent_type,
 			arrow: this.arrow,
 			switch_keyword: this.switch_keyword,
+			open_bracket: this.open_bracket,
+			close_bracket: this.close_bracket,
+			value_type: this.value_type,
+			open_paren: this.open_paren,
+			close_paren: this.close_paren,
+			value_expr: this.value_expr,
 			body: this.body,
 			children: this.children,
 		};

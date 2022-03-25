@@ -26,9 +26,11 @@ import {
 	name_builtin_len,
 	name_builtin_checksum,
 	op_expansion,
-	punc_separator, Ignored, PuncToken_arrow, const_unicode, kw_null,
+	punc_separator, Ignored, PuncToken_arrow, const_unicode, kw_null, kw_struct, kw_bin, kw_switch,
 } from './ast/tokens';
 import { parse_value_expr } from './value-expr';
+import { parse_struct_body } from './struct';
+import { parse_switch_body } from './switch';
 
 export function parse_type_expr(state: ParserState) : TypeExpr {
 	state.trace('parse_type_expr');
@@ -396,31 +398,121 @@ function parse_type_expr_refinement(state: ParserState, lh_expr: TypeExpr) {
 	state.scan_through_comments_and_whitespace(skipped);
 
 	const refinement
-		= parse_type_expr_struct_refinement(state, lh_expr, arrow, skipped)
-		|| parse_type_expr_switch_refinement(state, lh_expr, arrow, skipped)
-		|| parse_type_expr_named_refinement(state, lh_expr, arrow, skipped)
+		= parse_type_expr_struct_refinement(state, lh_expr, arrow)
+		|| parse_type_expr_switch_refinement(state, lh_expr, arrow)
+		|| parse_type_expr_named_refinement(state, lh_expr, arrow)
 		;
 
 	if (! refinement) {
 		state.fatal('expected a valid refinement target (named type expression or inline struct / switch)');
 	}
 
+	refinement.children.unshift(...skipped);
+
 	return refinement;
 }
 
-function parse_type_expr_struct_refinement(state: ParserState, lh_expr: TypeExpr, arrow: PuncToken_arrow, skipped: Ignored[]) : TypeExpr_struct_refinement {
+function parse_type_expr_struct_refinement(state: ParserState, lh_expr: TypeExpr, arrow: PuncToken_arrow) : TypeExpr_struct_refinement {
 	state.trace('parse_type_expr_struct_refinement');
-	// TODO: parse_type_expr_struct_refinement
-	return null;
+
+	const struct_keyword = kw_struct.match(state) || kw_bin.match(state);
+
+	if (! struct_keyword) {
+		return null;
+	}
+	
+	const ast_node = new TypeExpr_struct_refinement();
+
+	ast_node.parent_type = lh_expr;
+	ast_node.arrow = arrow;
+	ast_node.struct_keyword = struct_keyword;
+
+	state.scan_through_comments_and_whitespace(ast_node.children);
+
+	ast_node.body = parse_struct_body(state);
+
+	if (! ast_node) {
+		state.fatal('expected struct body beginning with opening brace "{"');
+	}
+	
+	return ast_node;
 }
 
-function parse_type_expr_switch_refinement(state: ParserState, lh_expr: TypeExpr, arrow: PuncToken_arrow, skipped: Ignored[]) : TypeExpr_switch_refinement {
+function parse_type_expr_switch_refinement(state: ParserState, lh_expr: TypeExpr, arrow: PuncToken_arrow) : TypeExpr_switch_refinement {
 	state.trace('parse_type_expr_switch_refinement');
-	// TODO: parse_type_expr_switch_refinement
-	return null;
+
+	const switch_keyword = kw_switch.match(state);
+
+	if (! switch_keyword) {
+		return null;
+	}
+	
+	const ast_node = new TypeExpr_switch_refinement();
+
+	ast_node.parent_type = lh_expr;
+	ast_node.arrow = arrow;
+	ast_node.switch_keyword = switch_keyword;
+
+	state.scan_through_comments_and_whitespace(ast_node.children);
+
+	ast_node.open_bracket = punc_open_angle_bracket.match(state);
+
+	if (! ast_node.open_bracket) {
+		state.fatal('expected switch param type, beginning with open angle bracket "<"');
+	}
+
+	state.scan_through_comments_and_whitespace(ast_node.children);
+
+	ast_node.value_type = parse_type_expr(state);
+
+	if (! ast_node.value_type) {
+		state.fatal('expected switch param type expression');
+	}
+
+	state.scan_through_comments_and_whitespace(ast_node.children);
+
+	ast_node.close_bracket = punc_close_angle_bracket.match(state);
+
+	if (! ast_node.close_bracket) {
+		state.fatal('expected close angle bracket ">" after switch param type');
+	}
+
+	state.scan_through_comments_and_whitespace(ast_node.children);
+
+	ast_node.open_paren = punc_open_paren.match(state);
+
+	if (! ast_node.open_paren) {
+		state.fatal('expected switch param value, beginning with open paren "("');
+	}
+
+	state.scan_through_comments_and_whitespace(ast_node.children);
+
+	ast_node.value_expr = parse_value_expr(state);
+
+	if (! ast_node.value_expr) {
+		state.fatal('expected switch param value expression');
+	}
+
+	state.scan_through_comments_and_whitespace(ast_node.children);
+
+	ast_node.close_paren = punc_close_paren.match(state);
+
+	if (! ast_node.close_paren) {
+		state.fatal('expected close paren ")" after switch param value');
+	}
+
+	state.scan_through_comments_and_whitespace(ast_node.children);
+
+	ast_node.body = parse_switch_body(state);
+
+	if (! ast_node) {
+		state.fatal('expected switch body beginning with opening brace "{"');
+	}
+	
+	return ast_node;
 }
 
-function parse_type_expr_named_refinement(state: ParserState, lh_expr: TypeExpr, arrow: PuncToken_arrow, skipped: Ignored[]) : TypeExpr_named_refinement {
+function parse_type_expr_named_refinement(state: ParserState, lh_expr: TypeExpr, arrow: PuncToken_arrow) : TypeExpr_named_refinement {
 	state.trace('parse_type_expr_named_refinement');
 	
 	const rh_expr = parse_type_expr_named(state);
@@ -431,7 +523,6 @@ function parse_type_expr_named_refinement(state: ParserState, lh_expr: TypeExpr,
 	
 	const ast_node = new TypeExpr_named_refinement();
 
-	ast_node.children = skipped;
 	ast_node.parent_type = lh_expr;
 	ast_node.arrow = arrow;
 	ast_node.refined_type = rh_expr;
