@@ -1,8 +1,15 @@
 
 import { ASTNode, node_type } from './node';
-import { Ignored, NameToken_normal, NameToken_root_schema, NameToken_this_schema, PuncToken_property_access } from './tokens';
+import {
+	Ignored,
+	ConstToken_ascii, ConstToken_hex_int, ConstToken_int, ConstToken_unicode,
+	NameToken_normal, NameToken_root_schema, NameToken_this_schema,
+	PuncToken_property_access
+} from './tokens';
 
 export type ValueExpr = ValueExpr_path ;
+
+export type ConstExpr = ConstToken_int | ConstToken_hex_int | ConstToken_ascii | ConstToken_unicode ;
 
 export type LeftHandName = NameToken_normal | NameToken_root_schema | NameToken_this_schema;
 

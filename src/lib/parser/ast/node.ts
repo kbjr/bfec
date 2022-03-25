@@ -48,6 +48,17 @@ export enum node_type {
 	value_expr_path,
 	value_expr_path_access,
 
+	bool_expr_eq,
+	bool_expr_neq,
+	bool_expr_and,
+	bool_expr_or,
+	bool_expr_xor,
+	// bool_expr_gt,
+	// bool_expr_gte,
+	// bool_expr_lt,
+	// bool_expr_lte,
+	bool_expr_not,
+
 	// ===== Tokens =====
 	
 	meta_whitespace,

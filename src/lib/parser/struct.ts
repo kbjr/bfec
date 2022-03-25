@@ -237,6 +237,8 @@ function parse_struct_field_optional_condition(state: ParserState) : StructField
 
 	state.scan_through_comments_and_whitespace(ast_node.children);
 
+	ast_node.close_paren = punc_close_paren.match(state);
+
 	if (! ast_node.close_paren) {
 		state.fatal('expected closing paren ")" following conditional bool expression');
 	}
