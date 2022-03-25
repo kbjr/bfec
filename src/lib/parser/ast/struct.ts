@@ -1,4 +1,5 @@
 
+import { BoolExpr } from '../bool-expr';
 import { ASTNode, node_type } from './node';
 import {
 	CommentToken,
@@ -13,7 +14,8 @@ import {
 	OpToken_expansion,
 	PuncToken_separator,
 	PuncToken_assign,
-	Ignored
+	Ignored,
+	PuncToken_condition
 } from './tokens';
 import { TypeExpr } from './type-expr';
 import { ValueExpr } from './value-expr';
@@ -129,10 +131,18 @@ export class StructField extends ASTNode {
 
 export class StructFieldOptionalCondition extends ASTNode {
 	public type: node_type.struct_field_optional_condition = node_type.struct_field_optional_condition;
+	public question: PuncToken_condition;
+	public open_paren: PuncToken_open_paren;
+	public close_paren: PuncToken_close_paren;
+	public condition: BoolExpr;
 	public children: Ignored[] = [ ];
 	public toJSON(): object {
 		return {
 			type: node_type[this.type],
+			question: this.question,
+			open_paren: this.open_paren,
+			close_paren: this.close_paren,
+			condition: this.condition,
 			children: this.children,
 		};
 	}

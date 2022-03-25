@@ -21,8 +21,6 @@ struct Chunk (type: ChunkType) {
   crc: checksum<u32_be>(@.data, 'crc32');
 }
 
-# TODO: Add support for string enums
-# TODO: Add support for `<len>` syntax for string lengths (to differentiate from arrays)
 enum ChunkType: ascii<4> {
   image_header              = "IHDR";
   pallete                   = "PLTE";
@@ -63,11 +61,6 @@ switch ChunkData<ChunkType> {
   case physical_pixel_dimensions: PhysicalPixelDimensionsData;
   case suggested_pallete:         SuggestedPalleteData;
   case last_modified_timestamp:   LastModifiedTimestampData;
-
-  # If we don't recognize the chunk type, just leave it as an
-  # unprocessed byte array
-  # TODO: Make sure void when used as a refinement like this
-  # actually does leave the data in original form
   default: void;
 }
 

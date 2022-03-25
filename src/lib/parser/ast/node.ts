@@ -21,6 +21,9 @@ export enum node_type {
 	struct_body,
 	struct_field,
 	struct_field_optional_condition,
+
+	enum_body,
+	enum_member,
 	
 	switch_param,
 	switch_body,
@@ -82,6 +85,7 @@ export enum node_type {
 	punc_close_angle_bracket,
 	punc_arrow,
 	punc_colon,
+	punc_condition,
 
 	op_equal,
 	op_not_equal,

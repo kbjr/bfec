@@ -73,6 +73,11 @@ export class PuncToken_arrow extends Token {
 	public text: '->' = '->';
 }
 
+export class PuncToken_condition extends Token {
+	public type: node_type.punc_condition = node_type.punc_condition;
+	public text: '?' = '?';
+}
+
 export const punc_property_access      = new SimpleTokenMatcher(PuncToken_property_access, /\./y);
 export const punc_terminator           = new SimpleTokenMatcher(PuncToken_terminator, /;/y);
 export const punc_colon                = new SimpleTokenMatcher(PuncToken_colon, /:/y);
@@ -87,3 +92,4 @@ export const punc_close_square_bracket = new SimpleTokenMatcher(PuncToken_close_
 export const punc_open_angle_bracket   = new SimpleTokenMatcher(PuncToken_open_angle_bracket, /\</y);
 export const punc_close_angle_bracket  = new SimpleTokenMatcher(PuncToken_close_angle_bracket, /\>/y);
 export const punc_arrow                = new SimpleTokenMatcher(PuncToken_arrow, /-\>/y);
+export const punc_condition            = new SimpleTokenMatcher(PuncToken_arrow, /\?/y);

@@ -224,7 +224,7 @@ export class TypeExpr_builtin_text extends ASTNode {
 	public text_keyword: NameToken_builtin_text;
 	public open_bracket: PuncToken_open_angle_bracket;
 	public close_bracket: PuncToken_close_angle_bracket;
-	public length_type: TypeExpr;
+	public length_type: TypeExpr | OpToken_expansion | KeywordToken_null;
 	public children: Ignored[] = [ ];
 
 	public toJSON(): object {

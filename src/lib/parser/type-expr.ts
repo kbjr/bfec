@@ -212,14 +212,29 @@ function parse_type_expr_text(state: ParserState) : TypeExpr_builtin_text {
 
 	const text = new TypeExpr_builtin_text();
 
-	// TODO: text length
-	// TODO:  - open angle bracket
-	// TODO:  - one of:
-	// TODO:    - type expression
-	// TODO:    - int literal
-	// TODO:    - expansion
-	// TODO:    - null
-	// TODO:  - close angle bracket
+	state.scan_through_comments_and_whitespace(text.children);
+
+	text.open_bracket = punc_open_angle_bracket.match(state);
+
+	if (! text.open_bracket) {
+		state.fatal('expected opening angle bracket "<" preceeding length type for text type expression');
+	}
+
+	state.scan_through_comments_and_whitespace(text.children);
+
+	text.length_type = parse_type_expr_fixed_int(state) || parse_type_expr_varint(state) || op_expansion.match(state) || kw_null.match(state);
+
+	if (! text.length_type) {
+		state.fatal('expected length type for text type expression (fixed int, varint, expansion, or null)');
+	}
+
+	state.scan_through_comments_and_whitespace(text.children);
+
+	text.close_bracket = punc_close_angle_bracket.match(state);
+
+	if (! text.close_bracket) {
+		state.fatal('expected closing angle bracket ">" following length type for text type expression');
+	}
 
 	return text;
 }

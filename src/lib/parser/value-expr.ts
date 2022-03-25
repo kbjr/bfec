@@ -1,6 +1,6 @@
 
 import { LeftHandName, ValueExpr, ValueExpr_path, ValueExpr_path_access } from './ast';
-import { name_normal, name_root_schema, name_this_schema, punc_property_access } from './ast/tokens';
+import { const_ascii, const_hex_int, const_int, const_unicode, name_normal, name_root_schema, name_this_schema, punc_property_access } from './ast/tokens';
 import { ParserState } from './state';
 
 export function parse_value_expr(state: ParserState) : ValueExpr {
@@ -15,6 +15,10 @@ export function parse_value_expr(state: ParserState) : ValueExpr {
 	// TODO: Other value expression types
 
 	return null;
+}
+
+export function parse_const_value_expr(state: ParserState) {
+	return const_int.match(state) || const_hex_int.match(state) || const_ascii.match(state) || const_unicode.match(state);
 }
 
 function parse_value_expr_path(state: ParserState, lh_name: LeftHandName) : ValueExpr_path {

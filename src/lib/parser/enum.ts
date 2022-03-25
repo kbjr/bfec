@@ -1,8 +1,10 @@
 
-import { ParserState } from './state';
-import { ASTNode, DeclareEnumNode, EnumElem } from './ast';
 import { Parser } from './parser';
-import { PuncToken_close_brace, punc_close_brace } from './ast/tokens';
+import { ParserState } from './state';
+import { DeclareEnumNode, EnumBody, EnumElem, EnumMember } from './ast';
+import { kw_enum, name_normal, PuncToken_close_brace, punc_assign, punc_close_brace, punc_colon, punc_open_brace, punc_terminator } from './ast/tokens';
+import { parse_type_expr } from './type-expr';
+import { parse_const_value_expr } from './value-expr';
 
 const enum_scope_parsers: Parser<EnumElem>[] = [
 	parse_enum_member,
@@ -11,23 +13,64 @@ const enum_scope_parsers: Parser<EnumElem>[] = [
 export function parse_enum(state: ParserState) : DeclareEnumNode {
 	state.trace('parse_enum');
 
-	// TODO: enum keyword
-	// TODO: enum name
-	// TODO: colon
-	// TODO: base type
-	// TODO: body
+	const enum_keyword = kw_enum.match(state);
 
-	return null;
+	if (! enum_keyword) {
+		return null;
+	}
+
+	const ast_node = new DeclareEnumNode();
+	ast_node.enum_keyword = enum_keyword;
+
+	state.scan_through_comments_and_whitespace(ast_node.children);
+
+	ast_node.name = name_normal.match(state);
+
+	if (! ast_node.name) {
+		state.fatal('expected enum name');
+	}
+
+	state.scan_through_comments_and_whitespace(ast_node.children);
+
+	ast_node.punc_colon = punc_colon.match(state);
+
+	if (! ast_node.punc_colon) {
+		state.fatal('expected colon ":" following enum name to preceed value type expression');
+	}
+
+	state.scan_through_comments_and_whitespace(ast_node.children);
+
+	ast_node.value_type = parse_type_expr(state);
+
+	if (! ast_node.value_type) {
+		state.fatal('expected enum value type expression');
+	}
+
+	state.scan_through_comments_and_whitespace(ast_node.children);
+
+	ast_node.body = parse_enum_body(state);
+
+	if (! ast_node.body) {
+		state.fatal('expected enum body, beginning with opening brace "{"');
+	}
+
+	return ast_node;
 }
 
-export function parse_enum_body(state: ParserState) : null {
+export function parse_enum_body(state: ParserState) : EnumBody {
 	state.trace('parse_enum_body');
 
-	// TODO: open brace
-	// TODO: enum scope
-	// TODO: close brace
+	const ast_node = new EnumBody();
 
-	return null;
+	ast_node.open_brace = punc_open_brace.match(state);
+
+	if (! ast_node.open_brace) {
+		return null;
+	}
+
+	ast_node.close_brace = parse_enum_scope(state, ast_node.children);
+
+	return ast_node;
 }
 
 function parse_enum_scope(state: ParserState, children: EnumElem[]) : PuncToken_close_brace {
@@ -62,10 +105,41 @@ function parse_enum_scope(state: ParserState, children: EnumElem[]) : PuncToken_
 	}
 }
 
-function parse_enum_member(state: ParserState) : ASTNode {
+function parse_enum_member(state: ParserState) : EnumMember {
 	state.trace('parse_enum_member');
 
-	// 
+	const name = name_normal.match(state);
 
-	return null;
+	if (! name) {
+		return null;
+	}
+
+	const ast_node = new EnumMember();
+	ast_node.name = name;
+
+	state.scan_through_comments_and_whitespace(ast_node.children);
+
+	ast_node.assign = punc_assign.match(state);
+
+	if (! ast_node.assign) {
+		state.fatal('expected assignment op "=" after enum member name');
+	}
+
+	state.scan_through_comments_and_whitespace(ast_node.children);
+
+	ast_node.value_expr = parse_const_value_expr(state);
+
+	if (! ast_node.value_expr) {
+		state.fatal('expected const value expression for enum member');
+	}
+
+	state.scan_through_comments_and_whitespace(ast_node.children);
+
+	ast_node.terminator = punc_terminator.match(state);
+
+	if (! ast_node.terminator) {
+		state.fatal('expected terminator ";" after enum member');
+	}
+
+	return ast_node;
 }
