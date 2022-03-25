@@ -121,7 +121,10 @@ export class FencedTokenMatcher<T extends Token> {
 					break;
 				}
 
-				token.text += '\n' + line;
+				if (state.line !== token.line) {
+					token.text += '\n' + line;
+				}
+				
 				state.line++;
 				state.char = 0;
 				this.close_pattern.lastIndex = 0;

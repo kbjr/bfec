@@ -8,6 +8,7 @@
   "out": {
     "ts": "./ts",
     "as": "./as",
+    "ast_json": "./ast",
     "md": "./md"
   }
 }
