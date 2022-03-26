@@ -3,6 +3,8 @@ import { output_format, parse_args } from './args';
 import { exit_error, exit_successful } from './exit';
 import { InputLoader, OutputWriter } from './fs';
 import { compile_ast_to_schema, parse_bfec_schema } from '../lib';
+import { build_schema_from_ast } from '../lib/schema';
+import { main as log } from './log';
 
 main();
 
@@ -33,44 +35,59 @@ async function main() {
 		await exit_successful();
 	}
 
-	// Otherwise, compile actually compile the schema now
-	const schema = await compile_ast_to_schema(entrypoint_ast, {
-		async resolve_import(path: string) {
-			if (path.startsWith('http://') || path.startsWith('https://')) {
-				// TODO: Remote imports over http(s)
-				await exit_error(2, 'http(s) imports not yet supported');
-			}
+	// Otherwise, compile actually build the schema now
+	const schema = build_schema_from_ast(entrypoint_ast);
+	const schema_out = args.out.find((out) => out.format === output_format.sch_json);
 
-			// TODO: Validate / pre-process file path
-
-			const imported_contents = await input.read_file(path);
-			const imported_ast = parse_bfec_schema(path, imported_contents);
-			return imported_ast;
-		}
-	});
-
-	for (let out of args.out) {
-		const out_dir = new OutputWriter(out.directory);
+	// If we need to output a schema file, do that
+	if (schema_out) {
+		const out_dir = new OutputWriter(schema_out.directory);
 		await out_dir.create();
-
-		switch (out.format) {
-			case output_format.sch_json:
-				await out_dir.write_file('schema.json', JSON.stringify(schema));
-				break;
-
-			case output_format.as:
-				// TODO: Output AssemblyScript
-				break;
-
-			case output_format.html:
-				// TODO: Output HTML Documentation
-				break;
-
-			case output_format.ts:
-				// TODO: Output TypeScript
-				break;
-		}
+		await out_dir.write_file('schema.json', JSON.stringify(schema));
 	}
+
+	// If we encountered errors while building, stop here
+	if (schema.errors.length) {
+		schema.errors.forEach((error) => {
+			log.error(error.message);
+		});
+
+		return;
+	}
+
+	// const schema = await compile_ast_to_schema(entrypoint_ast, {
+	// 	async resolve_import(path: string) {
+	// 		if (path.startsWith('http://') || path.startsWith('https://')) {
+	// 			// TODO: Remote imports over http(s)
+	// 			await exit_error(2, 'http(s) imports not yet supported');
+	// 		}
+
+	// 		// TODO: Validate / pre-process file path
+
+	// 		const imported_contents = await input.read_file(path);
+	// 		const imported_ast = parse_bfec_schema(path, imported_contents);
+	// 		return imported_ast;
+	// 	}
+	// });
+
+	// for (let out of args.out) {
+	// 	const out_dir = new OutputWriter(out.directory);
+	// 	await out_dir.create();
+
+	// 	switch (out.format) {
+	// 		case output_format.as:
+	// 			// TODO: Output AssemblyScript
+	// 			break;
+
+	// 		case output_format.html:
+	// 			// TODO: Output HTML Documentation
+	// 			break;
+
+	// 		case output_format.ts:
+	// 			// TODO: Output TypeScript
+	// 			break;
+	// 	}
+	// }
 
 	await exit_successful();
 }

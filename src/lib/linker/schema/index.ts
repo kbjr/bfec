@@ -1,2 +1,0 @@
-
-export { Schema } from './schema';

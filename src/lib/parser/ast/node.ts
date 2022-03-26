@@ -1,7 +1,12 @@
 
 export abstract class ASTNode {
 	public abstract type: node_type;
-	public abstract toJSON() : object;
+	
+	public toJSON() {
+		const json: any = Object.assign({ }, this);
+		json.type = node_type[json.type];
+		return json;
+	}
 }
 
 export enum node_type {
@@ -60,9 +65,6 @@ export enum node_type {
 	bool_expr_not,
 
 	// ===== Tokens =====
-	
-	meta_whitespace,
-	meta_line_comment,
 
 	const_ascii,
 	const_unicode,

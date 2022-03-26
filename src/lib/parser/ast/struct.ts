@@ -15,13 +15,16 @@ import {
 	PuncToken_separator,
 	PuncToken_assign,
 	Ignored,
-	PuncToken_condition
+	PuncToken_condition,
+	KeywordToken_struct,
+	KeywordToken_bin
 } from './tokens';
 import { TypeExpr } from './type-expr';
 import { ValueExpr } from './value-expr';
 
 export class DeclareStructNode extends ASTNode {
 	public type: node_type.decl_struct = node_type.decl_struct;
+	public struct_keyword: KeywordToken_struct | KeywordToken_bin;
 	public name: NameToken_normal | NameToken_root_schema;
 	public params: StructParamsListNode;
 	public body: StructBody;

@@ -22,6 +22,7 @@ export function parse_struct(state: ParserState) : DeclareStructNode {
 	}
 	
 	const ast_node = new DeclareStructNode();
+	ast_node.struct_keyword = struct_keyword;
 	state.scan_through_comments_and_whitespace(ast_node.children);
 	ast_node.name = name_root_schema.match(state) || name_normal.match(state);
 

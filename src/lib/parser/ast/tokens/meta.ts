@@ -6,17 +6,17 @@ import { node_type } from '../node';
 export type Ignored = WhitespaceToken | CommentToken ;
 
 export class WhitespaceToken extends Token {
-	public type: node_type.meta_whitespace = node_type.meta_whitespace;
+	public type: node_type.whitespace = node_type.whitespace;
 }
 
 export type CommentToken = LineCommentToken | BlockCommentToken ;
 
 export class LineCommentToken extends Token {
-	public type: node_type.meta_line_comment = node_type.meta_line_comment;
+	public type: node_type.comment_line = node_type.comment_line;
 }
 
 export class BlockCommentToken extends Token {
-	public type: node_type.meta_line_comment = node_type.meta_line_comment;
+	public type: node_type.comment_block = node_type.comment_block;
 }
 
 export const meta_newline = /(?:\r\n|\r|\n|\u202b|\u2029)+/g;

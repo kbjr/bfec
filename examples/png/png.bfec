@@ -1,4 +1,6 @@
 
+from '~/foo' { bar };
+
 #--
 PNG Image Format
 https://www.w3.org/TR/PNG

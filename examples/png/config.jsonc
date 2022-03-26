@@ -6,9 +6,10 @@
     "file": "png.bfec"
   },
   "out": {
+    "ast_json": "./ast",
+    "sch_json": "./schema",
     "ts": "./ts",
     "as": "./as",
-    "ast_json": "./ast",
     "md": "./md"
   }
 }
