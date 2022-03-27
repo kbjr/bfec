@@ -2,7 +2,7 @@
 import { output_format, parse_args } from './args';
 import { exit_error, exit_successful } from './exit';
 import { InputLoader, OutputWriter } from './fs';
-import { compile_ast_to_schema, parse_bfec_schema } from '../lib';
+import { link_ast_to_schema, parse_src_to_ast } from '../lib';
 import { build_schema_from_ast } from '../lib/schema';
 import { main as log } from './log';
 
@@ -15,7 +15,7 @@ async function main() {
 	
 	// Load and parse the main entrypoint file
 	const entrypoint_file_contents = await input.read_entrypoint();
-	const entrypoint_ast = parse_bfec_schema(args.in.entrypoint_file, entrypoint_file_contents);
+	const entrypoint_ast = parse_src_to_ast(args.in.entrypoint_file, entrypoint_file_contents);
 
 	// Figure out what all we need to do based on what outputs we're generating
 	const ast_out = args.out.find((out) => out.format === output_format.ast_json);
@@ -55,7 +55,7 @@ async function main() {
 		return;
 	}
 
-	// const schema = await compile_ast_to_schema(entrypoint_ast, {
+	// const schema = await link_ast_to_schema(entrypoint_ast, {
 	// 	async resolve_import(path: string) {
 	// 		if (path.startsWith('http://') || path.startsWith('https://')) {
 	// 			// TODO: Remote imports over http(s)
@@ -65,7 +65,7 @@ async function main() {
 	// 		// TODO: Validate / pre-process file path
 
 	// 		const imported_contents = await input.read_file(path);
-	// 		const imported_ast = parse_bfec_schema(path, imported_contents);
+	// 		const imported_ast = parse_src_to_ast(path, imported_contents);
 	// 		return imported_ast;
 	// 	}
 	// });

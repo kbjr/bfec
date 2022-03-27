@@ -1,7 +1,11 @@
 
 import { ast } from '../parser';
-import { ASTNode } from '../parser/ast';
+import { Enum } from './enum';
+import { Struct } from './struct';
+import { Switch } from './switch';
+import { ImportedSymbol, Import } from './import';
 import { BaseNode, node_type, SchemaNode } from './node';
+import { schema_json_schema } from '../constants';
 
 export type SchemaElem = ImportedSymbol | Struct | Switch | Enum;
 
@@ -11,16 +15,63 @@ export class Schema extends BaseNode {
 	public root: Struct;
 	public elements: SchemaElem[] = [ ];
 	public element_map: Map<string, SchemaElem> = new Map();
-	public source_map: Map<SchemaNode, ast.ASTNode> = new Map();
+	public source_map: Map<SchemaNode, ast.ASTNode>;
 	public errors: BuildError[] = [ ];
+
+	constructor(
+		public readonly include_source_maps: boolean = false
+	) {
+		super();
+
+		if (this.include_source_maps) {
+			this.source_map = new Map();
+		}
+	}
 
 	public toJSON() {
 		return {
+			$schema: schema_json_schema,
 			type: node_type[this.type],
 			imports: this.imports,
 			elements: this.elements,
 			errors: this.errors,
 		};
+	}
+
+	public add_elem(name_node: ast.NameToken_normal | ast.NameToken_root_schema, elem: SchemaElem) {
+		if (this.element_map.has(name_node.text)) {
+			this.build_error(`Encountered duplicate symbol name "${name_node.text}"`, name_node);
+			return false;
+		}
+	
+		this.elements.push(elem);
+		this.element_map.set(name_node.text, elem);
+		return true;
+	}
+
+	public map_ast(node: SchemaNode, ast_node: ast.ASTNode) {
+		if (this.include_source_maps) {
+			this.source_map.set(node, ast_node);
+		}
+	}
+
+	public build_error(message: string, node: ast.ASTNode) : void {
+		const error = new BuildError();
+		error.message = message;
+		error.node = node;
+		// TODO: line, char, text
+		this.errors.push(error);
+	}
+	
+	public ref(name: ast.NameToken_normal | ast.NameToken_root_schema | ast.NameToken_this_schema | string) {
+		const is_str = typeof name === 'string';
+		const symbol = new Ref(is_str ? name : name.text);
+
+		if (! is_str) {
+			this.map_ast(symbol, name);
+		}
+
+		return symbol;
 	}
 }
 
@@ -29,96 +80,24 @@ export class BuildError {
 	public line: number;
 	public char: number;
 	public text: string;
-	public node: ASTNode;
+	public node: ast.ASTNode;
 }
 
-export class Symbol extends BaseNode {
+export class Ref extends BaseNode {
 	public type: node_type.symbol = node_type.symbol;
+	
 	constructor(
 		public name: string
 	) {
 		super();
 	}
-}
 
-export class Import extends BaseNode {
-	public type: node_type.import = node_type.import;
-	public comments: Comment[] = [ ];
-	public source_expr: ConstString;
-	public source_schema: Schema;
-}
-
-export class ImportedSymbol extends BaseNode {
-	public type: node_type.imported_symbol = node_type.imported_symbol;
-	public from: Import;
-	public local: Symbol;
-	public imported: Symbol;
-}
-
-export class Struct extends BaseNode {
-	public type: node_type.struct = node_type.struct;
-	public comments: Comment[] = [ ];
-	public name: Symbol;
-	public byte_aligned: boolean;
-	public fields: StructField[] = [ ];
-}
-
-export class StructField extends BaseNode {
-	public type: node_type.struct_field = node_type.struct_field;
-	public comments: Comment[] = [ ];
-	public name: Symbol;
-}
-
-export class Switch extends BaseNode {
-	public type: node_type.switch = node_type.switch;
-	public comments: Comment[];
-	public cases: SwitchCase[];
-	public default: SwitchCase;
-}
-
-export class SwitchCase extends BaseNode {
-	public type: node_type.switch_case = node_type.switch_case;
-	public comments: Comment[];
-	public case_value?: Symbol;
-	public case_type: 'type_expr' | 'void' | 'invalid';
-	public case_type_expr?: TypeExpr;
-}
-
-export class Enum extends BaseNode {
-	public type: node_type.enum = node_type.enum;
-	public comments: Comment[];
-	public members: EnumMember[];
-}
-
-export class EnumMember extends BaseNode {
-	public type: node_type.enum_member = node_type.enum_member;
-	public comments: Comment[];
+	public toJSON() {
+		return this.name;
+	}
 }
 
 export class Comment extends BaseNode {
 	public type: node_type.comment = node_type.comment;
 	public text: string;
-}
-
-export class ConstInt extends BaseNode {
-	public type: node_type.const_int = node_type.const_int;
-	public value: number;
-}
-
-export class ConstString extends BaseNode {
-	public type: node_type.const_string = node_type.const_string;
-	public value: string;
-	public unicode: boolean;
-}
-
-export class TypeExpr extends BaseNode {
-	public type: node_type.type_expr = node_type.type_expr;
-}
-
-export class ValueExpr extends BaseNode {
-	public type: node_type.value_expr = node_type.value_expr;
-}
-
-export class BoolExpr extends BaseNode {
-	public type: node_type.bool_expr = node_type.bool_expr;
 }

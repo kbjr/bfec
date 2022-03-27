@@ -1,10 +1,15 @@
 
+# TODO: ID type declarations
+# id EntityID = u32;
+
 struct Entity(type: EntityType) {
+  # TODO: Declared IDs
+  # entity_id: EntityID;
 	entity_type: EntityType = type;
 	...EntityContents(@.entity_type);
 }
 
-enum EntityType : u8 {
+enum EntityType: u8 {
 	namespace = 1;
 }
 
@@ -17,5 +22,7 @@ struct NamespaceEntityContents {
 	flags: u24 -> bin {
 		# ...
 	};
+  # TODO: References to declared IDs
+  # parent: ref<EntityID>;
 	# ...
 }

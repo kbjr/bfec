@@ -2,8 +2,6 @@
 import { ast } from '../parser';
 import { Schema } from '../schema';
 
-export * as schema from '../schema';
-
 export interface SchemaCompilerOptions {
 	resolve_import?(from: string, path: string) : Promise<ast.FileNode>;
 }

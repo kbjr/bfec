@@ -1,13 +1,11 @@
 
-from '~/foo' { bar };
-
 #--
 PNG Image Format
 https://www.w3.org/TR/PNG
 #--
 struct $ {
   # Magic bytes to identify the PNG file format
-  magic_number: 0x8950_4e47_0d0a_1a0a;
+  magic_number: "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a";
   
   # Image header should always be the first chunk, and we need to reference data out
   # of it, so we'll statically define it here so we can `$.image_header` elsewhere

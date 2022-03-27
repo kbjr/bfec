@@ -1,5 +1,13 @@
 
-import * as schema from './schema';
+import type { TypeExpr } from './type-expr';
+import type { Comment, Schema, Ref } from './schema';
+import type { Import, ImportedSymbol } from './import';
+import type { Struct, StructExpansion, StructField } from './struct';
+import type { Switch, SwitchCase } from './switch';
+import type { Enum, EnumMember } from './enum';
+import type { ValueExpr } from './value-expr';
+import type { BoolExpr } from './bool-expr';
+import type { ConstInt, ConstString } from './const';
 
 export abstract class BaseNode {
 	public abstract type: node_type;
@@ -11,6 +19,26 @@ export abstract class BaseNode {
 	}
 }
 
+export type SchemaNode
+	= Schema
+	| Ref
+	| Import
+	| ImportedSymbol
+	| Struct
+	| StructField
+	| StructExpansion
+	| Switch
+	| SwitchCase
+	| Enum
+	| EnumMember
+	| Comment
+	| ConstInt
+	| ConstString
+	| TypeExpr
+	| ValueExpr
+	| BoolExpr
+	;
+
 export enum node_type {
 	schema,
 	symbol,
@@ -18,6 +46,7 @@ export enum node_type {
 	imported_symbol,
 	struct,
 	struct_field,
+	struct_expansion,
 	switch,
 	switch_case,
 	enum,
@@ -25,26 +54,20 @@ export enum node_type {
 	comment,
 	const_int,
 	const_string,
-	type_expr,
+
+	type_expr_text,
+	type_expr_fixed_int,
+	type_expr_varint,
+	type_expr_float,
+	type_expr_length,
+	type_expr_checksum,
+	type_expr_named,
+	type_expr_array,
+	type_expr_struct_refine,
+	type_expr_switch_refine,
+	type_expr_named_refine,
+	
 	value_expr,
+	
 	bool_expr,
 }
-
-export type SchemaNode
-	= schema.Schema
-	| schema.Symbol
-	| schema.Import
-	| schema.ImportedSymbol
-	| schema.Struct
-	| schema.StructField
-	| schema.Switch
-	| schema.SwitchCase
-	| schema.Enum
-	| schema.EnumMember
-	| schema.Comment
-	| schema.ConstInt
-	| schema.ConstString
-	| schema.TypeExpr
-	| schema.ValueExpr
-	| schema.BoolExpr
-	;

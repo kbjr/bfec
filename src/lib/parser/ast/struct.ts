@@ -93,7 +93,7 @@ export class StructParamNode extends ASTNode {
 	}
 }
 
-export type StructElem = StructExpansion | StructField | CommentToken ;
+export type StructElem = StructExpansion | StructField | Ignored ;
 
 export class StructExpansion extends ASTNode {
 	public type: node_type.struct_expansion = node_type.struct_expansion;

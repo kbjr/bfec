@@ -134,7 +134,7 @@ export class TypeExpr_struct_refinement extends ASTNode {
 }
 
 export class TypeExpr_switch_refinement extends ASTNode {
-	public type: node_type.type_expr_struct_refinement = node_type.type_expr_struct_refinement;
+	public type: node_type.type_expr_switch_refinement = node_type.type_expr_switch_refinement;
 	public parent_type: TypeExpr;
 	public arrow: PuncToken_arrow;
 	public switch_keyword: KeywordToken_switch;
@@ -166,7 +166,7 @@ export class TypeExpr_switch_refinement extends ASTNode {
 }
 
 export class TypeExpr_named_refinement extends ASTNode {
-	public type: node_type.type_expr_struct_refinement = node_type.type_expr_struct_refinement;
+	public type: node_type.type_expr_named_refinement = node_type.type_expr_named_refinement;
 	public parent_type: TypeExpr;
 	public arrow: PuncToken_arrow;
 	public refined_type: TypeExpr;

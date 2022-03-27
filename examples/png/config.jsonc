@@ -1,6 +1,6 @@
 {
-  "$schema": "../../schema/config.schema.json",
-  // "$schema": "https://bfec.io/schemas/config/v1.json",
+  "$schema": "../../json/config/v1.json",
+  // "$schema": "https://bfec.io/json/config/v1.json",
   "in": {
     "dir": ".",
     "file": "png.bfec"
