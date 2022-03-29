@@ -46,6 +46,8 @@ function parse_value_expr_path(state: ParserState, lh_name: LeftHandName) : Valu
 		if (! access.field_name) {
 			state.fatal('expected accessed field name following access operator "."');
 		}
+
+		path.rh_names.push(access);
 	}
 
 	return path;

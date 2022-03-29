@@ -27,6 +27,7 @@ export class Enum extends BaseNode {
 
 export class EnumMember extends BaseNode {
 	public type: node_type.enum_member = node_type.enum_member;
+	public name: Ref;
 	public value: ConstInt | ConstString;
 	public comments: Comment[];
 }

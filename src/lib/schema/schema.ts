@@ -6,7 +6,6 @@ import { Switch } from './switch';
 import { ImportedSymbol, Import } from './import';
 import { BaseNode, node_type, SchemaNode } from './node';
 import { schema_json_schema } from '../constants';
-import { Token } from '../parser/ast/tokens';
 import { BuildError } from './error';
 
 export type SchemaElem = ImportedSymbol | Struct | Switch | Enum;
@@ -91,4 +90,9 @@ export class Ref extends BaseNode {
 export class Comment extends BaseNode {
 	public type: node_type.comment = node_type.comment;
 	public text: string;
+
+	constructor(node: ast.CommentToken) {
+		super();
+		this.text = node.text;
+	}
 }

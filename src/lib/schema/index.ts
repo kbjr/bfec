@@ -20,7 +20,7 @@ import {
 	TextLengthType,
 	TypeExpr_float,
 } from './type-expr';
-import { ValueExpr } from './value-expr';
+import { ValueExpr, ValueExprRootType } from './value-expr';
 import { BoolExpr } from './bool-expr';
 
 export * from './bool-expr';
@@ -117,7 +117,7 @@ function build_struct(schema: Schema, node: ast.DeclareStructNode, comments: ast
 	});
 
 	if (schema.add_elem(node.name, struct)) {
-		if (node.name.text === '$') {
+		if (node.name.type === ast.node_type.name_root_schema) {
 			schema.root = struct;
 		}
 	}
@@ -172,9 +172,7 @@ function build_struct_expansion(schema: Schema, struct: Struct, node: ast.Struct
 	const expansion = new StructExpansion();
 	schema.map_ast(expansion, node);
 	expansion.comments = build_comments(comments);
-
-	// TODO: expansion type
-
+	expansion.expanded_type = build_type_expr(schema, node.expanded_type);
 	struct.add_expansion(schema, expansion);
 }
 
@@ -220,6 +218,7 @@ function build_enum_member(schema: Schema, enum_node: Enum, node: ast.EnumMember
 	const member = new EnumMember();
 	schema.map_ast(member, node);
 	member.comments = build_comments(comments);
+	member.name = schema.ref(node.name);
 	member.value = build_const(schema, node.value_expr);
 	enum_node.add_member(schema, node.name, member);
 }
@@ -525,8 +524,28 @@ function is_non_static_int(node: TypeExpr) : node is TypeExpr_fixed_int | TypeEx
 // ===== Value Expr =====
 
 function build_value_expr_path(schema: Schema, node: ast.ValueExpr_path) : ValueExpr {
-	console.log('build_value_expr_path');
-	return null;
+	const expr = new ValueExpr();
+
+	switch (node.lh_name.type) {
+		case ast.node_type.name_root_schema:
+			expr.root_type = ValueExprRootType.root_schema;
+			break;
+
+		case ast.node_type.name_this_schema:
+			expr.root_type = ValueExprRootType.this_schema;
+			break;
+
+		case ast.node_type.name_normal:
+			expr.root_type = ValueExprRootType.named;
+			break;
+	}
+
+	expr.names.push(
+		schema.ref(node.lh_name),
+		...node.rh_names.map((access) => schema.ref(access.field_name))
+	);
+
+	return expr;
 }
 
 
@@ -544,8 +563,7 @@ function build_bool_expr(schema: Schema, node: ast.BoolExpr) : BoolExpr {
 // ===== Other =====
 
 function build_comments(comments: ast.CommentToken[]) : Comment[] {
-	// TODO: build_comments
-	return [ ];
+	return comments.map((comment) => new Comment(comment));
 }
 
 function build_const(schema: Schema, node: ast.ConstToken_ascii | ast.ConstToken_unicode | ast.ConstToken_int | ast.ConstToken_hex_int) : ConstInt | ConstString {
