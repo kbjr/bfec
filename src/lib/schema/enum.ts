@@ -3,6 +3,7 @@ import { ast } from '../parser';
 import { TypeExpr } from './type-expr';
 import { BaseNode, node_type } from './node';
 import { Comment, Ref, Schema } from './schema';
+import { ConstInt, ConstString } from './const';
 
 export class Enum extends BaseNode {
 	public type: node_type.enum = node_type.enum;
@@ -26,5 +27,6 @@ export class Enum extends BaseNode {
 
 export class EnumMember extends BaseNode {
 	public type: node_type.enum_member = node_type.enum_member;
+	public value: ConstInt | ConstString;
 	public comments: Comment[];
 }

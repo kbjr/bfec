@@ -62,13 +62,13 @@ export class SwitchParam extends ASTNode {
 	public type: node_type.switch_param = node_type.switch_param;
 	public open_bracket: PuncToken_open_angle_bracket;
 	public close_bracket: PuncToken_close_angle_bracket;
-	public name: NameToken_normal;
+	public param_type: TypeExpr;
 	public children: Ignored[] = [ ];
 	
 	public toJSON() {
 		return {
 			type: node_type[this.type],
-			name: this.name,
+			param_type: this.param_type,
 			open_bracket: this.open_bracket,
 			close_bracket: this.close_bracket,
 			children: this.children,

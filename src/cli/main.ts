@@ -49,9 +49,10 @@ async function main() {
 	// If we encountered errors while building, stop here
 	if (schema.errors.length) {
 		schema.errors.forEach((error) => {
-			log.error(error.message);
+			log.error(error.message, `(${error.line}:${error.char})`);
 		});
 
+		log.error(`\nErrors: ${schema.errors.length}`);
 		return;
 	}
 

@@ -7,6 +7,7 @@ export class Switch extends BaseNode {
 	public type: node_type.switch = node_type.switch;
 	public comments: Comment[];
 	public name: Ref;
+	public arg_type: TypeExpr;
 	public cases: SwitchCase[];
 	public default: SwitchCase;
 }

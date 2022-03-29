@@ -21,7 +21,18 @@ export type TypeExpr
 export class TypeExpr_text extends BaseNode {
 	public type: node_type.type_expr_text = node_type.type_expr_text;
 	public encoding: TextEncoding;
-	public length_type: TypeExpr;
+	public length_type: TextLengthType;
+	public static_length?: ConstInt;
+	public length_prefix?: TypeExpr_fixed_int | TypeExpr_varint;
+	public length_field?: ValueExpr;
+}
+
+export enum TextLengthType {
+	null_terminated = 'null_terminated',
+	take_remaining  = 'take_remaining',
+	static_length   = 'static_length',
+	length_prefix   = 'length_prefix',
+	length_field    = 'length_field',
 }
 
 export enum TextEncoding {
@@ -33,6 +44,7 @@ export enum TextEncoding {
 
 export class TypeExpr_fixed_int extends BaseNode {
 	public type: node_type.type_expr_fixed_int = node_type.type_expr_fixed_int;
+	public name: string;
 	public signed: boolean;
 	public big_endian: boolean;
 	public size_bits: number;
@@ -45,6 +57,7 @@ export class TypeExpr_varint extends BaseNode {
 
 export class TypeExpr_float extends BaseNode {
 	public type: node_type.type_expr_float = node_type.type_expr_float;
+	public name: string;
 	public decimal: boolean;
 	public size_bits: number;
 }
@@ -69,7 +82,18 @@ export class TypeExpr_named extends BaseNode {
 export class TypeExpr_array extends BaseNode {
 	public type: node_type.type_expr_array = node_type.type_expr_array;
 	public element_type: TypeExpr;
-	public length_type: TypeExpr_fixed_int | TypeExpr_varint | ConstInt | ValueExpr;
+	public length_type: ArrayLengthType;
+	public static_length?: ConstInt;
+	public length_prefix?: TypeExpr_fixed_int | TypeExpr_varint;
+	public length_field?: ValueExpr;
+}
+
+export enum ArrayLengthType {
+	null_terminated = 'null_terminated',
+	take_remaining  = 'take_remaining',
+	static_length   = 'static_length',
+	length_prefix   = 'length_prefix',
+	length_field    = 'length_field',
 }
 
 export class TypeExpr_struct_refine extends BaseNode {

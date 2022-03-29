@@ -6,6 +6,8 @@ import { Switch } from './switch';
 import { ImportedSymbol, Import } from './import';
 import { BaseNode, node_type, SchemaNode } from './node';
 import { schema_json_schema } from '../constants';
+import { Token } from '../parser/ast/tokens';
+import { BuildError } from './error';
 
 export type SchemaElem = ImportedSymbol | Struct | Switch | Enum;
 
@@ -56,10 +58,7 @@ export class Schema extends BaseNode {
 	}
 
 	public build_error(message: string, node: ast.ASTNode) : void {
-		const error = new BuildError();
-		error.message = message;
-		error.node = node;
-		// TODO: line, char, text
+		const error = new BuildError(message, node);
 		this.errors.push(error);
 	}
 	
@@ -73,14 +72,6 @@ export class Schema extends BaseNode {
 
 		return symbol;
 	}
-}
-
-export class BuildError {
-	public message: string;
-	public line: number;
-	public char: number;
-	public text: string;
-	public node: ast.ASTNode;
 }
 
 export class Ref extends BaseNode {

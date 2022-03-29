@@ -38,10 +38,10 @@ export function parse_switch(state: ParserState) : DeclareSwitchNode {
 	}
 	
 	state.scan_through_comments_and_whitespace(ast_node.children);
-	ast_node.param.name = name_normal.match(state);
+	ast_node.param.param_type = parse_type_expr(state);
 
-	if (! ast_node.param.name) {
-		state.fatal('expected to find switch parameter type name');
+	if (! ast_node.param.param_type) {
+		state.fatal('expected to find switch parameter type');
 	}
 
 	state.scan_through_comments_and_whitespace(ast_node.children);

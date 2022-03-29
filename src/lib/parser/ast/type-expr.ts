@@ -44,6 +44,17 @@ export type TypeExpr
 	| TypeExpr_switch_refinement
 	;
 
+export type TypeExpr_builtin_fixed_int
+	= NameToken_builtin_uint
+	| NameToken_builtin_sint
+	| NameToken_builtin_bit
+	;
+
+export type Type_expr_builtin_float
+	= NameToken_builtin_bin_float
+	| NameToken_builtin_dec_float
+	;
+
 export type TypeExpr_int
 	= ConstToken_int
 	| ConstToken_hex_int
