@@ -42,7 +42,7 @@ export type SchemaNode
 
 export enum node_type {
 	schema,
-	symbol,
+	ref,
 	import,
 	imported_symbol,
 	struct,

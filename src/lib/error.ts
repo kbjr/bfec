@@ -1,7 +1,7 @@
 
-import { ast } from '../parser';
-import { Token } from '../parser/ast/tokens';
-import { linker as log } from '../log';
+import { ast } from './parser';
+import { linker as log } from './log';
+import { Schema } from './schema/schema';
 
 export class BuildError {
 	public line: number;
@@ -10,14 +10,17 @@ export class BuildError {
 
 	constructor(
 		public message: string,
-		public node: ast.ASTNode
+		public source: Schema,
+		public node?: ast.ASTNode
 	) {
-		[ this.line, this.char ] = node_pos(node);
+		if (node) {
+			[ this.line, this.char ] = node_pos(node);
+		}
 	}
 }
 
 function node_pos(node: ast.ASTNode) {
-	if (node instanceof Token) {
+	if (node instanceof ast.Token) {
 		return [ node.line + 1, node.char + 1 ];
 	}
 

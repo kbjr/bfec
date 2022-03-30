@@ -1,4 +1,6 @@
 
+from './bad-local.bfec' { };
+
 #--
 PNG Image Format
 https://www.w3.org/TR/PNG

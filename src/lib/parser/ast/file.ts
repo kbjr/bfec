@@ -18,10 +18,19 @@ export type FileNodeElem
 export class FileNode extends ASTNode {
 	public type: node_type.file = node_type.file;
 	public children: FileNodeElem[] = [ ];
+
+	constructor(
+		/** The source / file path representing where this file came from */
+		public source: string
+	) {
+		super();
+	}
+
 	public toJSON() {
 		return {
 			$schema: ast_json_schema,
 			type: node_type[this.type],
+			source: this.source,
 			children: this.children
 		};
 	}

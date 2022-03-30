@@ -34,8 +34,8 @@ export * from './switch';
 export * from './type-expr';
 export * from './value-expr';
 
-export function build_schema_from_ast(file: ast.FileNode) : Schema {
-	const schema = new Schema();
+export function build_schema_from_ast(file: ast.FileNode, include_source_maps: boolean = false) : Schema {
+	const schema = new Schema(file.source, include_source_maps);
 	schema.map_ast(schema, file);
 
 	const comments: ast.CommentToken[] = [ ];
@@ -530,17 +530,20 @@ function build_type_expr_named(schema: Schema, node: ast.TypeExpr_named) : TypeE
 }
 
 function build_type_expr_named_refinement(schema: Schema, node: ast.TypeExpr_named_refinement) : TypeExpr_named_refine {
-	console.log('build_type_expr_named_refinement');
+	// TODO: build_type_expr_named_refinement
+	log.warn('build_type_expr_named_refinement not yet implemented');
 	return null;
 }
 
 function build_type_expr_struct_refinement(schema: Schema, node: ast.TypeExpr_struct_refinement) : TypeExpr_struct_refine {
-	console.log('build_type_expr_struct_refinement');
+	// TODO: build_type_expr_struct_refinement
+	log.warn('build_type_expr_struct_refinement not yet implemented');
 	return null;
 }
 
 function build_type_expr_switch_refinement(schema: Schema, node: ast.TypeExpr_switch_refinement) : TypeExpr_switch_refine {
-	console.log('build_type_expr_switch_refinement');
+	// TODO: build_type_expr_switch_refinement
+	log.warn('build_type_expr_switch_refinement not yet implemented');
 	return null;
 }
 
@@ -640,7 +643,8 @@ function build_value_expr_path(schema: Schema, node: ast.ValueExpr_path) : Value
 // ===== Bool Expr =====
 
 function build_bool_expr(schema: Schema, node: ast.BoolExpr) : BoolExpr {
-	console.log('build_bool_expr');
+	// TODO: build_bool_expr
+	log.warn('build_bool_expr not yet implemented');
 	return null;
 }
 

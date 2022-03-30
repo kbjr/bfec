@@ -7,7 +7,7 @@ export class Import extends BaseNode {
 	public type: node_type.import = node_type.import;
 	public comments: Comment[] = [];
 	public source_expr: ConstString;
-	public source_schema: Schema;
+	public source_schema?: Schema;
 }
 
 export class ImportedSymbol extends BaseNode {

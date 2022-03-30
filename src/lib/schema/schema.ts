@@ -6,7 +6,7 @@ import { Switch } from './switch';
 import { ImportedSymbol, Import } from './import';
 import { BaseNode, node_type, SchemaNode } from './node';
 import { schema_json_schema } from '../constants';
-import { BuildError } from './error';
+import { BuildError } from '../error';
 
 export type SchemaElem = ImportedSymbol | Struct | Switch | Enum;
 
@@ -18,8 +18,16 @@ export class Schema extends BaseNode {
 	public element_map: Map<string, SchemaElem> = new Map();
 	public source_map: Map<SchemaNode, ast.ASTNode>;
 	public errors: BuildError[] = [ ];
+	public is_external: boolean = false;
+	public is_remote: boolean = false;
 
 	constructor(
+		/** The source / file path representing where this schema came from */
+		public readonly source: string,
+		/**
+		 * Controls whether or not the schema should preserve mappings back to the AST source tokens
+		 * for debugging purposes.
+		 */
 		public readonly include_source_maps: boolean = false
 	) {
 		super();
@@ -57,7 +65,7 @@ export class Schema extends BaseNode {
 	}
 
 	public build_error(message: string, node: ast.ASTNode) : void {
-		const error = new BuildError(message, node);
+		const error = new BuildError(message, this, node);
 		this.errors.push(error);
 	}
 	
@@ -74,7 +82,7 @@ export class Schema extends BaseNode {
 }
 
 export class Ref extends BaseNode {
-	public type: node_type.symbol = node_type.symbol;
+	public type: node_type.ref = node_type.ref;
 	
 	constructor(
 		public name: string

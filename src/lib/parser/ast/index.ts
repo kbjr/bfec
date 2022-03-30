@@ -3,6 +3,7 @@ export { ASTNode, node_type } from './node';
 export { FileNode, FileNodeElem } from './file';
 
 export {
+	Token,
 	WhitespaceToken,
 	LineCommentToken, BlockCommentToken, CommentToken,
 	ConstToken_ascii, ConstToken_unicode,
