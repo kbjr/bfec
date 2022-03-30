@@ -77,6 +77,7 @@ export class TypeExpr_checksum extends BaseNode {
 export class TypeExpr_named extends BaseNode {
 	public type: node_type.type_expr_named = node_type.type_expr_named;
 	public name: Ref;
+	public params: ValueExpr[] = [ ];
 }
 
 export class TypeExpr_array extends BaseNode {

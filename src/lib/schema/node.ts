@@ -2,7 +2,7 @@
 import type { TypeExpr } from './type-expr';
 import type { Comment, Schema, Ref } from './schema';
 import type { Import, ImportedSymbol } from './import';
-import type { Struct, StructExpansion, StructField } from './struct';
+import type { Struct, StructExpansion, StructField, StructParam } from './struct';
 import type { Switch, SwitchCase } from './switch';
 import type { Enum, EnumMember } from './enum';
 import type { ValueExpr } from './value-expr';
@@ -25,6 +25,7 @@ export type SchemaNode
 	| Import
 	| ImportedSymbol
 	| Struct
+	| StructParam
 	| StructField
 	| StructExpansion
 	| Switch
@@ -45,6 +46,7 @@ export enum node_type {
 	import,
 	imported_symbol,
 	struct,
+	struct_param,
 	struct_field,
 	struct_expansion,
 	switch,

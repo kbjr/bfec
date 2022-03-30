@@ -18,7 +18,7 @@ import {
 } from './tokens';
 import { TypeExpr } from './type-expr';
 
-export type SwitchElem = SwitchCase | SwitchDefault | CommentToken ;
+export type SwitchElem = SwitchCase | SwitchDefault | Ignored ;
 
 export class DeclareSwitchNode extends ASTNode {
 	public type: node_type.decl_switch = node_type.decl_switch;

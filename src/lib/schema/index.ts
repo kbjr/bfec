@@ -2,8 +2,8 @@
 import { ast } from '../parser';
 import { linker as log } from '../log';
 import { Enum, EnumMember } from './enum';
-import { Switch } from './switch';
-import { Struct, StructExpansion, StructField } from './struct';
+import { Switch, SwitchCase, SwitchCaseType } from './switch';
+import { Struct, StructExpansion, StructField, StructParam } from './struct';
 import { ConstInt, ConstString } from './const';
 import { Import, ImportedSymbol } from './import';
 import { Comment, Schema } from './schema';
@@ -87,7 +87,9 @@ function build_struct(schema: Schema, node: ast.DeclareStructNode, comments: ast
 	struct.byte_aligned = node.struct_keyword.text === 'struct';
 
 	if (node.params) {
-		// TODO: params
+		struct.params.push(
+			...node.params.params.map((param) => build_struct_param(schema, param))
+		);
 	}
 
 	const child_comments: ast.CommentToken[] = [ ];
@@ -121,6 +123,13 @@ function build_struct(schema: Schema, node: ast.DeclareStructNode, comments: ast
 			schema.root = struct;
 		}
 	}
+}
+
+function build_struct_param(schema: Schema, node: ast.StructParamNode) : StructParam {
+	const param = new StructParam();
+	param.name = schema.ref(node.name);
+	param.param_type = build_type_expr(schema, node.param_type);
+	return param;
 }
 
 function build_struct_field(schema: Schema, struct: Struct, node: ast.StructField, comments: ast.CommentToken[]) : void {
@@ -233,10 +242,82 @@ function build_switch(schema: Schema, node: ast.DeclareSwitchNode, comments: ast
 	switch_node.name = schema.ref(node.name);
 	switch_node.arg_type = build_type_expr(schema, node.param.param_type);
 
-	// TODO: cases
-	// TODO: default
+	const child_comments: ast.CommentToken[] = [ ];
+
+	node.body.children.forEach((child) => {
+		switch (child.type) {
+			case ast.node_type.whitespace:
+				// skip
+				break;
+	
+			case ast.node_type.comment_line:
+			case ast.node_type.comment_block:
+				child_comments.push(child);
+				break;
+	
+			case ast.node_type.switch_case:
+				build_switch_case(schema, switch_node, child, child_comments.splice(0, child_comments.length));
+				break;
+
+			case ast.node_type.switch_default:
+				build_switch_default(schema, switch_node, child, child_comments.splice(0, child_comments.length));
+				break;
+	
+			default:
+				throw new Error(`Invalid AST; encountered unexpected ${ast.node_type[(child as ast.ASTNode).type]} node as struct body child`);
+		}
+	});
 
 	schema.add_elem(node.name, switch_node);
+}
+
+function build_switch_case(schema: Schema, switch_node: Switch, node: ast.SwitchCase, comments: ast.CommentToken[]) : void {
+	const case_node = new SwitchCase();
+	case_node.comments = build_comments(comments);
+	case_node.case_value = schema.ref(node.condition_name);
+
+	switch (node.selection.type) {
+		case ast.node_type.kw_invalid:
+			case_node.case_type = SwitchCaseType.invalid;
+			break;
+
+		case ast.node_type.kw_void:
+			case_node.case_type = SwitchCaseType.void;
+			break;
+
+		default:
+			case_node.case_type = SwitchCaseType.type_expr;
+			case_node.case_type_expr = build_type_expr(schema, node.selection);
+			break;
+	}
+
+	switch_node.cases.push(case_node);
+}
+
+function build_switch_default(schema: Schema, switch_node: Switch, node: ast.SwitchDefault, comments: ast.CommentToken[]) : void {
+	const case_node = new SwitchCase();
+	case_node.comments = build_comments(comments);
+
+	if (switch_node.default) {
+		schema.build_error('Encountered more then one `default` case for `switch` declaration', node);
+	}
+
+	switch (node.selection.type) {
+		case ast.node_type.kw_invalid:
+			case_node.case_type = SwitchCaseType.invalid;
+			break;
+
+		case ast.node_type.kw_void:
+			case_node.case_type = SwitchCaseType.void;
+			break;
+
+		default:
+			case_node.case_type = SwitchCaseType.type_expr;
+			case_node.case_type_expr = build_type_expr(schema, node.selection);
+			break;
+	}
+
+	switch_node.default = case_node;
 }
 
 
@@ -438,7 +519,13 @@ function build_type_expr_len(schema: Schema, node: ast.TypeExpr_builtin_len) : T
 function build_type_expr_named(schema: Schema, node: ast.TypeExpr_named) : TypeExpr_named {
 	const expr = new TypeExpr_named();
 	expr.name = schema.ref(node.name);
-	// TODO: params
+
+	if (node.params) {
+		expr.params.push(
+			...node.params.params.map((param) => build_value_expr_path(schema, param.param))
+		);
+	}
+
 	return expr;
 }
 

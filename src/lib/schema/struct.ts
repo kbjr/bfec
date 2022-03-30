@@ -13,6 +13,7 @@ export class Struct extends BaseNode {
 	public comments: Comment[] = [ ];
 	public name: Ref;
 	public byte_aligned: boolean;
+	public params: StructParam[] = [ ];
 	public fields: StructElem[] = [ ];
 	public field_map: Map<string, StructField> = new Map();
 	
@@ -31,6 +32,12 @@ export class Struct extends BaseNode {
 		this.fields.push(expansion);
 		return true;
 	}
+}
+
+export class StructParam extends BaseNode {
+	public type: node_type.struct_param = node_type.struct_param;
+	public name: Ref;
+	public param_type: TypeExpr;
 }
 
 export class StructField extends BaseNode {
