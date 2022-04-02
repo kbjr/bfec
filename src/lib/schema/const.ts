@@ -1,6 +1,8 @@
 
 import { BaseNode, node_type } from './node';
 
+export type ConstExpr = ConstInt | ConstString;
+
 export class ConstInt extends BaseNode {
 	public type: node_type.const_int = node_type.const_int;
 	public value: number;

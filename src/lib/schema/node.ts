@@ -71,5 +71,6 @@ export enum node_type {
 	
 	value_expr,
 	
-	bool_expr,
+	bool_expr_comparison,
+	bool_expr_logical,
 }

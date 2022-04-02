@@ -21,7 +21,7 @@ import {
 	TypeExpr_float,
 } from './type-expr';
 import { ValueExpr, ValueExprRootType } from './value-expr';
-import { BoolExpr } from './bool-expr';
+import { BoolExpr, BoolExprComparisonOperator, BoolExprLogicalOperator, BoolExpr_comparison, BoolExpr_logical } from './bool-expr';
 
 export * from './bool-expr';
 export * from './const';
@@ -646,9 +646,66 @@ function build_value_expr_path(schema: Schema, node: ast.ValueExpr_path) : Value
 // ===== Bool Expr =====
 
 function build_bool_expr(schema: Schema, node: ast.BoolExpr) : BoolExpr {
-	// TODO: build_bool_expr
-	log.warn('build_bool_expr not yet implemented');
-	return null;
+	let is_not = false;
+	let logical_op: BoolExprLogicalOperator;
+	let comparison_op: BoolExprComparisonOperator;
+
+	switch (node.type) {
+		case ast.node_type.bool_expr_not:
+			is_not = true;
+			logical_op = BoolExprLogicalOperator.not;
+			break;
+
+		case ast.node_type.bool_expr_and:
+			logical_op = BoolExprLogicalOperator.not;
+			break;
+
+		case ast.node_type.bool_expr_or:
+			logical_op = BoolExprLogicalOperator.or;
+			break;
+
+		case ast.node_type.bool_expr_xor:
+			logical_op = BoolExprLogicalOperator.xor;
+			break;
+
+		case ast.node_type.bool_expr_eq:
+			comparison_op = BoolExprComparisonOperator.eq;
+			break;
+			
+		case ast.node_type.bool_expr_neq:
+			comparison_op = BoolExprComparisonOperator.neq;
+			break;
+
+		default:
+			log.debug('Invalid node passed to build_bool_expr', node);
+			schema.build_error(`Invalid AST: encountered unexpected node when expecting bool expression`, node);
+			return null;
+	}
+
+	if (logical_op) {
+		const expr = new BoolExpr_logical();
+		expr.operator = logical_op;
+
+		if (is_not) {
+			const node_ = node as ast.BoolExpr_not;
+			expr.lh_expr = build_bool_expr(schema, node_.expr);
+			return expr;
+		}
+		
+		const node_ = node as ast.BoolExpr_and | ast.BoolExpr_or | ast.BoolExpr_xor;
+		expr.lh_expr = build_bool_expr(schema, node_.lh_expr);
+		return expr;
+	}
+
+	const node_ = node as ast.BoolExpr_eq | ast.BoolExpr_neq;
+	const expr = new BoolExpr_comparison();
+	expr.operator = comparison_op;
+	expr.lh_expr = node_.lh_expr.type === ast.node_type.value_expr_path
+		? build_value_expr_path(schema, node_.lh_expr)
+		: build_const(schema, node_.lh_expr);
+	expr.rh_expr = node_.rh_expr.type === ast.node_type.value_expr_path
+		? build_value_expr_path(schema, node_.rh_expr)
+		: build_const(schema, node_.rh_expr);
 }
 
 
