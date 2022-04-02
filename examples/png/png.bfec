@@ -11,8 +11,9 @@ struct $ {
   
   # Image header should always be the first chunk, and we need to reference data out
   # of it, so we'll statically define it here so we can `$.image_header` elsewhere
-  image_header: Chunk(ChunkType.image_header);
+  image_header: Chunk(ChunkType.IHDR);
 
+  # The rest of the file we'll just read as a bit list of chunks
   chunks: Chunk[...];
 }
 
@@ -24,45 +25,45 @@ struct Chunk (type: ChunkType) {
 }
 
 enum ChunkType: ascii<4> {
-  image_header              = "IHDR";
-  pallete                   = "PLTE";
-  image_data                = "IDAT";
-  image_trailer             = "IEND";
-  transparency              = "tRNS";
-  prim_chrom_wh_pt          = "cHRM";
-  image_gamma               = "gAMA";
-  icc_profile               = "iCCP";
-  signifigant_bits          = "sBIT";
-  rgb_color_space           = "sRGB";
-  text_data                 = "tEXt";
-  compressed_text_data      = "xTXt";
-  international_text_data   = "iTXt";
-  background_color          = "bKGD";
-  image_histogram           = "hIST";
-  physical_pixel_dimensions = "pHYs";
-  suggested_pallete         = "sPLT";
-  last_modified_timestamp   = "tIME";
+  IHDR = "IHDR";
+  PLTE = "PLTE";
+  IDAT = "IDAT";
+  IEND = "IEND";
+  tRNS = "tRNS";
+  cHRM = "cHRM";
+  gAMA = "gAMA";
+  iCCP = "iCCP";
+  sBIT = "sBIT";
+  sRGB = "sRGB";
+  tEXt = "tEXt";
+  xTXt = "xTXt";
+  iTXt = "iTXt";
+  bKGD = "bKGD";
+  hIST = "hIST";
+  pHYs = "pHYs";
+  sPLT = "sPLT";
+  tIME = "tIME";
 }
 
 switch ChunkData<ChunkType> {
-  case image_header:              ImageHeader;
-  case pallete:                   Pallete[...];
-  case image_data:                void;
-  case image_trailer:             void;
-  case transparency:              TransparencyData($.image_header.color_type);
-  case prim_chrom_wh_pt:          PrimaryChromaticitiesAndWhitePointData;
-  case image_gamma:               GammaData;
-  case icc_profile:               EmbeddedICCProfileData;
-  case signifigant_bits:          SignifigantBitsData($.image_header.color_type);
-  case rgb_color_space:           RGBColorSpaceData;
-  case text_data:                 TextData;
-  case compressed_text_data:      CompressedTextData;
-  case international_text_data:   InternationalTextData;
-  case background_color:          BackgroundColorData($.image_header.color_type);
-  case image_histogram:           ImageHistogramData;
-  case physical_pixel_dimensions: PhysicalPixelDimensionsData;
-  case suggested_pallete:         SuggestedPalleteData;
-  case last_modified_timestamp:   LastModifiedTimestampData;
+  case IHDR: ImageHeader;
+  case PLTE: Pallete[...];
+  case IDAT: void;
+  case IEND: void;
+  case tRNS: TransparencyData($.image_header.color_type);
+  case cHRM: PrimaryChromaticitiesAndWhitePointData;
+  case gAMA: GammaData;
+  case iCCP: EmbeddedICCProfileData;
+  case sBIT: SignifigantBitsData($.image_header.color_type);
+  case sRGB: RGBColorSpaceData;
+  case tEXt: TextData;
+  case xTXt: CompressedTextData;
+  case iTXt: InternationalTextData;
+  case bKGD: BackgroundColorData($.image_header.color_type);
+  case hIST: ImageHistogramData;
+  case pHYs: PhysicalPixelDimensionsData;
+  case sPLT: SuggestedPalleteData;
+  case tIME: LastModifiedTimestampData;
   default: void;
 }
 

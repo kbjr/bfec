@@ -1,5 +1,5 @@
 
-import { Enum, EnumMember, ImportedSymbol, Ref, Struct, StructField, StructParam, Switch } from '../schema';
+import { Enum, EnumMember, ImportedSymbol, node_type, Ref, Struct, StructField, StructParam, Switch } from '../schema';
 
 export type Refable
 	= Struct
@@ -26,6 +26,10 @@ export enum RefLocality {
 
 export type RefedType<T extends ResolvedRef<Refable>> = T extends ResolvedRef<infer RT> ? RT : never;
 
+export interface RefableConstructor<T extends Refable> {
+	new (): T;
+}
+
 export class ResolvedRef<T extends Refable> extends Ref {
 	constructor(
 		name: string,
@@ -33,6 +37,26 @@ export class ResolvedRef<T extends Refable> extends Ref {
 		public locality: RefLocality
 	) {
 		super(name);
+	}
+
+	public is_type<R extends Refable>(Class: RefableConstructor<R>) : this is ResolvedRef<R> {
+		return this.points_to instanceof Class;
+	}
+
+	public fully_resolve() : Refable {
+		let points_to: Refable = this.points_to;
+
+		while (points_to.type === node_type.imported_symbol) {
+			if (points_to.imported instanceof ResolvedRef) {
+				points_to = points_to.imported.points_to;
+			}
+
+			else {
+				return null;
+			}
+		}
+
+		return points_to;
 	}
 
 	/**
@@ -43,5 +67,13 @@ export class ResolvedRef<T extends Refable> extends Ref {
 	 */
 	public static promote_ref<T extends Refable>(ref: Ref, points_to: T, locality: RefLocality) : ResolvedRef<T> {
 		return new ResolvedRef<T>(ref.name, points_to, locality);
+	}
+
+	public static fully_resolve(ref: Ref) : Refable {
+		if (ref instanceof ResolvedRef) {
+			return ref.fully_resolve();
+		}
+
+		return null;
 	}
 }

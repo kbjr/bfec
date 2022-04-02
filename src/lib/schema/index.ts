@@ -452,7 +452,7 @@ function build_type_expr_float(schema: Schema, node: ast.Type_expr_builtin_float
 function build_type_expr_array(schema: Schema, node: ast.TypeExpr_array) : TypeExpr_array {
 	const expr = new TypeExpr_array();
 	expr.element_type = build_type_expr(schema, node.elem_type);
-	
+
 	switch (node.length_type.type) {
 		case ast.node_type.kw_null:
 			expr.length_type = ArrayLengthType.null_terminated;

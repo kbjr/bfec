@@ -1,7 +1,18 @@
 
 import { BuildError } from '../error';
-import { Schema, node_type, ImportedSymbol, Struct, Switch, Enum, TypeExpr_named, SchemaNode, TypeExpr, TypeExpr_array, ArrayLengthType, BoolExpr, ValueExpr } from '../schema';
-import { RefLocality, ResolvedRef } from './refs';
+import { Refable, RefLocality, ResolvedRef } from './refs';
+import {
+	Schema, node_type, SchemaNode,
+	ImportedSymbol,
+	Struct,
+	Switch,
+	Enum,
+	TypeExpr, TypeExpr_named, TypeExpr_array,
+	ArrayLengthType, TextLengthType,
+	BoolExpr, BoolExprLogicalOperator,
+	ValueExpr,
+	SwitchCaseType,
+} from '../schema';
 
 export function link_locals(schema: Schema, errors: BuildError[]) : void {
 	schema.elements.forEach((elem) => {
@@ -53,7 +64,7 @@ function link_struct(schema: Schema, elem: Struct, errors: BuildError[]) : void 
 
 		else {
 			if (field.condition) {
-				// TODO: field.condition
+				link_bool_expr(schema, field.condition, errors);
 			}
 
 			if (! field.field_type) {
@@ -69,9 +80,59 @@ function link_struct(schema: Schema, elem: Struct, errors: BuildError[]) : void 
 }
 
 function link_switch(schema: Schema, elem: Switch, errors: BuildError[]) : void {
-	// TODO: elem.arg_type
-	// TODO: elem.cases
-	// TODO: elem.default
+	link_type_expr(schema, elem.arg_type, errors);
+
+	let arg_enum: Enum;
+	let locality: RefLocality;
+
+	// Validate that the switch arg type is actually an enum
+	if (is_named_type_expr(elem.arg_type)) {
+		const refed = ResolvedRef.fully_resolve(elem.arg_type.name);
+
+		if (refed) {
+			if (refed.type === node_type.enum) {
+				arg_enum = refed;
+				locality = (elem.arg_type.name as ResolvedRef<Refable>).locality;
+			}
+	
+			else {
+				build_error(errors, schema, elem.arg_type, 'Expected switch arg type to refer to an enum');
+			}
+		}
+	}
+	
+	else {
+		build_error(errors, schema, elem.arg_type, 'Expected switch arg type to refer to an enum');
+	}
+
+	for (const case_node of elem.cases) {
+		if (arg_enum) {
+			const name = case_node.case_value.name;
+			const found = arg_enum.member_map.get(name);
+			
+			if (found) {
+				case_node.case_value = ResolvedRef.promote_ref(case_node.case_value, found, locality);
+			}
+
+			else {
+				build_error(errors, schema, case_node.case_value, `Referenced member "${name}" not found for enum "${arg_enum.name.name}"`);
+			}
+		}
+
+		if (case_node.case_type === SwitchCaseType.type_expr) {
+			link_type_expr(schema, case_node.case_type_expr, errors);
+		}
+	}
+
+	if (elem.default) {
+		if (elem.default.case_type === SwitchCaseType.type_expr) {
+			link_type_expr(schema, elem.default.case_type_expr, errors);
+		}
+	}
+
+	else {
+		// TODO: Should no default be allowed? Default to `invalid` or `void`?
+	}
 }
 
 function link_enum(schema: Schema, elem: Enum, errors: BuildError[]) : void {
@@ -97,23 +158,37 @@ function link_type_expr(schema: Schema, expr: TypeExpr, errors: BuildError[]) : 
 			link_named_type_expr(schema, expr.refined_type, errors);
 			break;
 
-		// TODO: case node_type.type_expr_checksum:
-		// TODO: case node_type.type_expr_len:
-		// TODO: case node_type.type_expr_struct_refinement:
-		// TODO: case node_type.type_expr_switch_refinement:
-		// TODO: case node_type.type_expr_text:
-		// TODO: case node_type.type_expr_vint:
-		// TODO: case node_type.name_builtin_uint:
-		// TODO: case node_type.name_builtin_sint:
-		// TODO: case node_type.name_builtin_bit:
-		// TODO: case node_type.name_builtin_dec_float:
-		// TODO: case node_type.name_builtin_bin_float:
+		case node_type.type_expr_checksum:
+			link_type_expr(schema, expr.real_type, errors);
+			link_value_expr(schema, expr.data_expr, errors);
+			break;
+
+		case node_type.type_expr_struct_refine:
+			// TODO: type_expr_struct_refine
+			break;
+		
+		case node_type.type_expr_switch_refine:
+			// TODO: type_expr_switch_refine
+			break;
+		
+		case node_type.type_expr_text:
+			if (expr.length_type === TextLengthType.length_field) {
+				link_value_expr(schema, expr.length_field, errors);
+			}
+			break;
+				
+		case node_type.type_expr_length:
+		case node_type.type_expr_varint:
+		case node_type.type_expr_fixed_int:
+		case node_type.type_expr_float:
+			// no linking required
+			break;
 	}
 }
 
 function link_array_type_expr(schema: Schema, expr: TypeExpr_array, errors: BuildError[]) : void {
 	link_type_expr(schema, expr.element_type, errors);
-	
+
 	if (expr.length_type === ArrayLengthType.length_field) {
 		link_value_expr(schema, expr.length_field, errors);
 	}
@@ -144,7 +219,31 @@ function link_value_expr(schema: Schema, expr: ValueExpr, errors: BuildError[]) 
 // ===== Bool Expressions =====
 
 function link_bool_expr(schema: Schema, expr: BoolExpr, errors: BuildError[]) : void {
-	// TODO: link_bool_expr
+	if (expr.type === node_type.bool_expr_comparison) {
+		if (expr.lh_expr.type === node_type.value_expr) {
+			link_value_expr(schema, expr.lh_expr, errors);
+		}
+
+		if (expr.rh_expr.type === node_type.value_expr) {
+			link_value_expr(schema, expr.rh_expr, errors);
+		}
+
+		return;
+	}
+
+	link_bool_expr(schema, expr.lh_expr, errors);
+
+	if (expr.operator !== BoolExprLogicalOperator.not) {
+		link_bool_expr(schema, expr.rh_expr, errors);
+	}
+}
+
+
+
+// ===== Expectations =====
+
+function is_named_type_expr(expr: TypeExpr) : expr is TypeExpr_named {
+	return expr && expr.type === node_type.type_expr_named;
 }
 
 

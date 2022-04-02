@@ -187,7 +187,7 @@ function parse_type_expr_array(state: ParserState, lh_expr: TypeExpr) : TypeExpr
 	ast_node.elem_type = lh_expr;
 	
 	state.scan_through_comments_and_whitespace(ast_node.children);
-	ast_node.length_type = parse_type_expr_fixed_int(state) || parse_type_expr_varint(state) || op_expansion.match(state) || parse_value_expr(state) || kw_null.match(state);
+	ast_node.length_type = parse_type_expr_fixed_int(state) || parse_type_expr_varint(state) || op_expansion.match(state) || kw_null.match(state) || parse_value_expr(state);
 
 	if (! ast_node.length_type) {
 		state.fatal('expected array length type definition between square brackets "[" / "]"');

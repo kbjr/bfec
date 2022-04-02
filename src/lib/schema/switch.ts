@@ -9,7 +9,7 @@ export class Switch extends BaseNode {
 	public name: Ref;
 	public arg_type: TypeExpr;
 	public cases: SwitchCase[] = [ ];
-	public default: SwitchCase;
+	public default?: SwitchCase;
 }
 
 export class SwitchCase extends BaseNode {
@@ -22,6 +22,6 @@ export class SwitchCase extends BaseNode {
 
 export enum SwitchCaseType {
 	type_expr = 'type_expr',
-	void = 'void',
-	invalid = 'invalid'
+	void      = 'void',
+	invalid   = 'invalid',
 }
