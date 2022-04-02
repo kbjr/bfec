@@ -20,6 +20,8 @@ export function parse_switch(state: ParserState) : DeclareSwitchNode {
 	}
 
 	const ast_node = new DeclareSwitchNode();
+	ast_node.switch_keyword = switch_keyword;
+
 	state.scan_through_comments_and_whitespace(ast_node.children);
 	
 	ast_node.name = name_normal.match(state);

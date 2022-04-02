@@ -27,6 +27,10 @@ export class ValueExpr_path extends ASTNode {
 			children: this.children,
 		};
 	}
+
+	public pos() : [ line: number, char: number ] {
+		return this.lh_name.pos();
+	}
 }
 
 // TODO: Support for new `[@]` token for accessing current branch, i.e.
@@ -42,5 +46,9 @@ export class ValueExpr_path_access extends ASTNode {
 			access_punc: this.access_punc,
 			field_name: this.field_name,
 		};
+	}
+
+	public pos() : [ line: number, char: number ] {
+		return this.access_punc.pos();
 	}
 }

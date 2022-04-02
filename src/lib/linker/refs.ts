@@ -24,6 +24,8 @@ export enum RefLocality {
 	remote      = 'remote',
 }
 
+export type RefedType<T extends ResolvedRef<Refable>> = T extends ResolvedRef<infer RT> ? RT : never;
+
 export class ResolvedRef<T extends Refable> extends Ref {
 	constructor(
 		name: string,

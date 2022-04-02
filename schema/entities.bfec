@@ -26,3 +26,14 @@ struct NamespaceEntityContents {
   # parent: ref<EntityID>;
 	# ...
 }
+
+# From PNG schema:
+
+# TODO: Checksum-like meta-type for signatures?
+#     sig: signature<u8[u32]>(@.data, 'sig_function');
+
+# TODO: Meta-type for compressed data?
+#     image_data: compress<ImageData>('gzip');
+
+# ...or a more generic name?
+#     image_data: transform<ImageData>('compress:gzip');

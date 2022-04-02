@@ -6,6 +6,7 @@ import { link_schema, parse_src_to_ast } from '../lib';
 import { build_schema_from_ast } from '../lib/schema';
 import { main as log } from './log';
 import { jsonc } from 'jsonc';
+import { get_http } from './http';
 
 main();
 
@@ -48,22 +49,39 @@ async function main() {
 
 	// Link the schema, pulling in any other imported schemas and connecting all of the symbol
 	// references to their referenced declarations
-	const { errors } = await link_schema(schema, {
+	const errors = await link_schema(schema, {
 		async resolve_import(path: string) {
 			log.debug('resolve_import', path);
 
+			let imported_contents: string;
+
 			if (path.startsWith('http://') || path.startsWith('https://')) {
-				// TODO: Remote imports over http(s)
-				await exit_error(2, 'http(s) imports not yet supported');
+				if (! check_remote_is_allowed(args.allowed_remotes, path)) {
+					throw new Error('Remote location not allowed');
+				}
+
+				imported_contents = await get_http(path);
 			}
 
-			if (path.startsWith('~/')) {
-				let imported_contents = await input.read_file(path.slice(2));
-				let imported_ast = parse_src_to_ast(path, imported_contents);
-				return build_schema_from_ast(imported_ast);
+			else if (path.startsWith('~/')) {
+				imported_contents = await input.read_file(path.slice(2));
 			}
 
-			throw new Error('Only project relative "~/" prefixed paths are allowed');
+			else {
+				throw new Error('Only project relative "~/" prefixed paths and http(s) urls are allowed');
+			}
+
+			if (imported_contents) {
+				const imported_ast = parse_src_to_ast(path, imported_contents);
+
+				if (imported_ast) {
+					return build_schema_from_ast(imported_ast);
+				}
+
+				throw new Error('Failed to parse file');
+			}
+
+			throw new Error('Failed to read import contents');
 		}
 	});
 
@@ -76,6 +94,7 @@ async function main() {
 	if (errors.length) {
 		errors.forEach((error) => {
 			log.error('\n' + error.message, `(${error.source.source}:${error.line}:${error.char})`);
+			// TODO: Log `error.text` once its being defined
 		});
 
 		log.error(`\nErrors: ${errors.length}\n`);
@@ -112,4 +131,18 @@ async function main() {
 	}
 
 	await exit_successful();
+}
+
+function check_remote_is_allowed(allowed: string[], remote: string) : boolean {
+	if (! allowed) {
+		return false;
+	}
+
+	for (const prefix of allowed) {
+		if (remote.startsWith(prefix)) {
+			return true;
+		}
+	}
+
+	return false;
 }

@@ -7,6 +7,8 @@ export abstract class ASTNode {
 		json.type = node_type[json.type];
 		return json;
 	}
+
+	public abstract pos() : [line: number, char: number];
 }
 
 export enum node_type {

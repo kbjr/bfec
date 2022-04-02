@@ -37,6 +37,10 @@ export class DeclareEnumNode extends ASTNode {
 			children: this.children,
 		};
 	}
+
+	public pos() : [ line: number, char: number ] {
+		return this.enum_keyword.pos();
+	}
 }
 
 export class EnumBody extends ASTNode {
@@ -52,6 +56,10 @@ export class EnumBody extends ASTNode {
 			close_brace: this.close_brace,
 			children: this.children,
 		};
+	}
+
+	public pos() : [ line: number, char: number ] {
+		return this.open_brace.pos();
 	}
 }
 
@@ -72,5 +80,9 @@ export class EnumMember extends ASTNode {
 			terminator: this.terminator,
 			children: this.children,
 		};
+	}
+
+	public pos() : [ line: number, char: number ] {
+		return this.name.pos();
 	}
 }

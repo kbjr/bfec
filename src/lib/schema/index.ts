@@ -213,8 +213,7 @@ function build_enum(schema: Schema, node: ast.DeclareEnumNode, comments: ast.Com
 				break;
 	
 			default:
-				// TODO: Make debug
-				log.info('encountered unexpected node as struct body child', child);
+				log.debug('encountered unexpected node as struct body child', child);
 				schema.build_error('Invalid AST: encountered unexpected node as struct body child', child);
 				break;
 		}
@@ -402,8 +401,7 @@ function build_type_expr(schema: Schema, node: ast.TypeExpr) : TypeExpr {
 			return build_type_expr_float(schema, node);
 	}
 
-	// TODO: Make debug
-	log.info('Invalid node passed to build_type_expr', node);
+	log.debug('Invalid node passed to build_type_expr', node);
 	schema.build_error(`Invalid AST: encountered unexpected node when expecting type expression`, node);
 	return null;
 }
@@ -417,8 +415,7 @@ function build_type_expr_fixed_int(schema: Schema, node: ast.TypeExpr_builtin_fi
 	const int_info = parse_int_type.exec(node.text);
 
 	if (! int_info) {
-		// TODO: Make debug
-		log.info('Invalid node passed to build_type_expr_fixed_int', node);
+		log.debug('Invalid node passed to build_type_expr_fixed_int', node);
 		schema.build_error(`Unknown fixed int type`, node);
 	}
 	
@@ -440,8 +437,7 @@ function build_type_expr_float(schema: Schema, node: ast.Type_expr_builtin_float
 	const float_info = parse_float_type.exec(node.text);
 
 	if (! float_info) {
-		// TODO: Make debug
-		log.info('Invalid node passed to build_type_expr_float', node);
+		log.debug('Invalid node passed to build_type_expr_float', node);
 		schema.build_error(`Unknown float type`, node);
 	}
 
@@ -530,21 +526,28 @@ function build_type_expr_named(schema: Schema, node: ast.TypeExpr_named) : TypeE
 }
 
 function build_type_expr_named_refinement(schema: Schema, node: ast.TypeExpr_named_refinement) : TypeExpr_named_refine {
-	// TODO: build_type_expr_named_refinement
-	log.warn('build_type_expr_named_refinement not yet implemented');
-	return null;
+	const expr = new TypeExpr_named_refine();
+	expr.parent_type = build_type_expr(schema, node.parent_type);
+	expr.refined_type = build_type_expr_named(schema, node.refined_type);
+	return expr;
 }
 
 function build_type_expr_struct_refinement(schema: Schema, node: ast.TypeExpr_struct_refinement) : TypeExpr_struct_refine {
+	const expr = new TypeExpr_struct_refine();
+
 	// TODO: build_type_expr_struct_refinement
 	log.warn('build_type_expr_struct_refinement not yet implemented');
-	return null;
+	
+	return expr;
 }
 
 function build_type_expr_switch_refinement(schema: Schema, node: ast.TypeExpr_switch_refinement) : TypeExpr_switch_refine {
+	const expr = new TypeExpr_switch_refine();
+
 	// TODO: build_type_expr_switch_refinement
 	log.warn('build_type_expr_switch_refinement not yet implemented');
-	return null;
+	
+	return expr;
 }
 
 function build_type_expr_text(schema: Schema, node: ast.TypeExpr_builtin_text) : TypeExpr_text {
@@ -668,8 +671,7 @@ function build_const(schema: Schema, node: ast.ConstToken_ascii | ast.ConstToken
 			return build_string_const(schema, node);
 
 		default:
-			// TODO: Make debug
-			log.info('Invalid node passed to build_const', node);
+			log.debug('Invalid node passed to build_const', node);
 			schema.build_error(`Invalid AST: encountered unexpected node when expecting const literal`, node);
 	}
 }

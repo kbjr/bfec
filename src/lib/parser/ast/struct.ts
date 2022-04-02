@@ -2,7 +2,6 @@
 import { BoolExpr } from './bool-expr';
 import { ASTNode, node_type } from './node';
 import {
-	CommentToken,
 	NameToken_normal,
 	NameToken_root_schema,
 	PuncToken_close_brace,
@@ -39,6 +38,10 @@ export class DeclareStructNode extends ASTNode {
 			children: this.children,
 		};
 	}
+
+	public pos() : [ line: number, char: number ] {
+		return this.struct_keyword.pos();
+	}
 }
 
 export class StructBody extends ASTNode {
@@ -54,6 +57,10 @@ export class StructBody extends ASTNode {
 			close_brace: this.close_brace,
 			children: this.children
 		};
+	}
+
+	public pos() : [ line: number, char: number ] {
+		return this.open_brace.pos();
 	}
 }
 
@@ -73,6 +80,10 @@ export class StructParamsListNode extends ASTNode {
 			children: this.children,
 		};
 	}
+
+	public pos() : [ line: number, char: number ] {
+		return this.open_paren.pos();
+	}
 }
 
 export class StructParamNode extends ASTNode {
@@ -90,6 +101,10 @@ export class StructParamNode extends ASTNode {
 			param_type: this.param_type,
 			separator: this.separator,
 		};
+	}
+
+	public pos() : [ line: number, char: number ] {
+		return this.name.pos();
 	}
 }
 
@@ -110,6 +125,10 @@ export class StructExpansion extends ASTNode {
 			terminator: this.terminator,
 			children: this.children,
 		};
+	}
+
+	public pos() : [ line: number, char: number ] {
+		return this.expansion_op.pos();
 	}
 }
 
@@ -137,6 +156,10 @@ export class StructField extends ASTNode {
 			children: this.children
 		};
 	}
+
+	public pos() : [ line: number, char: number ] {
+		return this.field_name.pos();
+	}
 }
 
 export class StructFieldOptionalCondition extends ASTNode {
@@ -156,5 +179,9 @@ export class StructFieldOptionalCondition extends ASTNode {
 			condition: this.condition,
 			children: this.children,
 		};
+	}
+
+	public pos() : [ line: number, char: number ] {
+		return this.question.pos();
 	}
 }

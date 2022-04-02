@@ -1,5 +1,5 @@
 
-from './bad-local.bfec' { };
+from '~/basics.bfec' { bool };
 
 #--
 PNG Image Format

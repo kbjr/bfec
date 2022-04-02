@@ -99,15 +99,18 @@ export enum ArrayLengthType {
 
 export class TypeExpr_struct_refine extends BaseNode {
 	public type: node_type.type_expr_struct_refine = node_type.type_expr_struct_refine;
+	public parent_type: TypeExpr;
 	// TODO: Struct refine
 }
 
 export class TypeExpr_switch_refine extends BaseNode {
 	public type: node_type.type_expr_switch_refine = node_type.type_expr_switch_refine;
+	public parent_type: TypeExpr;
 	// TODO: Switch refine
 }
 
 export class TypeExpr_named_refine extends BaseNode {
 	public type: node_type.type_expr_named_refine = node_type.type_expr_named_refine;
+	public parent_type: TypeExpr;
 	public refined_type: TypeExpr_named;
 }

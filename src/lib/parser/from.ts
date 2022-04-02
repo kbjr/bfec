@@ -13,6 +13,7 @@ export function parse_from(state: ParserState) : DeclareFromNode {
 	}
 
 	const ast_node = new DeclareFromNode();
+	ast_node.from_keyword = from_keyword;
 	
 	state.scan_through_comments_and_whitespace(ast_node.children);
 

@@ -13,6 +13,7 @@ export interface Conf {
 		file: string;
 	};
 	out?: Record<output_format, string>;
+	allowed_remotes?: string[];
 }
 
 export class ConfLoader {
@@ -67,12 +68,12 @@ export class InputLoader {
 	}
 
 	public read_file(file_path: string) {
-		return fs.readFile(file_path, 'utf8');
+		const path = resolve_path(this.directory, file_path);
+		return fs.readFile(path, 'utf8');
 	}
 
 	public read_entrypoint() {
-		const path = resolve_path(this.directory, this.entrypoint_file);
-		return this.read_file(path);
+		return this.read_file(this.entrypoint_file);
 	}
 }
 

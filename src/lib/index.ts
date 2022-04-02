@@ -2,7 +2,7 @@
 export { parse_src_to_ast, ast } from './parser';
 export * as schema from './schema';
 export { build_schema_from_ast } from './schema';
-export { link_schema, LinkerOptions, LinkerResults } from './linker';
+export { link_schema, LinkerOptions } from './linker';
 
 export { compile_to_assemblyscript, AssemblyscriptCompilerOptions } from './compilers/as';
 export { compile_to_html, HTMLCompilerOptions } from './compilers/html';

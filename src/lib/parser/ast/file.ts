@@ -34,4 +34,8 @@ export class FileNode extends ASTNode {
 			children: this.children
 		};
 	}
+
+	public pos() : [ line: number, char: number ] {
+		return [ 1, 1 ];
+	}
 }

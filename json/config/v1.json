@@ -47,6 +47,14 @@
           "description": "Output directory for compiled TypeScript"
         }
       }
+    },
+    "allowed_remotes": {
+      "type": "array",
+      "description": "Any remote locations that imports are allowed to reference, in the form of URL prefixes",
+      "items": {
+        "type": "string",
+        "examples": ["https://bfec.io/bfec/"]
+      }
     }
   }
 }

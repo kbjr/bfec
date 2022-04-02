@@ -1,15 +1,16 @@
 
+import { jsonc } from 'jsonc';
+import { ConfLoader } from './fs';
 import { print_help, print_version } from './help';
 import { log_level, main as log, set_log_level } from './log';
 import { exit_error, exit_successful } from './exit';
-import { jsonc } from 'jsonc';
-import { ConfLoader } from './fs';
 
 export interface Args {
 	conf?: string;
 	in: Input;
 	out: Output[];
 	quiet?: boolean;
+	allowed_remotes?: string[];
 }
 
 export interface Input {
@@ -83,6 +84,10 @@ export async function parse_args(args: string[]) : Promise<Args> {
 							directory: out_dir
 						});
 					}
+				}
+
+				if (conf.allowed_remotes) {
+					result.allowed_remotes = conf.allowed_remotes;
 				}
 
 				break;

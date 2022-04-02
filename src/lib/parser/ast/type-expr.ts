@@ -9,7 +9,6 @@ import {
 	NameToken_normal, NameToken_root_schema,
 	NameToken_builtin_len,
 	NameToken_builtin_checksum,
-	CommentToken, WhitespaceToken,
 	KeywordToken_bin, KeywordToken_struct, KeywordToken_switch,
 	ConstToken_int, ConstToken_hex_int, ConstToken_ascii, ConstToken_unicode,
 	PuncToken_open_paren, PuncToken_close_paren,
@@ -82,6 +81,10 @@ export class TypeExpr_builtin_vint extends ASTNode {
 			children: this.children,
 		};
 	}
+
+	public pos() : [ line: number, char: number ] {
+		return this.varint_keyword.pos();
+	}
 }
 
 export class TypeExpr_builtin_len extends ASTNode {
@@ -101,6 +104,10 @@ export class TypeExpr_builtin_len extends ASTNode {
 			real_type: this.real_type,
 			children: this.children,
 		};
+	}
+
+	public pos() : [ line: number, char: number ] {
+		return this.len_keyword.pos();
 	}
 }
 
@@ -122,6 +129,10 @@ export class TypeExpr_array extends ASTNode {
 			children: this.children,
 		};
 	}
+
+	public pos() : [ line: number, char: number ] {
+		return this.elem_type.pos();
+	}
 }
 
 export class TypeExpr_struct_refinement extends ASTNode {
@@ -141,6 +152,10 @@ export class TypeExpr_struct_refinement extends ASTNode {
 			body: this.body,
 			children: this.children,
 		};
+	}
+
+	public pos() : [ line: number, char: number ] {
+		return this.parent_type.pos();
 	}
 }
 
@@ -174,13 +189,17 @@ export class TypeExpr_switch_refinement extends ASTNode {
 			children: this.children,
 		};
 	}
+
+	public pos() : [ line: number, char: number ] {
+		return this.parent_type.pos();
+	}
 }
 
 export class TypeExpr_named_refinement extends ASTNode {
 	public type: node_type.type_expr_named_refinement = node_type.type_expr_named_refinement;
 	public parent_type: TypeExpr;
 	public arrow: PuncToken_arrow;
-	public refined_type: TypeExpr;
+	public refined_type: TypeExpr_named;
 	public children: Ignored[] = [ ];
 
 	public toJSON(): object {
@@ -191,6 +210,10 @@ export class TypeExpr_named_refinement extends ASTNode {
 			refined_type: this.refined_type,
 			children: this.children,
 		};
+	}
+
+	public pos() : [ line: number, char: number ] {
+		return this.parent_type.pos();
 	}
 }
 
@@ -207,6 +230,10 @@ export class TypeExpr_named extends ASTNode {
 			params: this.params,
 			children: this.children,
 		};
+	}
+
+	public pos() : [ line: number, char: number ] {
+		return this.name.pos();
 	}
 }
 
@@ -226,6 +253,10 @@ export class TypeExprParamsList extends ASTNode {
 			children: this.children,
 		};
 	}
+
+	public pos() : [ line: number, char: number ] {
+		return this.open_paren.pos();
+	}
 }
 
 export class TypeExprParam extends ASTNode {
@@ -239,6 +270,10 @@ export class TypeExprParam extends ASTNode {
 			param: this.param,
 			separator: this.separator,
 		};
+	}
+
+	public pos() : [ line: number, char: number ] {
+		return this.param.pos();
 	}
 }
 
@@ -259,6 +294,10 @@ export class TypeExpr_builtin_text extends ASTNode {
 			length_type: this.length_type,
 			children: this.children,
 		};
+	}
+
+	public pos() : [ line: number, char: number ] {
+		return this.text_keyword.pos();
 	}
 }
 
@@ -286,5 +325,9 @@ export class TypeExpr_builtin_checksum extends ASTNode {
 			param_separator: this.param_separator,
 			checksum_func: this.checksum_func,
 		};
+	}
+
+	public pos() : [ line: number, char: number ] {
+		return this.checksum_keyword.pos();
 	}
 }

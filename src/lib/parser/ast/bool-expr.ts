@@ -38,6 +38,10 @@ export class BoolExpr_eq extends ASTNode {
 			children: this.children,
 		};
 	}
+
+	public pos() : [ line: number, char: number ] {
+		return this.lh_expr.pos();
+	}
 }
 
 export class BoolExpr_neq extends ASTNode {
@@ -59,6 +63,10 @@ export class BoolExpr_neq extends ASTNode {
 			close_paren: this.close_paren,
 			children: this.children,
 		};
+	}
+
+	public pos() : [ line: number, char: number ] {
+		return this.lh_expr.pos();
 	}
 }
 
@@ -82,6 +90,10 @@ export class BoolExpr_and extends ASTNode {
 			children: this.children,
 		};
 	}
+
+	public pos() : [ line: number, char: number ] {
+		return this.lh_expr.pos();
+	}
 }
 
 export class BoolExpr_or extends ASTNode {
@@ -103,6 +115,10 @@ export class BoolExpr_or extends ASTNode {
 			close_paren: this.close_paren,
 			children: this.children,
 		};
+	}
+
+	public pos() : [ line: number, char: number ] {
+		return this.lh_expr.pos();
 	}
 }
 
@@ -126,6 +142,10 @@ export class BoolExpr_xor extends ASTNode {
 			children: this.children,
 		};
 	}
+
+	public pos() : [ line: number, char: number ] {
+		return this.lh_expr.pos();
+	}
 }
 
 export class BoolExpr_not extends ASTNode {
@@ -145,5 +165,9 @@ export class BoolExpr_not extends ASTNode {
 			close_paren: this.close_paren,
 			children: this.children,
 		};
+	}
+
+	public pos() : [ line: number, char: number ] {
+		return this.operator.pos();
 	}
 }

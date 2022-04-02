@@ -11,5 +11,8 @@
     "ts": "./ts",
     "as": "./as",
     "md": "./md"
-  }
+  },
+  "allowed_remotes": [
+    // "https://bfec.io/bfec/"
+  ]
 }

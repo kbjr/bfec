@@ -90,7 +90,7 @@ export class Ref extends BaseNode {
 		super();
 	}
 
-	public toJSON() {
+	public toJSON(): any {
 		return this.name;
 	}
 }

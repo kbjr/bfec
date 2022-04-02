@@ -16,4 +16,8 @@ export abstract class Token extends ASTNode {
 			text: this.text,
 		};
 	}
+
+	public pos() : [ line: number, char: number ] {
+		return [ this.line + 1, this.char + 1 ];
+	}
 }
