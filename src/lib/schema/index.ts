@@ -19,9 +19,11 @@ import {
 	TypeExpr_fixed_int,
 	TextLengthType,
 	TypeExpr_float,
+	TextEncoding,
 } from './type-expr';
 import { ValueExpr, ValueExprRootType } from './value-expr';
 import { BoolExpr, BoolExprComparisonOperator, BoolExprLogicalOperator, BoolExpr_comparison, BoolExpr_logical } from './bool-expr';
+import { builtin_text } from '../parser/ast/tokens';
 
 export * from './bool-expr';
 export * from './const';
@@ -127,6 +129,7 @@ function build_struct(schema: Schema, node: ast.DeclareStructNode, comments: ast
 
 function build_struct_param(schema: Schema, node: ast.StructParamNode) : StructParam {
 	const param = new StructParam();
+	schema.map_ast(param, node);
 	param.name = schema.ref(node.name);
 	param.param_type = build_type_expr(schema, node.param_type);
 	return param;
@@ -174,6 +177,10 @@ function build_struct_field(schema: Schema, struct: Struct, node: ast.StructFiel
 			break;
 	}
 
+	if (node.optional_value) {
+		field.field_value = build_value_expr_path(schema, node.optional_value);
+	}
+
 	struct.add_field(schema, node.field_name, field);
 }
 
@@ -219,6 +226,7 @@ function build_enum(schema: Schema, node: ast.DeclareEnumNode, comments: ast.Com
 		}
 	});
 
+	schema.map_ast(enum_node, node);
 	schema.add_elem(node.name, enum_node);
 }
 
@@ -267,11 +275,13 @@ function build_switch(schema: Schema, node: ast.DeclareSwitchNode, comments: ast
 		}
 	});
 
+	schema.map_ast(switch_node, node);
 	schema.add_elem(node.name, switch_node);
 }
 
 function build_switch_case(schema: Schema, switch_node: Switch, node: ast.SwitchCase, comments: ast.CommentToken[]) : void {
 	const case_node = new SwitchCase();
+	schema.map_ast(case_node, node);
 	case_node.comments = build_comments(comments);
 	case_node.case_value = schema.ref(node.condition_name);
 
@@ -295,6 +305,7 @@ function build_switch_case(schema: Schema, switch_node: Switch, node: ast.Switch
 
 function build_switch_default(schema: Schema, switch_node: Switch, node: ast.SwitchDefault, comments: ast.CommentToken[]) : void {
 	const case_node = new SwitchCase();
+	schema.map_ast(case_node, node);
 	case_node.comments = build_comments(comments);
 
 	if (switch_node.default) {
@@ -410,6 +421,7 @@ const parse_int_type = /^(u|i|b)([0-9]+)(_be|_le)?/;
 
 function build_type_expr_fixed_int(schema: Schema, node: ast.TypeExpr_builtin_fixed_int) : TypeExpr_fixed_int {
 	const expr = new TypeExpr_fixed_int();
+	schema.map_ast(expr, node);
 	expr.name = node.text;
 
 	const int_info = parse_int_type.exec(node.text);
@@ -432,6 +444,7 @@ const parse_float_type = /^(f|d)([0-9]+)/;
 
 function build_type_expr_float(schema: Schema, node: ast.Type_expr_builtin_float) : TypeExpr_float {
 	const expr = new TypeExpr_float();
+	schema.map_ast(expr, node);
 	expr.name = node.text;
 
 	const float_info = parse_float_type.exec(node.text);
@@ -451,6 +464,7 @@ function build_type_expr_float(schema: Schema, node: ast.Type_expr_builtin_float
 
 function build_type_expr_array(schema: Schema, node: ast.TypeExpr_array) : TypeExpr_array {
 	const expr = new TypeExpr_array();
+	schema.map_ast(expr, node);
 	expr.element_type = build_type_expr(schema, node.elem_type);
 
 	switch (node.length_type.type) {
@@ -470,7 +484,7 @@ function build_type_expr_array(schema: Schema, node: ast.TypeExpr_array) : TypeE
 
 		case ast.node_type.value_expr_path:
 			expr.length_type = ArrayLengthType.length_field;
-			expr.length_field = build_value_expr_path(schema, node.length_type);
+			expr.length_field = build_value_expr_path(schema, node.length_type) as ValueExpr<TypeExpr_length>;
 			break;
 
 		case ast.node_type.name_builtin_uint:
@@ -491,6 +505,7 @@ function build_type_expr_array(schema: Schema, node: ast.TypeExpr_array) : TypeE
 
 function build_type_expr_checksum(schema: Schema, node: ast.TypeExpr_builtin_checksum) : TypeExpr_checksum {
 	const expr = new TypeExpr_checksum();
+	schema.map_ast(expr, node);
 	expr.real_type = build_type_expr(schema, node.real_type);
 	expr.data_expr = build_value_expr_path(schema, node.data_expr);
 	expr.func_name = build_string_const(schema, node.checksum_func);
@@ -499,6 +514,7 @@ function build_type_expr_checksum(schema: Schema, node: ast.TypeExpr_builtin_che
 
 function build_type_expr_len(schema: Schema, node: ast.TypeExpr_builtin_len) : TypeExpr_length {
 	const expr = new TypeExpr_length();
+	schema.map_ast(expr, node);
 	const real_type = build_type_expr(schema, node.real_type);
 
 	if (is_non_static_int(real_type)) {
@@ -514,6 +530,7 @@ function build_type_expr_len(schema: Schema, node: ast.TypeExpr_builtin_len) : T
 
 function build_type_expr_named(schema: Schema, node: ast.TypeExpr_named) : TypeExpr_named {
 	const expr = new TypeExpr_named();
+	schema.map_ast(expr, node);
 	expr.name = schema.ref(node.name);
 
 	if (node.params) {
@@ -527,6 +544,7 @@ function build_type_expr_named(schema: Schema, node: ast.TypeExpr_named) : TypeE
 
 function build_type_expr_named_refinement(schema: Schema, node: ast.TypeExpr_named_refinement) : TypeExpr_named_refine {
 	const expr = new TypeExpr_named_refine();
+	schema.map_ast(expr, node);
 	expr.parent_type = build_type_expr(schema, node.parent_type);
 	expr.refined_type = build_type_expr_named(schema, node.refined_type);
 	return expr;
@@ -534,6 +552,7 @@ function build_type_expr_named_refinement(schema: Schema, node: ast.TypeExpr_nam
 
 function build_type_expr_struct_refinement(schema: Schema, node: ast.TypeExpr_struct_refinement) : TypeExpr_struct_refine {
 	const expr = new TypeExpr_struct_refine();
+	schema.map_ast(expr, node);
 
 	// TODO: build_type_expr_struct_refinement
 	log.warn('build_type_expr_struct_refinement not yet implemented');
@@ -543,6 +562,7 @@ function build_type_expr_struct_refinement(schema: Schema, node: ast.TypeExpr_st
 
 function build_type_expr_switch_refinement(schema: Schema, node: ast.TypeExpr_switch_refinement) : TypeExpr_switch_refine {
 	const expr = new TypeExpr_switch_refine();
+	schema.map_ast(expr, node);
 
 	// TODO: build_type_expr_switch_refinement
 	log.warn('build_type_expr_switch_refinement not yet implemented');
@@ -552,6 +572,9 @@ function build_type_expr_switch_refinement(schema: Schema, node: ast.TypeExpr_sw
 
 function build_type_expr_text(schema: Schema, node: ast.TypeExpr_builtin_text) : TypeExpr_text {
 	const expr = new TypeExpr_text();
+	schema.map_ast(expr, node);
+
+	expr.encoding = text_encoding(node);
 
 	switch (node.length_type.type) {
 		case ast.node_type.kw_null:
@@ -589,8 +612,18 @@ function build_type_expr_text(schema: Schema, node: ast.TypeExpr_builtin_text) :
 	return expr;
 }
 
+function text_encoding(node: ast.TypeExpr_builtin_text) {
+	switch (node.text_keyword.text) {
+		case builtin_text.ascii: return TextEncoding.ascii;
+		case builtin_text.utf8: return TextEncoding.utf8;
+		case builtin_text.utf16: return TextEncoding.utf16;
+		case builtin_text.utf32: return TextEncoding.utf32;
+	}
+}
+
 function build_type_expr_vint(schema: Schema, node: ast.TypeExpr_builtin_vint) : TypeExpr_varint {
 	const expr = new TypeExpr_varint();
+	schema.map_ast(expr, node);
 	const real_type = build_type_expr(schema, node.real_type);
 
 	if (is_fixed_int(real_type)) {
@@ -618,6 +651,7 @@ function is_non_static_int(node: TypeExpr) : node is TypeExpr_fixed_int | TypeEx
 
 function build_value_expr_path(schema: Schema, node: ast.ValueExpr_path) : ValueExpr {
 	const expr = new ValueExpr();
+	schema.map_ast(expr, node);
 
 	switch (node.lh_name.type) {
 		case ast.node_type.name_root_schema:
@@ -684,6 +718,7 @@ function build_bool_expr(schema: Schema, node: ast.BoolExpr) : BoolExpr {
 
 	if (logical_op) {
 		const expr = new BoolExpr_logical();
+		schema.map_ast(expr, node);
 		expr.operator = logical_op;
 
 		if (is_not) {
@@ -699,6 +734,7 @@ function build_bool_expr(schema: Schema, node: ast.BoolExpr) : BoolExpr {
 
 	const node_ = node as ast.BoolExpr_eq | ast.BoolExpr_neq;
 	const expr = new BoolExpr_comparison();
+	schema.map_ast(expr, node);
 	expr.operator = comparison_op;
 	expr.lh_expr = node_.lh_expr.type === ast.node_type.value_expr_path
 		? build_value_expr_path(schema, node_.lh_expr)
@@ -785,11 +821,7 @@ function build_string_const(schema: Schema, node: ast.ConstToken_ascii | ast.Con
 
 function build_int_const(schema: Schema, node: ast.ConstToken_int | ast.ConstToken_hex_int) : ConstInt {
 	const int = new ConstInt();
-	// TODO: Big int handling
-	// TODO: Verify if this works in all other cases
-	int.value = node.type === ast.node_type.const_int
-		? parseInt(node.text, 10)
-		: parseInt(node.text.slice(2), 16);
+	int.value = BigInt(node.text);
 	schema.map_ast(int, node);
 	return int;
 }

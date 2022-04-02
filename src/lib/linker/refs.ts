@@ -69,6 +69,10 @@ export class ResolvedRef<T extends Refable> extends Ref {
 		return new ResolvedRef<T>(ref.name, points_to, locality);
 	}
 
+	/**
+	 * 
+	 * @param ref 
+	 */
 	public static fully_resolve(ref: Ref) : Refable {
 		if (ref instanceof ResolvedRef) {
 			return ref.fully_resolve();

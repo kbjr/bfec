@@ -213,6 +213,7 @@ function parse_type_expr_text(state: ParserState) : TypeExpr_builtin_text {
 	}
 
 	const text = new TypeExpr_builtin_text();
+	text.text_keyword = text_keyword;
 
 	state.scan_through_comments_and_whitespace(text.children);
 

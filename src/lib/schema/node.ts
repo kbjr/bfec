@@ -56,7 +56,6 @@ export enum node_type {
 	comment,
 	const_int,
 	const_string,
-
 	type_expr_text,
 	type_expr_fixed_int,
 	type_expr_varint,
@@ -68,9 +67,7 @@ export enum node_type {
 	type_expr_struct_refine,
 	type_expr_switch_refine,
 	type_expr_named_refine,
-	
 	value_expr,
-	
 	bool_expr_comparison,
 	bool_expr_logical,
 }

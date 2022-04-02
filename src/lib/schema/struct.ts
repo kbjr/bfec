@@ -5,6 +5,7 @@ import { Comment, Ref, Schema } from './schema';
 import { ConstInt, ConstString } from './const';
 import { BoolExpr } from './bool-expr';
 import { ast } from '../parser';
+import { ValueExpr } from './value-expr';
 
 export type StructElem = StructField | StructExpansion;
 
@@ -46,6 +47,7 @@ export class StructField extends BaseNode {
 	public name: Ref;
 	public condition?: BoolExpr;
 	public field_type: TypeExpr | ConstInt | ConstString;
+	public field_value?: ValueExpr;
 }
 
 export class StructExpansion extends BaseNode {

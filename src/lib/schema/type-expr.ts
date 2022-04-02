@@ -1,8 +1,8 @@
 
+import { Ref } from './schema';
 import { ValueExpr } from './value-expr';
 import { BaseNode, node_type } from './node';
 import { ConstInt, ConstString } from './const';
-import { Ref } from './schema';
 
 export type TypeExpr
 	= TypeExpr_text
@@ -18,13 +18,15 @@ export type TypeExpr
 	| TypeExpr_named_refine
 	;
 
+export type TypeExpr_int = TypeExpr_fixed_int | TypeExpr_varint;
+
 export class TypeExpr_text extends BaseNode {
 	public type: node_type.type_expr_text = node_type.type_expr_text;
 	public encoding: TextEncoding;
 	public length_type: TextLengthType;
 	public static_length?: ConstInt;
 	public length_prefix?: TypeExpr_fixed_int | TypeExpr_varint;
-	public length_field?: ValueExpr;
+	public length_field?: ValueExpr<TypeExpr_length>;
 }
 
 export enum TextLengthType {
@@ -48,11 +50,27 @@ export class TypeExpr_fixed_int extends BaseNode {
 	public signed: boolean;
 	public big_endian: boolean;
 	public size_bits: number;
+
+	public get min() {
+		return int_min(this.size_bits, this.signed);
+	}
+
+	public get max() {
+		return int_max(this.size_bits, this.signed);
+	}
 }
 
 export class TypeExpr_varint extends BaseNode {
 	public type: node_type.type_expr_varint = node_type.type_expr_varint;
 	public real_type: TypeExpr_fixed_int;
+
+	public get min() {
+		return this.real_type.min;
+	}
+
+	public get max() {
+		return this.real_type.max;
+	}
 }
 
 export class TypeExpr_float extends BaseNode {
@@ -86,7 +104,7 @@ export class TypeExpr_array extends BaseNode {
 	public length_type: ArrayLengthType;
 	public static_length?: ConstInt;
 	public length_prefix?: TypeExpr_fixed_int | TypeExpr_varint;
-	public length_field?: ValueExpr;
+	public length_field?: ValueExpr<TypeExpr_length>;
 }
 
 export enum ArrayLengthType {
@@ -113,4 +131,18 @@ export class TypeExpr_named_refine extends BaseNode {
 	public type: node_type.type_expr_named_refine = node_type.type_expr_named_refine;
 	public parent_type: TypeExpr;
 	public refined_type: TypeExpr_named;
+}
+
+function int_min(size_bits: number, signed: boolean) : bigint {
+	if (! signed) {
+		return 0n;
+	}
+
+	const base = 2n ** BigInt(size_bits);
+	return -(base / 2n);
+}
+
+function int_max(size_bits: number, signed: boolean) : bigint {
+	const base = 2n ** BigInt(size_bits);
+	return (signed ? (base / 2n) : base) - 1n;
 }
