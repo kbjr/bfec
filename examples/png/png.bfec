@@ -10,8 +10,8 @@ struct $ {
   magic_number: "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a";
   
   # Image header should always be the first chunk, and we need to reference data out
-  # of it, so we'll statically define it here so we can `$.image_header` elsewhere
-  image_header: Chunk(ChunkType.IHDR);
+  # of it, so we'll statically define it here so we can `$.header` elsewhere
+  header: Chunk(ChunkType.IHDR);
 
   # The rest of the file we'll just read as a big list of chunks
   chunks: Chunk[...];
@@ -50,16 +50,16 @@ switch ChunkData<ChunkType> {
   case PLTE: Pallete[...];
   case IDAT: void;
   case IEND: void;
-  case tRNS: TransparencyData($.image_header.color_type);
+  case tRNS: TransparencyData($.header.color_type);
   case cHRM: PrimaryChromaticitiesAndWhitePointData;
   case gAMA: GammaData;
   case iCCP: EmbeddedICCProfileData;
-  case sBIT: SignifigantBitsData($.image_header.color_type);
+  case sBIT: SignifigantBitsData($.header.color_type);
   case sRGB: RGBColorSpaceData;
   case tEXt: TextData;
   case xTXt: CompressedTextData;
   case iTXt: InternationalTextData;
-  case bKGD: BackgroundColorData($.image_header.color_type);
+  case bKGD: BackgroundColorData($.header.color_type);
   case hIST: ImageHistogramData;
   case pHYs: PhysicalPixelDimensionsData;
   case sPLT: SuggestedPalleteData;
@@ -165,14 +165,14 @@ switch SignifigantBitsData<ColorType> {
 
 struct GreyscaleSignifigantBitsData {
   signifigant_greyscale_bits: u8;
-  signifigant_alpha_bits?($.image_header.color_type == ColorType.greysacle_with_alpha): u8;
+  signifigant_alpha_bits?($.header.color_type == ColorType.greysacle_with_alpha): u8;
 }
 
 struct ColorSignifigantBitsData {
   signifigant_red_bits: u8;
   signifigant_green_bits: u8;
   signifigant_blue_bits: u8;
-  signifigant_alpha_bits?($.image_header.color_type == ColorType.truecolor_with_alpha): u8;
+  signifigant_alpha_bits?($.header.color_type == ColorType.truecolor_with_alpha): u8;
 }
 
 enum RGBRenderingIntent: u8 {

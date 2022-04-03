@@ -2,306 +2,280 @@
 
 ## `$`
 
-### Fields
+_Source: [~/png.bfec](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec)_
 
-#### `magic_number`
+PNG Image Format
+https://www.w3.org/TR/PNG
 
-#### `image_header`
-
-#### `chunks`
-
-> _Defined in [~/png.bfec](png.bfec.md)_
-
+| Field Name | Type | Comments |
+|------------|------|----------|
+| `magic_number` | `"\x89\x50\x4e\x47\x0d\x0a\x1a\x0a"` | Magic bytes to identify the PNG file format |
+| `header` | [foo](./bar) | Image header should always be the first chunk, and we need to reference data out of it, so we'll statically define it here so we can `$.header` elsewhere |
+| `chunks` | [foo](./bar) | The rest of the file we'll just read as a big list of chunks |
 ## `Chunk`
 
-### Fields
+_Source: [~/png.bfec](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec)_
 
-#### `length`
 
-#### `type`
 
-#### `data`
-
-#### `crc`
-
-> _Defined in [~/png.bfec](png.bfec.md)_
-
+| Field Name | Type | Comments |
+|------------|------|----------|
+| `length` | `len<u32_be>` |  |
+| `type` | [foo](./bar) |  |
+| `data` | [foo](./bar) |  |
+| `crc` | [foo](./bar) |  |
 ## `ImageHeader`
 
-### Fields
+_Source: [~/png.bfec](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec)_
 
-#### `width`
 
-#### `height`
 
-#### `bit_depth`
-
-#### `color_type`
-
-#### `compression_method`
-
-#### `filter_method`
-
-#### `interlace_method`
-
-> _Defined in [~/png.bfec](png.bfec.md)_
-
+| Field Name | Type | Comments |
+|------------|------|----------|
+| `width` | `u32_be` |  |
+| `height` | `u32_be` |  |
+| `bit_depth` | [foo](./bar) |  |
+| `color_type` | [foo](./bar) |  |
+| `compression_method` | [foo](./bar) |  |
+| `filter_method` | [foo](./bar) |  |
+| `interlace_method` | [foo](./bar) |  |
 ## `Pallete`
 
-### Fields
+_Source: [~/png.bfec](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec)_
 
-#### `red`
 
-#### `green`
 
-#### `blue`
-
-> _Defined in [~/png.bfec](png.bfec.md)_
-
+| Field Name | Type | Comments |
+|------------|------|----------|
+| `red` | `u8` |  |
+| `green` | `u8` |  |
+| `blue` | `u8` |  |
 ## `GreyscaleTransparencyData`
 
-### Fields
+_Source: [~/png.bfec](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec)_
 
-#### `grey_sample`
 
-> _Defined in [~/png.bfec](png.bfec.md)_
 
+| Field Name | Type | Comments |
+|------------|------|----------|
+| `grey_sample` | `u16_be` |  |
 ## `TruecolorTransparencyData`
 
-### Fields
+_Source: [~/png.bfec](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec)_
 
-#### `red_sample`
 
-#### `green_sample`
 
-#### `blue_sample`
-
-> _Defined in [~/png.bfec](png.bfec.md)_
-
+| Field Name | Type | Comments |
+|------------|------|----------|
+| `red_sample` | `u16_be` |  |
+| `green_sample` | `u16_be` |  |
+| `blue_sample` | `u16_be` |  |
 ## `IndexedColorTransparencyData`
 
-### Fields
+_Source: [~/png.bfec](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec)_
 
-#### `alpha_values`
 
-> _Defined in [~/png.bfec](png.bfec.md)_
 
+| Field Name | Type | Comments |
+|------------|------|----------|
+| `alpha_values` | [foo](./bar) |  |
 ## `PrimaryChromaticitiesAndWhitePointData`
 
-### Fields
+_Source: [~/png.bfec](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec)_
 
-#### `white_point_x`
 
-#### `white_point_y`
 
-#### `red_x`
-
-#### `red_y`
-
-#### `green_x`
-
-#### `green_y`
-
-#### `blue_x`
-
-#### `blue_y`
-
-> _Defined in [~/png.bfec](png.bfec.md)_
-
+| Field Name | Type | Comments |
+|------------|------|----------|
+| `white_point_x` | `u32_be` |  |
+| `white_point_y` | `u32_be` |  |
+| `red_x` | `u32_be` |  |
+| `red_y` | `u32_be` |  |
+| `green_x` | `u32_be` |  |
+| `green_y` | `u32_be` |  |
+| `blue_x` | `u32_be` |  |
+| `blue_y` | `u32_be` |  |
 ## `GammaData`
 
-### Fields
+_Source: [~/png.bfec](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec)_
 
-#### `image_gamma`
 
-> _Defined in [~/png.bfec](png.bfec.md)_
 
+| Field Name | Type | Comments |
+|------------|------|----------|
+| `image_gamma` | `u32_be` |  |
 ## `EmbeddedICCProfileData`
 
-### Fields
+_Source: [~/png.bfec](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec)_
 
-#### `proile_name`
 
-#### `compression_method`
 
-#### `compressed_profile`
-
-> _Defined in [~/png.bfec](png.bfec.md)_
-
+| Field Name | Type | Comments |
+|------------|------|----------|
+| `proile_name` | [foo](./bar) |  |
+| `compression_method` | [foo](./bar) |  |
+| `compressed_profile` | [foo](./bar) |  |
 ## `GreyscaleSignifigantBitsData`
 
-### Fields
+_Source: [~/png.bfec](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec)_
 
-#### `signifigant_greyscale_bits`
 
-#### `signifigant_alpha_bits`
 
-> _Defined in [~/png.bfec](png.bfec.md)_
-
+| Field Name | Type | Comments |
+|------------|------|----------|
+| `signifigant_greyscale_bits` | `u8` |  |
+| `signifigant_alpha_bits` | `u8` |  |
 ## `ColorSignifigantBitsData`
 
-### Fields
+_Source: [~/png.bfec](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec)_
 
-#### `signifigant_red_bits`
 
-#### `signifigant_green_bits`
 
-#### `signifigant_blue_bits`
-
-#### `signifigant_alpha_bits`
-
-> _Defined in [~/png.bfec](png.bfec.md)_
-
+| Field Name | Type | Comments |
+|------------|------|----------|
+| `signifigant_red_bits` | `u8` |  |
+| `signifigant_green_bits` | `u8` |  |
+| `signifigant_blue_bits` | `u8` |  |
+| `signifigant_alpha_bits` | `u8` |  |
 ## `RGBColorSpaceData`
 
-### Fields
+_Source: [~/png.bfec](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec)_
 
-#### `rendering_intent`
 
-> _Defined in [~/png.bfec](png.bfec.md)_
 
+| Field Name | Type | Comments |
+|------------|------|----------|
+| `rendering_intent` | [foo](./bar) |  |
 ## `TextData`
 
-### Fields
+_Source: [~/png.bfec](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec)_
 
-#### `keyword`
 
-#### `text`
 
-> _Defined in [~/png.bfec](png.bfec.md)_
-
+| Field Name | Type | Comments |
+|------------|------|----------|
+| `keyword` | [foo](./bar) |  |
+| `text` | [foo](./bar) |  |
 ## `CompressedTextData`
 
-### Fields
+_Source: [~/png.bfec](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec)_
 
-#### `keyword`
 
-#### `compression_method`
 
-#### `compressed_text`
-
-> _Defined in [~/png.bfec](png.bfec.md)_
-
+| Field Name | Type | Comments |
+|------------|------|----------|
+| `keyword` | [foo](./bar) |  |
+| `compression_method` | `u8` |  |
+| `compressed_text` | [foo](./bar) |  |
 ## `InternationalTextData`
 
-### Fields
+_Source: [~/png.bfec](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec)_
 
-#### `keyword`
 
-#### `compression_flag`
 
-#### `compression_method`
-
-#### `language_tag`
-
-#### `translated_keyword`
-
-#### `text`
-
-> _Defined in [~/png.bfec](png.bfec.md)_
-
+| Field Name | Type | Comments |
+|------------|------|----------|
+| `keyword` | [foo](./bar) |  |
+| `compression_flag` | [foo](./bar) |  |
+| `compression_method` | `u8` |  |
+| `language_tag` | [foo](./bar) |  |
+| `translated_keyword` | [foo](./bar) |  |
+| `text` | [foo](./bar) |  |
 ## `GreyscaleBackgroundData`
 
-### Fields
+_Source: [~/png.bfec](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec)_
 
-#### `greyscale`
 
-> _Defined in [~/png.bfec](png.bfec.md)_
 
+| Field Name | Type | Comments |
+|------------|------|----------|
+| `greyscale` | `u16_be` |  |
 ## `TruecolorBackgroundData`
 
-### Fields
+_Source: [~/png.bfec](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec)_
 
-#### `red`
 
-#### `green`
 
-#### `blue`
-
-> _Defined in [~/png.bfec](png.bfec.md)_
-
+| Field Name | Type | Comments |
+|------------|------|----------|
+| `red` | `u16_be` |  |
+| `green` | `u16_be` |  |
+| `blue` | `u16_be` |  |
 ## `IndexedColorBackgroundData`
 
-### Fields
+_Source: [~/png.bfec](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec)_
 
-#### `pallete_index`
 
-> _Defined in [~/png.bfec](png.bfec.md)_
 
+| Field Name | Type | Comments |
+|------------|------|----------|
+| `pallete_index` | `u8` |  |
 ## `ImageHistogramData`
 
-### Fields
+_Source: [~/png.bfec](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec)_
 
-#### `frequencies`
 
-> _Defined in [~/png.bfec](png.bfec.md)_
 
+| Field Name | Type | Comments |
+|------------|------|----------|
+| `frequencies` | [foo](./bar) |  |
 ## `PhysicalPixelDimensionsData`
 
-### Fields
+_Source: [~/png.bfec](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec)_
 
-#### `ppu_x`
 
-#### `ppu_y`
 
-#### `unit`
-
-> _Defined in [~/png.bfec](png.bfec.md)_
-
+| Field Name | Type | Comments |
+|------------|------|----------|
+| `ppu_x` | `u32_be` |  |
+| `ppu_y` | `u32_be` |  |
+| `unit` | [foo](./bar) |  |
 ## `Sample8Bit`
 
-### Fields
+_Source: [~/png.bfec](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec)_
 
-#### `red`
 
-#### `green`
 
-#### `blue`
-
-#### `alpha`
-
-> _Defined in [~/png.bfec](png.bfec.md)_
-
+| Field Name | Type | Comments |
+|------------|------|----------|
+| `red` | `u8` |  |
+| `green` | `u8` |  |
+| `blue` | `u8` |  |
+| `alpha` | `u8` |  |
 ## `Sample16Bit`
 
-### Fields
+_Source: [~/png.bfec](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec)_
 
-#### `red`
 
-#### `green`
 
-#### `blue`
-
-#### `alpha`
-
-> _Defined in [~/png.bfec](png.bfec.md)_
-
+| Field Name | Type | Comments |
+|------------|------|----------|
+| `red` | `u16_be` |  |
+| `green` | `u16_be` |  |
+| `blue` | `u16_be` |  |
+| `alpha` | `u16_be` |  |
 ## `SuggestedPalleteData`
 
-### Fields
+_Source: [~/png.bfec](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec)_
 
-#### `pallete_name`
 
-#### `sample_depth`
 
-#### `frequencies`
-
-> _Defined in [~/png.bfec](png.bfec.md)_
-
+| Field Name | Type | Comments |
+|------------|------|----------|
+| `pallete_name` | [foo](./bar) |  |
+| `sample_depth` | [foo](./bar) |  |
+| `frequencies` | [foo](./bar) | sample: Sample(@.sample_depth); |
 ## `LastModifiedTimestampData`
 
-### Fields
+_Source: [~/png.bfec](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec)_
 
-#### `year`
 
-#### `month`
 
-#### `day`
-
-#### `hour`
-
-#### `minute`
-
-#### `second`
-
-> _Defined in [~/png.bfec](png.bfec.md)_
+| Field Name | Type | Comments |
+|------------|------|----------|
+| `year` | `u16_be` |  |
+| `month` | `u8` |  |
+| `day` | `u8` |  |
+| `hour` | `u8` |  |
+| `minute` | `u8` |  |
+| `second` | `u8` |  |

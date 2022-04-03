@@ -13,8 +13,22 @@ export interface Conf {
 		dir: string;
 		file: string;
 	};
-	out?: Record<output_format, string>;
+	out?: {
+		[output_format.as]: string;
+		[output_format.ast_json]: string;
+		[output_format.html]: string;
+		[output_format.md]: string | MarkdownConf;
+		[output_format.sch_json]: string;
+		[output_format.ts]: string;
+	};
 	allowed_remotes?: string[];
+}
+
+export interface MarkdownConf {
+	dir: string;
+	source_url?: string;
+	include_external?: boolean;
+	include_remote?: boolean;
 }
 
 export class ConfLoader {
@@ -42,17 +56,36 @@ export class ConfLoader {
 		}
 
 		if (conf.out) {
-			for (const [out_format, out_dir] of Object.entries(conf.out)) {
-				if (output_format[out_format] == null) {
-					await exit_error(1, `Unknown output format "${out_format}"`);
-				}
+			for (const [out_format, out_conf] of Object.entries(conf.out)) {
+				switch (out_format) {
+					case output_format.md:
+						if (typeof out_conf === 'string') {
+							// $.out[*] should be interpretted as relative to the config file's own location
+							conf.out.md = resolve_path(dir, out_conf);
+							break;
+						}
 
-				if (typeof out_dir !== 'string') {
-					await exit_error(1, `Invalid config file: '$.out.${out_format}' must be a string`);
-				}
+						// $.out[*] should be interpretted as relative to the config file's own location
+						out_conf.dir = resolve_path(dir, out_conf.dir);
+						break;
 
-				// $.out[*] should be interpretted as relative to the config file's own location
-				conf.out[out_format] = resolve_path(dir, out_dir);
+					case output_format.as:
+					case output_format.ast_json:
+					case output_format.html:
+					case output_format.sch_json:
+					case output_format.ts:
+						if (typeof out_conf !== 'string') {
+							await exit_error(1, `Invalid config file: '$.out.${out_format}' must be a string`);
+							break;
+						}
+
+						// $.out[*] should be interpretted as relative to the config file's own location
+						conf.out[out_format] = resolve_path(dir, out_conf);
+						break;
+
+					default:
+						await exit_error(1, `Unknown output format in conf file "${out_format}"`);
+				}
 			}
 		}
 

@@ -1,8 +1,8 @@
 
 import { output_format, parse_args } from './args';
 import { exit_error, exit_successful } from './exit';
-import { InputLoader, OutputWriter } from './fs';
-import { link_schema, parse_src_to_ast, build_schema_from_ast, compile_to_markdown } from '../lib';
+import { InputLoader, MarkdownConf, OutputWriter } from './fs';
+import { link_schema, parse_src_to_ast, build_schema_from_ast, compile_to_markdown, MarkdownCompilerOptions } from '../lib';
 import { main as log } from './log';
 import { jsonc } from 'jsonc';
 import { get_http } from './http';
@@ -143,7 +143,16 @@ async function main() {
 				break;
 
 			case output_format.md:
-				await compile_to_markdown(schema, { out_dir });
+				const opts: MarkdownCompilerOptions = { out_dir };
+
+				if (out.conf) {
+					const conf = out.conf as MarkdownConf;
+					opts.source_url = conf.source_url;
+					opts.include_external = conf.include_external;
+					opts.include_remote = conf.include_remote;
+				}
+
+				await compile_to_markdown(schema, opts);
 				break;
 
 			case output_format.ast_json:

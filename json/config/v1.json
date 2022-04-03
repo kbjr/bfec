@@ -35,8 +35,35 @@
           "description": "Output directory for HTML Documentation"
         },
         "md": {
-          "type": "string",
-          "description": "Output directory for Markdown Documentation"
+          "oneOf": [
+            {
+              "type": "string",
+              "description": "Output directory for Markdown Documentation"
+            },
+            {
+              "type": "object",
+              "description": "Configuration for the Markdown Documentation compiler",
+              "properties": {
+                "dir": {
+                  "type": "string",
+                  "description": "Output directory for Markdown Documentation"
+                },
+                "source_url": {
+                  "type": "string",
+                  "description": "Base URL where source bfec files will be hosted; Used to create links in the Markdown output back to the related source. Should end in a trailing slash (/)"
+                },
+                "include_external": {
+                  "type": "boolean",
+                  "description": "Controls whether or not docs will be generated for any included external sources"
+                },
+                "include_remote": {
+                  "type": "boolean",
+                  "description": "Controls whether or not docs will be generated for any included remote sources"
+                }
+              },
+              "required": ["dir"]
+            }
+          ]
         },
         "sch_json": {
           "type": "string",

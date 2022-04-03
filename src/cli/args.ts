@@ -1,6 +1,6 @@
 
 import { jsonc } from 'jsonc';
-import { ConfLoader } from './fs';
+import { ConfLoader, MarkdownConf } from './fs';
 import { print_help, print_version } from './help';
 import { log_level, main as log, set_log_level } from './log';
 import { exit_error, exit_successful } from './exit';
@@ -21,6 +21,7 @@ export interface Input {
 export interface Output {
 	format: output_format;
 	directory: string;
+	conf?: MarkdownConf;
 }
 
 export enum output_format {
@@ -77,12 +78,23 @@ export async function parse_args(args: string[]) : Promise<Args> {
 				}
 
 				if (conf.out) {
-					for (const [out_format, out_dir] of Object.entries(conf.out)) {
+					for (const [out_format, out_conf] of Object.entries(conf.out)) {
 						result.out = result.out || [ ];
-						result.out.push({
-							format: out_format as output_format,
-							directory: out_dir
-						});
+
+						if (typeof out_conf === 'string') {
+							result.out.push({
+								format: out_format as output_format,
+								directory: out_conf
+							});
+						}
+
+						else {
+							result.out.push({
+								format: out_format as output_format,
+								directory: out_conf.dir,
+								conf: out_conf
+							});
+						}
 					}
 				}
 

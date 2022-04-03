@@ -12,9 +12,11 @@ export class Const extends SchemaNode {
 export class ConstInt extends Const {
 	public const_type = 'int';
 	public value: bigint;
+	public token: ast.ConstToken_int | ast.ConstToken_hex_int;
 
 	public static from_ast(node: ast.ConstToken_int | ast.ConstToken_hex_int) {
 		const int = new ConstInt();
+		int.token = node;
 		int.value = BigInt(node.text);
 		return int;
 	}
@@ -24,9 +26,11 @@ export class ConstString extends Const {
 	public const_type = 'string';
 	public value: string;
 	public unicode: boolean;
+	public token: ast.ConstToken_ascii | ast.ConstToken_unicode;
 
 	public static from_ast(node: ast.ConstToken_ascii | ast.ConstToken_unicode) {
 		const string = new ConstString();
+		string.token = node;
 		string.unicode = node.type === ast.node_type.const_unicode;
 		string.value = node.text.slice(1, -1);
 	
