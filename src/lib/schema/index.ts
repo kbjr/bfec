@@ -97,9 +97,18 @@ function build_struct(schema: Schema, node: ast.DeclareStructNode, comments: ast
 	struct.byte_aligned = node.struct_keyword.text === 'struct';
 
 	if (node.params) {
-		struct.params.push(
-			...node.params.params.map((param) => build_struct_param(schema, param))
-		);
+		for (const param_node of node.params.params) {
+			const param = build_struct_param(schema, param_node);
+			struct.params.push(param);
+
+			if (struct.param_map.has(param.name.text)) {
+				// Error: duplicate param name
+			}
+
+			else {
+				struct.param_map.set(param.name.text, param);
+			}
+		}
 	}
 
 	const child_comments: ast.CommentToken[] = [ ];

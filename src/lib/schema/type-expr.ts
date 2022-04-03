@@ -113,6 +113,7 @@ export class TypeExpr_switch_refine extends TypeExpr {
 	public type_type = 'switch_refine';
 	public parent_type: TypeExpr;
 	public refined_type: Switch;
+	public param_expr: NamedRef<StructField | EnumMember>;
 }
 
 export class TypeExpr_named_refine extends TypeExpr {

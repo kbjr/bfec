@@ -69,6 +69,10 @@ function link_struct(schema: sch.Schema, elem: sch.Struct, error: BuildErrorFact
 			else {
 				link_type_expr(schema, field.field_type, error, elem);
 			}
+
+			if (field.field_value) {
+				link_value_expr(schema, field.field_value, error, elem);
+			}
 		}
 	}
 }
@@ -156,7 +160,7 @@ function link_type_expr(schema: sch.Schema, expr: sch.TypeExpr, error: BuildErro
 	}
 
 	if (sch.is_type_expr_named(expr)) {
-		link_named_type_expr(schema, expr, error);
+		link_named_type_expr(schema, expr, error, context);
 		return;
 	}
 
@@ -174,13 +178,14 @@ function link_type_expr(schema: sch.Schema, expr: sch.TypeExpr, error: BuildErro
 
 	if (sch.is_type_expr_struct_refine(expr)) {
 		link_type_expr(schema, expr.parent_type, error, context);
-		// TODO:
+		link_struct(schema, expr.refined_type, error);
 		return;
 	}
 
 	if (sch.is_type_expr_switch_refine(expr)) {
 		link_type_expr(schema, expr.parent_type, error, context);
-		// TODO:
+		link_switch(schema, expr.refined_type, error);
+		// TODO: param
 		return;
 	}
 
@@ -190,7 +195,7 @@ function link_type_expr(schema: sch.Schema, expr: sch.TypeExpr, error: BuildErro
 	}
 }
 
-function link_named_type_expr(schema: sch.Schema, expr: sch.TypeExpr_named, error: BuildErrorFactory) : void {
+function link_named_type_expr(schema: sch.Schema, expr: sch.TypeExpr_named, error: BuildErrorFactory, context?: sch.Struct) : void {
 	const name = expr.name.name;
 	const found = schema.element_map.get(name);
 
@@ -199,42 +204,46 @@ function link_named_type_expr(schema: sch.Schema, expr: sch.TypeExpr_named, erro
 		return;
 	}
 
-	// TODO: params
+	for (const param of expr.params) {
+		if (sch.is_const(param)) {
+			continue;
+		}
+
+		link_value_expr(schema, param, error, context);
+	}
 
 	expr.name.points_to = found;
 	expr.name.locality = sch.ref_locality.schema;
 }
 
 function link_length_type(schema: sch.Schema, expr: sch.TypeExpr_array | sch.TypeExpr_text, error: BuildErrorFactory, context?: sch.Struct) : void {
-	if (expr.length_type !== sch.len_type.length_field) {
-		// no linking required
-		return;
+	if (expr.length_type === sch.len_type.length_field) {
+		link_value_expr(schema, expr.length_field, error, context);
 	}
-
-	link_value_expr(schema, expr.length_field, error, context);
 }
 
 
 
 // ===== Value Expr =====
 
-function link_value_expr(schema: sch.Schema, ref: sch.NamedRef<sch.StructField>, error: BuildErrorFactory, context?: sch.Struct) : void {
-	if (sch.is_root_ref(ref.parent_ref)) {
-		const root = ref.parent_ref;
+function link_value_expr(schema: sch.Schema, ref: sch.NamedRef, error: BuildErrorFactory, context?: sch.Struct) : void {
+	const parent = ref.parent_ref;
+	
+	if (sch.is_root_ref(parent)) {
 		const from_root = schema.root_schema == null;
-		root.points_to = from_root ? schema.root : schema.root_schema.root;
+		parent.points_to = from_root ? schema.root : schema.root_schema.root;
 		
-		const is_root = root.points_to === context;
-		root.locality
+		const is_root = parent.points_to === context;
+		parent.locality
 			= is_root ? sch.ref_locality.declaration
 			: from_root ? sch.ref_locality.schema
 			: sch.ref_locality.project;
 
-		const found = root.points_to.field_map.get(ref.name);
+		const found = parent.points_to.field_map.get(ref.name);
 
 		if (found) {
 			ref.points_to = found;
-			ref.locality = root.locality;
+			ref.locality = parent.locality;
 		}
 
 		else {
@@ -242,17 +251,16 @@ function link_value_expr(schema: sch.Schema, ref: sch.NamedRef<sch.StructField>,
 		}
 	}
 
-	else if (sch.is_self_ref(ref.parent_ref)) {
+	else if (sch.is_self_ref(parent)) {
 		if (! context) {
 			error(ref.name_token, 'Self-reference "@" used in a non-local context');
 			return;
 		}
 
-		const self = ref.parent_ref;
-		self.points_to = context;
-		self.locality = sch.ref_locality.declaration;
+		parent.points_to = context;
+		parent.locality = sch.ref_locality.declaration;
 		
-		const found = self.points_to.field_map.get(ref.name);
+		const found = parent.points_to.field_map.get(ref.name);
 
 		if (found) {
 			ref.points_to = found;
@@ -264,17 +272,18 @@ function link_value_expr(schema: sch.Schema, ref: sch.NamedRef<sch.StructField>,
 		}
 	}
 
-	else if (sch.is_named_ref(ref.parent_ref)) {
-		const parent = ref.parent_ref as sch.NamedRef<sch.StructField>;
-		link_value_expr(schema, parent, error, context);
+	else if (sch.is_named_ref(parent)) {
+		if (parent.parent_ref) {
+			link_value_expr(schema, parent, error, context);
+		}
 
-		const refed = sch.fully_resolve(parent);
+		const resolved_parent = sch.fully_resolve(parent);
 
-		if (sch.is_struct_field(refed)) {
-			if (sch.is_type_expr_named(refed.field_type)) {
-				link_named_type_expr(schema, refed.field_type, error);
+		if (sch.is_struct_field(resolved_parent)) {
+			if (sch.is_type_expr_named(resolved_parent.field_type)) {
+				link_named_type_expr(schema, resolved_parent.field_type, error);
 
-				const points_to = sch.fully_resolve(refed.field_type.name);
+				const points_to = sch.fully_resolve(resolved_parent.field_type.name);
 
 				if (sch.is_struct(points_to)) {
 					const found = points_to.field_map.get(ref.name);
@@ -290,12 +299,26 @@ function link_value_expr(schema: sch.Schema, ref: sch.NamedRef<sch.StructField>,
 				}
 			}
 
-			else if (sch.is_type_expr_named_refine(refed.field_type)) {
-				link_named_type_expr(schema, refed.field_type.refined_type, error);
-				// 
+			else if (sch.is_type_expr_named_refine(resolved_parent.field_type)) {
+				link_named_type_expr(schema, resolved_parent.field_type.refined_type, error);
+
+				const points_to = sch.fully_resolve(resolved_parent.field_type.refined_type.name);
+
+				if (sch.is_struct(points_to)) {
+					const found = points_to.field_map.get(ref.name);
+
+					if (found) {
+						ref.points_to = found;
+						ref.locality = parent.locality;
+					}
+
+					else {
+						error(ref.name_token, `Property "${ref.name}" of "${parent.full_name}" not found`);
+					}
+				}
 			}
 
-			else if (sch.is_type_expr_struct_refine(refed.field_type)) {
+			else if (sch.is_type_expr_struct_refine(resolved_parent.field_type)) {
 				// 
 			}
 
@@ -304,13 +327,49 @@ function link_value_expr(schema: sch.Schema, ref: sch.NamedRef<sch.StructField>,
 			}
 		}
 
+		else if (sch.is_enum(resolved_parent)) {
+			const found = resolved_parent.member_map.get(ref.name);
+
+			if (found) {
+				ref.points_to = found;
+				ref.locality = parent.locality;
+			}
+
+			else {
+				error(ref.name_token, `Property "${ref.name}" of "${parent.full_name}" not found`);
+			}
+		}
+
 		else {
-			error(ref.parent_ref, 'Expected value expr to refer to a static struct field');
+			error(ref.parent_ref, 'Expected value expr to refer to a static struct field or enum member');
+		}
+	}
+
+	else if (! parent) {
+		if (context) {
+			const found_param = context.param_map.get(ref.name);
+
+			if (found_param) {
+				ref.points_to = found_param;
+				ref.locality = sch.ref_locality.declaration;
+				return;
+			}
+		}
+
+		const found = schema.element_map.get(ref.name);
+
+		if (found) {
+			ref.points_to = found;
+			ref.locality = sch.is_imported_ref(found) ? found.locality : sch.ref_locality.schema;
+		}
+
+		else {
+			error(ref.name_token, `Referenced name "${ref.name}" not found`);
 		}
 	}
 
 	else {
-		error(ref.parent_ref, 'Expected value expr to refer to a static struct field');
+		error(ref.parent_ref, 'Expected value expr to refer to a static struct field or enum member');
 	}
 }
 

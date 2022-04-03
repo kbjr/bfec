@@ -4,7 +4,7 @@ import { ast } from '../parser';
 import { Enum, EnumMember } from './enum';
 import { Switch } from './switch';
 import { SchemaNode } from './node';
-import { Struct, StructField } from './struct';
+import { Struct, StructField, StructParam } from './struct';
 import { Import } from './import';
 import { SchemaElem } from './schema';
 
@@ -66,6 +66,7 @@ export type NamedRefable
 	| ImportedRef
 	| EnumMember
 	| StructField
+	| StructParam
 	;
 
 export class NamedRef<T extends NamedRefable = NamedRefable, P extends NamedParentRefable = NamedParentRefable> extends Ref<T> {
@@ -154,6 +155,6 @@ export function is_self_ref(ref: Ref) : ref is SelfRef {
 	return ref instanceof SelfRef;
 }
 
-export function is_imported_ref<T extends SchemaElem>(ref: Ref<T>) : ref is ImportedRef<T> {
+export function is_imported_ref(ref: SchemaNode) : ref is ImportedRef {
 	return ref instanceof ImportedRef;
 }

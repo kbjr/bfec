@@ -278,6 +278,7 @@ struct SuggestedPalleteData {
   pallete_name: ascii<null>;
   sample_depth: SampleDepth;
   ...Sample(@.sample_depth);
+  # sample: Sample(@.sample_depth);
   frequencies: u16_be[...];
 }
 

@@ -16,10 +16,11 @@ export class Struct extends SchemaNode {
 	public name: ast.NameToken_normal | ast.NameToken_root_schema;
 	public byte_aligned: boolean;
 	public params: StructParam[] = [ ];
+	public param_map: Map<string, StructParam> = new Map();
 	public fields: StructElem[] = [ ];
 	public field_map: Map<string, StructField> = new Map();
 	public parent_schema: Schema;
-	
+
 	public add_field(name_node: ast.NameToken_normal, field: StructField) {
 		if (this.field_map.has(name_node.text)) {
 			this.parent_schema.error(name_node, `Encountered duplicate symbol name "${name_node.text}"`);

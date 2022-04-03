@@ -2,11 +2,11 @@
 import { output_format, parse_args } from './args';
 import { exit_error, exit_successful } from './exit';
 import { InputLoader, OutputWriter } from './fs';
-import { link_schema, parse_src_to_ast } from '../lib';
-import { build_schema_from_ast } from '../lib/schema';
+import { link_schema, parse_src_to_ast, build_schema_from_ast, compile_to_markdown } from '../lib';
 import { main as log } from './log';
 import { jsonc } from 'jsonc';
 import { get_http } from './http';
+import { inspect } from 'util';
 
 const include_source_maps = true;
 
@@ -89,7 +89,28 @@ async function main() {
 
 	// If we need schema output, we should also output the linked version of the schema
 	if (schema_out) {
-		await schema_out_dir.write_file('linked.json', jsonc.stringify(schema, { handleCircular: true }));
+		await schema_out_dir.write_file('linked.json', JSON.stringify(schema, replacer()));
+		// await schema_out_dir.write_file('linked.json', jsonc.stringify(schema, { handleCircular: true }));
+
+		function replacer() {
+			const seen = new Set();
+
+			return function(key: string, value: any) {
+				if (value && typeof value === 'object') {
+					if (seen.has(value)) {
+						return '[Circular]';
+					}
+
+					seen.add(value);
+				}
+
+				if (typeof value === 'bigint') {
+					return value.toString();
+				}
+
+				return value;
+			};
+		}
 	}
 
 	// If we encountered errors while building, stop here
@@ -122,7 +143,7 @@ async function main() {
 				break;
 
 			case output_format.md:
-				// TODO: Markdown Documentation
+				await compile_to_markdown(schema, { out_dir });
 				break;
 
 			case output_format.ast_json:

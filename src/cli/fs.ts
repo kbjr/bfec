@@ -5,6 +5,7 @@ import { output_format } from './args';
 import * as mkdirp from 'mkdirp';
 import { jsonc } from 'jsonc';
 import { exit_error } from './exit';
+import { WriteableDir } from '../lib';
 
 export interface Conf {
 	$schema?: string;
@@ -77,7 +78,7 @@ export class InputLoader {
 	}
 }
 
-export class OutputWriter {
+export class OutputWriter implements WriteableDir {
 	constructor(public directory: string) {
 		this.directory = resolve_path(process.cwd(), this.directory);
 	}
