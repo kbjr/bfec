@@ -1,4 +1,5 @@
 
+import assert = require('assert');
 import * as sch from '../schema';
 import { BuildError, BuildErrorFactory, build_error_factory } from '../error';
 
@@ -51,7 +52,7 @@ function link_struct(schema: sch.Schema, elem: sch.Struct, error: BuildErrorFact
 
 	for (const field of elem.fields) {
 		if (sch.is_struct_expansion(field)) {
-			link_type_expr(schema, field.expanded_type, error);
+			link_type_expr(schema, field.expanded_type, error, elem);
 		}
 
 		else {
@@ -59,15 +60,14 @@ function link_struct(schema: sch.Schema, elem: sch.Struct, error: BuildErrorFact
 				link_bool_expr(schema, field.condition, error);
 			}
 
-			const { field_type } = field;
+			assert(field.field_type, 'expected StructField.field_type to be populated');
 
-			if (! field_type) {
-				error(field, `Invalid Schema: Missing field_type for field "${field.name.text}"`);
-				continue;
+			if (sch.is_const(field.field_type)) {
+				// pass
 			}
-
-			if (sch.is_const(field_type)) {
-				link_type_expr(schema, field_type, error);
+			
+			else {
+				link_type_expr(schema, field.field_type, error, elem);
 			}
 		}
 	}
@@ -139,14 +139,19 @@ function link_enum(schema: sch.Schema, elem: sch.Enum, error: BuildErrorFactory)
 
 // ===== Type Expressions =====
 
-function link_type_expr(schema: sch.Schema, expr: sch.TypeExpr, error: BuildErrorFactory) : void {
+function link_type_expr(schema: sch.Schema, expr: sch.TypeExpr, error: BuildErrorFactory, context?: sch.Struct) : void {
 	if (sch.is_type_expr_int(expr) || sch.is_type_expr_float(expr)) {
 		// no linking required
 		return;
 	}
 
-	if (sch.is_type_expr_text(expr)) {
+	if (sch.is_type_expr_length(expr)) {
 		// no linking required
+		return;
+	}
+
+	if (sch.is_type_expr_text(expr)) {
+		link_length_type(schema, expr, error, context);
 		return;
 	}
 
@@ -156,28 +161,31 @@ function link_type_expr(schema: sch.Schema, expr: sch.TypeExpr, error: BuildErro
 	}
 
 	if (sch.is_type_expr_array(expr)) {
-		link_type_expr(schema, expr.element_type, error);
+		link_type_expr(schema, expr.element_type, error, context);
+		link_length_type(schema, expr, error, context);
 		return;
 	}
 
 	if (sch.is_type_expr_named_refine(expr)) {
-		link_type_expr(schema, expr.parent_type, error);
+		link_type_expr(schema, expr.parent_type, error, context);
 		link_named_type_expr(schema, expr.refined_type, error);
 		return;
 	}
 
 	if (sch.is_type_expr_struct_refine(expr)) {
+		link_type_expr(schema, expr.parent_type, error, context);
 		// TODO:
 		return;
 	}
 
 	if (sch.is_type_expr_switch_refine(expr)) {
+		link_type_expr(schema, expr.parent_type, error, context);
 		// TODO:
 		return;
 	}
 
 	if (sch.is_type_expr_checksum(expr)) {
-		link_type_expr(schema, expr.real_type, error);
+		link_type_expr(schema, expr.real_type, error, context);
 		return;
 	}
 }
@@ -191,8 +199,119 @@ function link_named_type_expr(schema: sch.Schema, expr: sch.TypeExpr_named, erro
 		return;
 	}
 
+	// TODO: params
+
 	expr.name.points_to = found;
 	expr.name.locality = sch.ref_locality.schema;
+}
+
+function link_length_type(schema: sch.Schema, expr: sch.TypeExpr_array | sch.TypeExpr_text, error: BuildErrorFactory, context?: sch.Struct) : void {
+	if (expr.length_type !== sch.len_type.length_field) {
+		// no linking required
+		return;
+	}
+
+	link_value_expr(schema, expr.length_field, error, context);
+}
+
+
+
+// ===== Value Expr =====
+
+function link_value_expr(schema: sch.Schema, ref: sch.NamedRef<sch.StructField>, error: BuildErrorFactory, context?: sch.Struct) : void {
+	if (sch.is_root_ref(ref.parent_ref)) {
+		const root = ref.parent_ref;
+		const from_root = schema.root_schema == null;
+		root.points_to = from_root ? schema.root : schema.root_schema.root;
+		
+		const is_root = root.points_to === context;
+		root.locality
+			= is_root ? sch.ref_locality.declaration
+			: from_root ? sch.ref_locality.schema
+			: sch.ref_locality.project;
+
+		const found = root.points_to.field_map.get(ref.name);
+
+		if (found) {
+			ref.points_to = found;
+			ref.locality = root.locality;
+		}
+
+		else {
+			error(ref.name_token, `Property "${ref.name}" of "$" not found`);
+		}
+	}
+
+	else if (sch.is_self_ref(ref.parent_ref)) {
+		if (! context) {
+			error(ref.name_token, 'Self-reference "@" used in a non-local context');
+			return;
+		}
+
+		const self = ref.parent_ref;
+		self.points_to = context;
+		self.locality = sch.ref_locality.declaration;
+		
+		const found = self.points_to.field_map.get(ref.name);
+
+		if (found) {
+			ref.points_to = found;
+			ref.locality = sch.ref_locality.declaration;
+		}
+
+		else {
+			error(ref.name_token, `Property "${ref.name}" of "@" ("${context.name.text}") not found`);
+		}
+	}
+
+	else if (sch.is_named_ref(ref.parent_ref)) {
+		const parent = ref.parent_ref as sch.NamedRef<sch.StructField>;
+		link_value_expr(schema, parent, error, context);
+
+		const refed = sch.fully_resolve(parent);
+
+		if (sch.is_struct_field(refed)) {
+			if (sch.is_type_expr_named(refed.field_type)) {
+				link_named_type_expr(schema, refed.field_type, error);
+
+				const points_to = sch.fully_resolve(refed.field_type.name);
+
+				if (sch.is_struct(points_to)) {
+					const found = points_to.field_map.get(ref.name);
+
+					if (found) {
+						ref.points_to = found;
+						ref.locality = parent.locality;
+					}
+
+					else {
+						error(ref.name_token, `Property "${ref.name}" of "${parent.full_name}" not found`);
+					}
+				}
+			}
+
+			else if (sch.is_type_expr_named_refine(refed.field_type)) {
+				link_named_type_expr(schema, refed.field_type.refined_type, error);
+				// 
+			}
+
+			else if (sch.is_type_expr_struct_refine(refed.field_type)) {
+				// 
+			}
+
+			else {
+				error(ref.parent_ref, 'Expected value expr to refer to a static struct field');
+			}
+		}
+
+		else {
+			error(ref.parent_ref, 'Expected value expr to refer to a static struct field');
+		}
+	}
+
+	else {
+		error(ref.parent_ref, 'Expected value expr to refer to a static struct field');
+	}
 }
 
 

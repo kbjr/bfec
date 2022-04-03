@@ -1,26 +1,30 @@
 
-# from 'https://bfec.io/std/v1.bfec' { bool };
+# from 'https://bfec.io/bfec/std/v1.bfec' { bool };
 from '~/types.bfec' { bool };
 from '~/entities.bfec' { Entity, EntityType };
 
 struct $ {
-  # First byte of the file is left 0 to softly indicate a binary file
-  top_byte: 0x00;
-
   header: Header;
-  metadata: Metadata;
+  metadata: u8[u32] -> Metadata;
   data_tables: DataTable[u32];
   dependencies: Dependency[u32];
   contents: FileContents($.header.file_type);
   source_files?($.header.has_sources == bool.true): SourceFile[u32];
 }
 
+enum FormatVersion: u8 {
+  v1 = 1;
+}
+
 struct Header {
+  # First byte of the file is left 0 to softly indicate a binary file
+  top_byte: "\0";
+
   # 16-byte file format UUID to identify the type of file
-  format_uuid: 0xc7856256_dc49_11eb_abc4_00155db73e89;
+  format_uuid: "\xc7\x85\x62\x56\xdc\x49\x11\xeb\xab\xc4\x00\x15\x5d\xb7\x3e\x89";
 
   # One byte file format version
-  version: 0x01;
+  version: FormatVersion;
 
   # 16-bits reserved for flags (11 unused)
   ...u16 -> bin {
@@ -48,20 +52,17 @@ enum FileType: b3 {
 }
 
 switch FileContents<FileType> {
-  case module_obj:  ModuleObjectContents;
-  case static_lib:  StaticLibraryContents;
-  case dynamic_lib: DynamicLibraryContents;
-  case program:     ProgramContents;
-  case extension:   ExtensionContents;
-  case host_obj:    HostObjectContents;
-  case header:      HeaderContents;
+  case module_obj:  u8[u32] -> ModuleObjectContents;
+  case static_lib:  u8[u32] -> StaticLibraryContents;
+  case dynamic_lib: u8[u32] -> DynamicLibraryContents;
+  case program:     u8[u32] -> ProgramContents;
+  case extension:   u8[u32] -> ExtensionContents;
+  case host_obj:    u8[u32] -> HostObjectContents;
+  case header:      u8[u32] -> HeaderContents;
 }
 
 struct Metadata {
-  length: u32;
-  ...u8[@.length] -> struct {
-    # 
-  };
+  # ...
 }
 
 struct DataTable {
@@ -73,52 +74,31 @@ struct Dependency {
 }
 
 struct ModuleObjectContents {
-  length: u32;
-  ...u8[@.length] -> struct {
-    id_count: u32;
-    object: Entity(EntityType.namespace);
-  };
+  id_count: u32;
+  object: Entity(EntityType.namespace);
 }
 
 struct StaticLibraryContents {
-  length: u32;
-  ...u8[@.length] -> struct {
-    # ...
-  };
+  # ...
 }
 
 struct DynamicLibraryContents {
-  length: u32;
-  ...u8[@.length] -> struct {
-    # ...
-  };
+  # ...
 }
 
 struct ProgramContents {
-  length: u32;
-  ...u8[@.length] -> struct {
-    # ...
-  };
+  # ...
 }
 
 struct ExtensionContents {
-  length: u32;
-  ...u8[@.length] -> struct {
-    # ...
-  };
+  # ...
 }
 
 struct HostObjectContents {
-  length: u32;
-  ...u8[@.length] -> struct {
-    # ...
-  };
+  # ...
 }
 
 struct HeaderContents {
-  length: u32;
-  ...u8[@.length] -> struct {
-    # ...
-  };
+  # ...
 }
 

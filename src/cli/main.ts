@@ -8,6 +8,8 @@ import { main as log } from './log';
 import { jsonc } from 'jsonc';
 import { get_http } from './http';
 
+const include_source_maps = true;
+
 main();
 
 async function main() {
@@ -37,7 +39,7 @@ async function main() {
 	}
 
 	// Otherwise, compile actually build the schema now
-	const schema = build_schema_from_ast(entrypoint_ast, true);
+	const schema = build_schema_from_ast(entrypoint_ast, include_source_maps);
 	let schema_out_dir: OutputWriter;
 
 	// If we need to output a schema file, do that
@@ -75,7 +77,7 @@ async function main() {
 				const imported_ast = parse_src_to_ast(path, imported_contents);
 
 				if (imported_ast) {
-					return build_schema_from_ast(imported_ast);
+					return build_schema_from_ast(imported_ast, include_source_maps, schema);
 				}
 
 				throw new Error('Failed to parse file');

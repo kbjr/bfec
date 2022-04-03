@@ -21,7 +21,7 @@ export enum ref_locality {
 	remote      = 'remote',
 }
 
-export class Ref<T extends SchemaNode> extends SchemaNode {
+export class Ref<T extends SchemaNode = SchemaNode> extends SchemaNode {
 	public type = 'ref';
 	public points_to?: T;
 	public locality: ref_locality;
@@ -75,6 +75,10 @@ export class NamedRef<T extends NamedRefable = NamedRefable, P extends NamedPare
 
 	public get name() {
 		return this.name_token.text;
+	}
+
+	public get full_name() {
+		return this.parent_ref ? this.parent_ref.name + '.' + this.name : this.name;
 	}
 
 	public resolve_in(map: Map<string, T>, locality: ref_locality) : boolean {
@@ -140,4 +144,16 @@ export function fully_resolve<T extends SchemaNode>(ref: Ref<T>) : T {
 
 export function is_named_ref<T extends NamedRefable>(ref: Ref<T>) : ref is NamedRef<T> {
 	return ref instanceof NamedRef;
+}
+
+export function is_root_ref(ref: Ref) : ref is RootRef {
+	return ref instanceof RootRef;
+}
+
+export function is_self_ref(ref: Ref) : ref is SelfRef {
+	return ref instanceof SelfRef;
+}
+
+export function is_imported_ref<T extends SchemaElem>(ref: Ref<T>) : ref is ImportedRef<T> {
+	return ref instanceof ImportedRef;
 }

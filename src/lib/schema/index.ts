@@ -20,7 +20,7 @@ import {
 	TypeExpr_varint,
 	TypeExpr_fixed_int,
 	TypeExpr_float,
-	TextEncoding,
+	text_enc,
 	is_type_expr_named,
 } from './type-expr';
 import { BoolExpr, bool_expr_op_compare, bool_expr_op_logical, BoolExpr_comparison, BoolExpr_logical } from './bool-expr';
@@ -41,7 +41,7 @@ export * from './struct';
 export * from './switch';
 export * from './type-expr';
 
-export function build_schema_from_ast(file: ast.FileNode, include_source_maps: boolean = false) : Schema {
+export function build_schema_from_ast(file: ast.FileNode, include_source_maps: boolean = false, root_schema?: Schema) : Schema {
 	const errors: BuildError[] = [ ];
 	const schema = new Schema(file.source, include_source_maps);
 	schema.error = build_error_factory(errors, schema);
@@ -647,10 +647,10 @@ function build_type_expr_text(schema: Schema, node: ast.TypeExpr_builtin_text) :
 
 function text_encoding(node: ast.TypeExpr_builtin_text) {
 	switch (node.text_keyword.text) {
-		case builtin_text.ascii: return TextEncoding.ascii;
-		case builtin_text.utf8: return TextEncoding.utf8;
-		case builtin_text.utf16: return TextEncoding.utf16;
-		case builtin_text.utf32: return TextEncoding.utf32;
+		case builtin_text.ascii: return text_enc.ascii;
+		case builtin_text.utf8: return text_enc.utf8;
+		case builtin_text.utf16: return text_enc.utf16;
+		case builtin_text.utf32: return text_enc.utf32;
 	}
 }
 

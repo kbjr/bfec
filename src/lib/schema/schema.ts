@@ -38,7 +38,9 @@ export class Schema extends SchemaNode {
 		 * Controls whether or not the schema should preserve mappings back to the AST source tokens
 		 * for debugging purposes.
 		 */
-		public readonly include_source_maps: boolean = false
+		public readonly include_source_maps: boolean = false,
+		/**  */
+		public readonly root_schema?: Schema
 	) {
 		super();
 

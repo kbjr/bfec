@@ -24,14 +24,14 @@ export enum len_type {
 
 export class TypeExpr_text extends TypeExpr {
 	public type_type = 'text';
-	public encoding: TextEncoding;
+	public encoding: text_enc;
 	public length_type: len_type;
 	public static_length?: ConstInt;
 	public length_prefix?: TypeExpr_fixed_int | TypeExpr_varint;
 	public length_field?: NamedRef<StructField<TypeExpr_length>>;
 }
 
-export enum TextEncoding {
+export enum text_enc {
 	ascii = 'ascii',
 	utf8  = 'utf8',
 	utf16 = 'utf16',
@@ -153,6 +153,10 @@ export function is_type_expr_fixed_int(node: SchemaNode) : node is TypeExpr_fixe
 
 export function is_type_expr_varint(node: SchemaNode) : node is TypeExpr_varint {
 	return node instanceof TypeExpr_varint;
+}
+
+export function is_type_expr_length(node: SchemaNode) : node is TypeExpr_length {
+	return node instanceof TypeExpr_length;
 }
 
 export function is_type_expr_float(node: SchemaNode) : node is TypeExpr_float {

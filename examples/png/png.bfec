@@ -13,7 +13,7 @@ struct $ {
   # of it, so we'll statically define it here so we can `$.image_header` elsewhere
   image_header: Chunk(ChunkType.IHDR);
 
-  # The rest of the file we'll just read as a bit list of chunks
+  # The rest of the file we'll just read as a big list of chunks
   chunks: Chunk[...];
 }
 
