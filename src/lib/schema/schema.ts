@@ -3,23 +3,33 @@ import { ast } from '../parser';
 import { Enum } from './enum';
 import { Struct } from './struct';
 import { Switch } from './switch';
-import { ImportedSymbol, Import } from './import';
-import { BaseNode, node_type, SchemaNode } from './node';
+import { Import } from './import';
+import { SchemaNode } from './node';
+import { BuildErrorFactory } from '../error';
 import { schema_json_schema } from '../constants';
-import { BuildError } from '../error';
+import { ImportedRef, NamedRef, RootRef, SelfRef } from './ref';
 
-export type SchemaElem = ImportedSymbol | Struct | Switch | Enum;
+export type SchemaElem = ImportedRef | Struct | Switch | Enum;
 
-export class Schema extends BaseNode {
-	public type: node_type.schema = node_type.schema;
-	public imports: Import[] = [ ];
+export class Schema extends SchemaNode {
+	public $schema = schema_json_schema;
+	public type = 'schema';
+
 	public root: Struct;
-	public elements: SchemaElem[] = [ ];
+	public imports: Import[] = [ ];
+
+	public imported_refs: ImportedRef[] = [ ];
+	public structs: Struct[] = [ ];
+	public switches: Switch[] = [ ];
+	public enums: Enum[] = [ ];
+
 	public element_map: Map<string, SchemaElem> = new Map();
 	public source_map: Map<SchemaNode, ast.ASTNode>;
-	public errors: BuildError[] = [ ];
+	
 	public is_external: boolean = false;
 	public is_remote: boolean = false;
+
+	public error: BuildErrorFactory;
 
 	constructor(
 		/** The source / file path representing where this schema came from */
@@ -37,23 +47,12 @@ export class Schema extends BaseNode {
 		}
 	}
 
-	public toJSON() {
-		return {
-			$schema: schema_json_schema,
-			type: node_type[this.type],
-			imports: this.imports,
-			elements: this.elements,
-			errors: this.errors,
-		};
-	}
-
-	public add_elem(name_node: ast.NameToken_normal | ast.NameToken_root_schema, elem: SchemaElem) {
+	public map_elem(name_node: ast.NameToken_normal | ast.NameToken_root_schema, elem: SchemaElem) {
 		if (this.element_map.has(name_node.text)) {
-			this.build_error(`Encountered duplicate symbol name "${name_node.text}"`, name_node);
+			this.error(name_node, `Encountered duplicate symbol name "${name_node.text}"`);
 			return false;
 		}
 	
-		this.elements.push(elem);
 		this.element_map.set(name_node.text, elem);
 		return true;
 	}
@@ -63,44 +62,26 @@ export class Schema extends BaseNode {
 			this.source_map.set(node, ast_node);
 		}
 	}
-
-	public build_error(message: string, node: ast.ASTNode) : void {
-		const error = new BuildError(message, this, node);
-		this.errors.push(error);
-	}
 	
-	public ref(name: ast.NameToken_normal | ast.NameToken_root_schema | ast.NameToken_this_schema | string) {
-		const is_str = typeof name === 'string';
-		const symbol = new Ref(is_str ? name : name.text);
-
-		if (! is_str) {
-			this.map_ast(symbol, name);
+	public ref(name: ast.NameToken_normal | ast.NameToken_root_schema | ast.NameToken_this_schema) {
+		switch (name.type) {
+			case ast.node_type.name_normal: {
+				const ref = NamedRef.from_name(name);
+				this.map_ast(ref, name);
+				return ref;
+			};
+			
+			case ast.node_type.name_root_schema: {
+				const ref = RootRef.from_name(name);
+				this.map_ast(ref, name);
+				return ref;
+			};
+			
+			case ast.node_type.name_this_schema: {
+				const ref = SelfRef.from_name(name);
+				this.map_ast(ref, name);
+				return ref;
+			};
 		}
-
-		return symbol;
-	}
-}
-
-export class Ref extends BaseNode {
-	public type: node_type.ref = node_type.ref;
-	
-	constructor(
-		public name: string
-	) {
-		super();
-	}
-
-	public toJSON(): any {
-		return this.name;
-	}
-}
-
-export class Comment extends BaseNode {
-	public type: node_type.comment = node_type.comment;
-	public text: string;
-
-	constructor(node: ast.CommentToken) {
-		super();
-		this.text = node.text;
 	}
 }

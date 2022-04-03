@@ -19,14 +19,16 @@ export class BuildError {
 }
 
 export interface BuildErrorFactory {
-	(node: SchemaNode, message: string): void;
+	(node: SchemaNode | ast.ASTNode, message: string): void;
 }
 
 export function build_error_factory(errors: BuildError[], schema: Schema) : BuildErrorFactory {
-	return function _build_error(schema_node: SchemaNode, message: string) {
-		const node = schema.include_source_maps
-			? schema.source_map.get(schema_node)
-			: null;
+	return function _build_error(node: SchemaNode | ast.ASTNode, message: string) {
+		if (node instanceof SchemaNode) {
+			node = schema.include_source_maps
+				? schema.source_map.get(node)
+				: null;
+		}
 
 		errors.push(
 			new BuildError(message, schema, node)

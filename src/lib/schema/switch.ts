@@ -1,26 +1,29 @@
-import { BaseNode, node_type } from './node';
+
+import { ast } from '../parser';
+import { Comment } from './comment';
+import { Enum, EnumMember } from './enum';
+import { SchemaNode } from './node';
+import { NamedRef } from './ref';
 import { TypeExpr } from './type-expr';
-import { Comment, Ref } from './schema';
 
-
-export class Switch extends BaseNode {
-	public type: node_type.switch = node_type.switch;
+export class Switch extends SchemaNode {
+	public type = 'switch';
 	public comments: Comment[];
-	public name: Ref;
-	public arg_type: TypeExpr;
+	public name: ast.NameToken_normal;
+	public arg_type: NamedRef<Enum>;
 	public cases: SwitchCase[] = [ ];
 	public default?: SwitchCase;
 }
 
-export class SwitchCase extends BaseNode {
-	public type: node_type.switch_case = node_type.switch_case;
+export class SwitchCase extends SchemaNode {
+	public type = 'switch_case';
+	public case_type: switch_case_type;
 	public comments: Comment[];
-	public case_value?: Ref;
-	public case_type: SwitchCaseType;
+	public case_value?: NamedRef<EnumMember>;
 	public case_type_expr?: TypeExpr;
 }
 
-export enum SwitchCaseType {
+export enum switch_case_type {
 	type_expr = 'type_expr',
 	void      = 'void',
 	invalid   = 'invalid',

@@ -1,40 +1,34 @@
 
-import { Ref } from './schema';
-import { ValueExpr } from './value-expr';
-import { BaseNode, node_type } from './node';
-import { ConstInt, ConstString } from './const';
-
-export type TypeExpr
-	= TypeExpr_text
-	| TypeExpr_fixed_int
-	| TypeExpr_varint
-	| TypeExpr_float
-	| TypeExpr_length
-	| TypeExpr_checksum
-	| TypeExpr_named
-	| TypeExpr_array
-	| TypeExpr_struct_refine
-	| TypeExpr_switch_refine
-	| TypeExpr_named_refine
-	;
+import { NamedRef, RootRef } from './ref';
+import { SchemaNode } from './node';
+import { EnumMember } from './enum';
+import { Struct, StructField } from './struct';
+import { Const, ConstInt, ConstString } from './const';
+import { Switch } from './switch';
 
 export type TypeExpr_int = TypeExpr_fixed_int | TypeExpr_varint;
 
-export class TypeExpr_text extends BaseNode {
-	public type: node_type.type_expr_text = node_type.type_expr_text;
-	public encoding: TextEncoding;
-	public length_type: TextLengthType;
-	public static_length?: ConstInt;
-	public length_prefix?: TypeExpr_fixed_int | TypeExpr_varint;
-	public length_field?: ValueExpr<TypeExpr_length>;
+export type TypeExpr_primitive = TypeExpr_int | TypeExpr_float | TypeExpr_text | TypeExpr_length;
+
+export class TypeExpr extends SchemaNode {
+	public type = 'type_expr';
 }
 
-export enum TextLengthType {
+export enum len_type {
 	null_terminated = 'null_terminated',
 	take_remaining  = 'take_remaining',
 	static_length   = 'static_length',
 	length_prefix   = 'length_prefix',
 	length_field    = 'length_field',
+}
+
+export class TypeExpr_text extends TypeExpr {
+	public type_type = 'text';
+	public encoding: TextEncoding;
+	public length_type: len_type;
+	public static_length?: ConstInt;
+	public length_prefix?: TypeExpr_fixed_int | TypeExpr_varint;
+	public length_field?: NamedRef<StructField<TypeExpr_length>>;
 }
 
 export enum TextEncoding {
@@ -44,8 +38,8 @@ export enum TextEncoding {
 	utf32 = 'utf32',
 }
 
-export class TypeExpr_fixed_int extends BaseNode {
-	public type: node_type.type_expr_fixed_int = node_type.type_expr_fixed_int;
+export class TypeExpr_fixed_int extends TypeExpr {
+	public type_type = 'fixed_int';
 	public name: string;
 	public signed: boolean;
 	public big_endian: boolean;
@@ -60,8 +54,8 @@ export class TypeExpr_fixed_int extends BaseNode {
 	}
 }
 
-export class TypeExpr_varint extends BaseNode {
-	public type: node_type.type_expr_varint = node_type.type_expr_varint;
+export class TypeExpr_varint extends TypeExpr {
+	public type_type = 'varint';
 	public real_type: TypeExpr_fixed_int;
 
 	public get min() {
@@ -73,62 +67,56 @@ export class TypeExpr_varint extends BaseNode {
 	}
 }
 
-export class TypeExpr_float extends BaseNode {
-	public type: node_type.type_expr_float = node_type.type_expr_float;
+export class TypeExpr_float extends TypeExpr {
+	public type_type = 'float';
 	public name: string;
 	public decimal: boolean;
 	public size_bits: number;
 }
 
-export class TypeExpr_length extends BaseNode {
-	public type: node_type.type_expr_length = node_type.type_expr_length;
+export class TypeExpr_length extends TypeExpr {
+	public type_type = 'length';
 	public real_type: TypeExpr_fixed_int | TypeExpr_varint;
 }
 
-export class TypeExpr_checksum extends BaseNode {
-	public type: node_type.type_expr_checksum = node_type.type_expr_checksum;
+export class TypeExpr_checksum extends TypeExpr {
+	public type_type = 'checksum';
 	public real_type: TypeExpr;
-	public data_expr: ValueExpr;
+	public data_expr: NamedRef<StructField>;
 	public func_name: ConstString;
 }
 
-export class TypeExpr_named extends BaseNode {
-	public type: node_type.type_expr_named = node_type.type_expr_named;
-	public name: Ref;
-	public params: ValueExpr[] = [ ];
+export type TypeExprNamedParam = NamedRef<StructField | EnumMember> | Const;
+
+export class TypeExpr_named extends TypeExpr {
+	public type_type = 'named';
+	public name: RootRef | NamedRef;
+	public params: TypeExprNamedParam[] = [ ];
 }
 
-export class TypeExpr_array extends BaseNode {
-	public type: node_type.type_expr_array = node_type.type_expr_array;
+export class TypeExpr_array extends TypeExpr {
+	public type_type = 'array';
 	public element_type: TypeExpr;
-	public length_type: ArrayLengthType;
+	public length_type: len_type;
 	public static_length?: ConstInt;
 	public length_prefix?: TypeExpr_fixed_int | TypeExpr_varint;
-	public length_field?: ValueExpr<TypeExpr_length>;
+	public length_field?: NamedRef<StructField<TypeExpr_length>>;
 }
 
-export enum ArrayLengthType {
-	null_terminated = 'null_terminated',
-	take_remaining  = 'take_remaining',
-	static_length   = 'static_length',
-	length_prefix   = 'length_prefix',
-	length_field    = 'length_field',
-}
-
-export class TypeExpr_struct_refine extends BaseNode {
-	public type: node_type.type_expr_struct_refine = node_type.type_expr_struct_refine;
+export class TypeExpr_struct_refine extends TypeExpr {
+	public type_type = 'struct_refine';
 	public parent_type: TypeExpr;
-	// TODO: Struct refine
+	public refined_type: Struct;
 }
 
-export class TypeExpr_switch_refine extends BaseNode {
-	public type: node_type.type_expr_switch_refine = node_type.type_expr_switch_refine;
+export class TypeExpr_switch_refine extends TypeExpr {
+	public type_type = 'switch_refine';
 	public parent_type: TypeExpr;
-	// TODO: Switch refine
+	public refined_type: Switch;
 }
 
-export class TypeExpr_named_refine extends BaseNode {
-	public type: node_type.type_expr_named_refine = node_type.type_expr_named_refine;
+export class TypeExpr_named_refine extends TypeExpr {
+	public type_type = 'named_refine';
 	public parent_type: TypeExpr;
 	public refined_type: TypeExpr_named;
 }
@@ -145,4 +133,52 @@ function int_min(size_bits: number, signed: boolean) : bigint {
 function int_max(size_bits: number, signed: boolean) : bigint {
 	const base = 2n ** BigInt(size_bits);
 	return (signed ? (base / 2n) : base) - 1n;
+}
+
+export function is_type_expr_named(node: SchemaNode) : node is TypeExpr_named {
+	return node instanceof TypeExpr_named;
+}
+
+export function is_type_expr_primitive(node: SchemaNode) : node is TypeExpr_named {
+	return is_type_expr_int(node) || is_type_expr_float(node) || is_type_expr_text(node);
+}
+
+export function is_type_expr_int(node: SchemaNode) : node is TypeExpr_int {
+	return is_type_expr_fixed_int(node) || is_type_expr_varint(node);
+}
+
+export function is_type_expr_fixed_int(node: SchemaNode) : node is TypeExpr_fixed_int {
+	return node instanceof TypeExpr_fixed_int;
+}
+
+export function is_type_expr_varint(node: SchemaNode) : node is TypeExpr_varint {
+	return node instanceof TypeExpr_varint;
+}
+
+export function is_type_expr_float(node: SchemaNode) : node is TypeExpr_float {
+	return node instanceof TypeExpr_float;
+}
+
+export function is_type_expr_text(node: SchemaNode) : node is TypeExpr_text {
+	return node instanceof TypeExpr_text;
+}
+
+export function is_type_expr_array(node: SchemaNode) : node is TypeExpr_array {
+	return node instanceof TypeExpr_array;
+}
+
+export function is_type_expr_checksum(node: SchemaNode) : node is TypeExpr_checksum {
+	return node instanceof TypeExpr_checksum;
+}
+
+export function is_type_expr_named_refine(node: SchemaNode) : node is TypeExpr_named_refine {
+	return node instanceof TypeExpr_named_refine;
+}
+
+export function is_type_expr_struct_refine(node: SchemaNode) : node is TypeExpr_struct_refine {
+	return node instanceof TypeExpr_struct_refine;
+}
+
+export function is_type_expr_switch_refine(node: SchemaNode) : node is TypeExpr_switch_refine {
+	return node instanceof TypeExpr_switch_refine;
 }

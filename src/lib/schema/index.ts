@@ -1,15 +1,17 @@
 
+import assert = require('assert');
 import { ast } from '../parser';
 import { linker as log } from '../log';
-import { Enum, EnumMember } from './enum';
-import { Switch, SwitchCase, SwitchCaseType } from './switch';
-import { Struct, StructExpansion, StructField, StructParam } from './struct';
+import { Enum, EnumMember, EnumMemberType, is_enum } from './enum';
+import { Switch, SwitchCase, switch_case_type } from './switch';
+import { Struct, StructExpansion, StructExpansionType, StructField, StructParam } from './struct';
 import { ConstInt, ConstString } from './const';
-import { Import, ImportedSymbol } from './import';
-import { Comment, Schema } from './schema';
+import { Import } from './import';
+import { build_comments } from './comment';
 import {
 	TypeExpr,
-	TypeExpr_array, ArrayLengthType,
+	len_type,
+	TypeExpr_array,
 	TypeExpr_checksum, TypeExpr_length,
 	TypeExpr_named, TypeExpr_named_refine,
 	TypeExpr_struct_refine,
@@ -17,32 +19,37 @@ import {
 	TypeExpr_text,
 	TypeExpr_varint,
 	TypeExpr_fixed_int,
-	TextLengthType,
 	TypeExpr_float,
 	TextEncoding,
+	is_type_expr_named,
 } from './type-expr';
-import { ValueExpr, ValueExprRootType } from './value-expr';
-import { BoolExpr, BoolExprComparisonOperator, BoolExprLogicalOperator, BoolExpr_comparison, BoolExpr_logical } from './bool-expr';
+import { BoolExpr, bool_expr_op_compare, bool_expr_op_logical, BoolExpr_comparison, BoolExpr_logical } from './bool-expr';
 import { builtin_text } from '../parser/ast/tokens';
+import { Schema } from './schema';
+import { fully_resolve, ImportedRef, is_named_ref, NamedParentRefable, NamedRef, Ref, RootRef, SelfRef } from './ref';
+import { BuildError, build_error_factory } from '../error';
 
 export * from './bool-expr';
+export * from './comment';
 export * from './const';
 export * from './enum';
 export * from './import';
 export * from './node';
+export * from './ref';
 export * from './schema';
 export * from './struct';
 export * from './switch';
 export * from './type-expr';
-export * from './value-expr';
 
 export function build_schema_from_ast(file: ast.FileNode, include_source_maps: boolean = false) : Schema {
+	const errors: BuildError[] = [ ];
 	const schema = new Schema(file.source, include_source_maps);
+	schema.error = build_error_factory(errors, schema);
 	schema.map_ast(schema, file);
 
 	const comments: ast.CommentToken[] = [ ];
 
-	file.children.forEach((node) => {
+	for (const node of file.children) {
 		switch (node.type) {
 			case ast.node_type.whitespace:
 				// skip
@@ -70,9 +77,10 @@ export function build_schema_from_ast(file: ast.FileNode, include_source_maps: b
 				break;
 	
 			default:
-				throw new Error(`Invalid AST; encountered unexpected ${ast.node_type[(node as ast.ASTNode).type]} node as file node child`);
+				schema.error(node, `Invalid AST; encountered unexpected ${ast.node_type[(node as ast.ASTNode).type]} node as file node child`);
+				break;
 		}
-	});
+	}
 	
 	return schema;
 }
@@ -85,7 +93,7 @@ function build_struct(schema: Schema, node: ast.DeclareStructNode, comments: ast
 	const struct = new Struct();
 	schema.map_ast(struct, node);
 	struct.comments = build_comments(comments);
-	struct.name = schema.ref(node.name);
+	struct.name = node.name;
 	struct.byte_aligned = node.struct_keyword.text === 'struct';
 
 	if (node.params) {
@@ -116,11 +124,13 @@ function build_struct(schema: Schema, node: ast.DeclareStructNode, comments: ast
 				break;
 	
 			default:
-				throw new Error(`Invalid AST; encountered unexpected ${ast.node_type[(child as ast.ASTNode).type]} node as struct body child`);
+				schema.error(child, `Invalid AST; encountered unexpected ${ast.node_type[(child as ast.ASTNode).type]} node as struct body child`);
+				break;
 		}
 	});
 
-	if (schema.add_elem(node.name, struct)) {
+	if (schema.map_elem(node.name, struct)) {
+		schema.structs.push(struct);
 		if (node.name.type === ast.node_type.name_root_schema) {
 			schema.root = struct;
 		}
@@ -130,7 +140,7 @@ function build_struct(schema: Schema, node: ast.DeclareStructNode, comments: ast
 function build_struct_param(schema: Schema, node: ast.StructParamNode) : StructParam {
 	const param = new StructParam();
 	schema.map_ast(param, node);
-	param.name = schema.ref(node.name);
+	param.name = node.name;
 	param.param_type = build_type_expr(schema, node.param_type);
 	return param;
 }
@@ -139,7 +149,7 @@ function build_struct_field(schema: Schema, struct: Struct, node: ast.StructFiel
 	const field = new StructField();
 	schema.map_ast(field, node);
 	field.comments = build_comments(comments);
-	field.name = schema.ref(node.field_name);
+	field.name = node.field_name;
 
 	if (node.optional_condition) {
 		field.condition = build_bool_expr(schema, node.optional_condition.condition);
@@ -173,23 +183,23 @@ function build_struct_field(schema: Schema, struct: Struct, node: ast.StructFiel
 			break;
 
 		default:
-			schema.build_error('Invalid AST: encounted unexpected node in place of struct field type', node.field_type);
+			schema.error(node.field_type, 'Invalid AST: encounted unexpected node in place of struct field type');
 			break;
 	}
 
 	if (node.optional_value) {
-		field.field_value = build_value_expr_path(schema, node.optional_value);
+		field.field_value = build_value_expr_path(node.optional_value) as NamedRef;
 	}
 
-	struct.add_field(schema, node.field_name, field);
+	struct.add_field(node.field_name, field);
 }
 
 function build_struct_expansion(schema: Schema, struct: Struct, node: ast.StructExpansion, comments: ast.CommentToken[]) : void {
 	const expansion = new StructExpansion();
 	schema.map_ast(expansion, node);
 	expansion.comments = build_comments(comments);
-	expansion.expanded_type = build_type_expr(schema, node.expanded_type);
-	struct.add_expansion(schema, expansion);
+	expansion.expanded_type = build_type_expr(schema, node.expanded_type) as StructExpansionType;
+	struct.add_expansion(expansion);
 }
 
 
@@ -198,13 +208,19 @@ function build_struct_expansion(schema: Schema, struct: Struct, node: ast.Struct
 
 function build_enum(schema: Schema, node: ast.DeclareEnumNode, comments: ast.CommentToken[]) : void {
 	const enum_node = new Enum();
+	enum_node.parent_schema = schema;
 	enum_node.comments = build_comments(comments);
-	enum_node.name = schema.ref(node.name);
-	enum_node.member_type = build_type_expr(schema, node.value_type);
+	enum_node.name = node.name;
+
+	const member_type = build_type_expr(schema, node.value_type);
+
+	// TODO: Validate member type must be built-in
+
+	enum_node.member_type = member_type as EnumMemberType;
 
 	const child_comments: ast.CommentToken[] = [ ];
 
-	node.body.children.forEach((child) => {
+	for (const child of node.body.children) {
 		switch (child.type) {
 			case ast.node_type.whitespace:
 				// skip
@@ -221,22 +237,23 @@ function build_enum(schema: Schema, node: ast.DeclareEnumNode, comments: ast.Com
 	
 			default:
 				log.debug('encountered unexpected node as struct body child', child);
-				schema.build_error('Invalid AST: encountered unexpected node as struct body child', child);
+				schema.error(child, 'Invalid AST: encountered unexpected node as struct body child');
 				break;
 		}
-	});
+	}
 
 	schema.map_ast(enum_node, node);
-	schema.add_elem(node.name, enum_node);
+	schema.map_elem(node.name, enum_node);
+	schema.enums.push(enum_node);
 }
 
 function build_enum_member(schema: Schema, enum_node: Enum, node: ast.EnumMember, comments: ast.CommentToken[]) : void {
 	const member = new EnumMember();
 	schema.map_ast(member, node);
 	member.comments = build_comments(comments);
-	member.name = schema.ref(node.name);
+	member.name = node.name;
 	member.value = build_const(schema, node.value_expr);
-	enum_node.add_member(schema, node.name, member);
+	enum_node.add_member(node.name, member);
 }
 
 
@@ -246,12 +263,33 @@ function build_enum_member(schema: Schema, enum_node: Enum, node: ast.EnumMember
 function build_switch(schema: Schema, node: ast.DeclareSwitchNode, comments: ast.CommentToken[]) : void {
 	const switch_node = new Switch();
 	switch_node.comments = build_comments(comments);
-	switch_node.name = schema.ref(node.name);
-	switch_node.arg_type = build_type_expr(schema, node.param.param_type);
+	switch_node.name = node.name;
+
+	const arg_type = build_type_expr(schema, node.param.param_type);
+
+	if (is_type_expr_named(arg_type)) {
+		if (is_named_ref(arg_type.name)) {
+			if (arg_type.params && arg_type.params.length) {
+				schema.error(arg_type.params[0], 'Unexpected parameters for enum type expr');
+			}
+
+			else {
+				switch_node.arg_type = arg_type.name as NamedRef<Enum>;
+			}
+		}
+
+		else {
+			schema.error(arg_type, 'Expected switch arg type to be a named type expr');
+		}
+	}
+
+	else {
+		schema.error(arg_type, 'Expected switch arg type to be a named type expr');
+	}
 
 	const child_comments: ast.CommentToken[] = [ ];
 
-	node.body.children.forEach((child) => {
+	for (const child of node.body.children) {
 		switch (child.type) {
 			case ast.node_type.whitespace:
 				// skip
@@ -271,31 +309,35 @@ function build_switch(schema: Schema, node: ast.DeclareSwitchNode, comments: ast
 				break;
 	
 			default:
-				throw new Error(`Invalid AST; encountered unexpected ${ast.node_type[(child as ast.ASTNode).type]} node as struct body child`);
+				log.debug('encountered unexpected node as switch body child', child);
+				schema.error(child, `Invalid AST; encountered unexpected ${ast.node_type[(child as ast.ASTNode).type]} node as struct body child`);
+				break;
 		}
-	});
+	}
 
 	schema.map_ast(switch_node, node);
-	schema.add_elem(node.name, switch_node);
+	schema.map_elem(node.name, switch_node);
+	schema.switches.push(switch_node);
 }
 
 function build_switch_case(schema: Schema, switch_node: Switch, node: ast.SwitchCase, comments: ast.CommentToken[]) : void {
 	const case_node = new SwitchCase();
 	schema.map_ast(case_node, node);
 	case_node.comments = build_comments(comments);
-	case_node.case_value = schema.ref(node.condition_name);
+	case_node.case_value = NamedRef.from_name(node.condition_name);
+	schema.map_ast(case_node.case_value, node.condition_name);
 
 	switch (node.selection.type) {
 		case ast.node_type.kw_invalid:
-			case_node.case_type = SwitchCaseType.invalid;
+			case_node.case_type = switch_case_type.invalid;
 			break;
 
 		case ast.node_type.kw_void:
-			case_node.case_type = SwitchCaseType.void;
+			case_node.case_type = switch_case_type.void;
 			break;
 
 		default:
-			case_node.case_type = SwitchCaseType.type_expr;
+			case_node.case_type = switch_case_type.type_expr;
 			case_node.case_type_expr = build_type_expr(schema, node.selection);
 			break;
 	}
@@ -309,20 +351,20 @@ function build_switch_default(schema: Schema, switch_node: Switch, node: ast.Swi
 	case_node.comments = build_comments(comments);
 
 	if (switch_node.default) {
-		schema.build_error('Encountered more then one `default` case for `switch` declaration', node);
+		schema.error(node, 'Encountered more then one `default` case for `switch` declaration');
 	}
 
 	switch (node.selection.type) {
 		case ast.node_type.kw_invalid:
-			case_node.case_type = SwitchCaseType.invalid;
+			case_node.case_type = switch_case_type.invalid;
 			break;
 
 		case ast.node_type.kw_void:
-			case_node.case_type = SwitchCaseType.void;
+			case_node.case_type = switch_case_type.void;
 			break;
 
 		default:
-			case_node.case_type = SwitchCaseType.type_expr;
+			case_node.case_type = switch_case_type.type_expr;
 			case_node.case_type_expr = build_type_expr(schema, node.selection);
 			break;
 	}
@@ -342,30 +384,21 @@ function build_from(schema: Schema, node: ast.DeclareFromNode, comments: ast.Com
 	schema.imports.push(import_node);
 
 	if (node.root_import) {
-		const imported = new ImportedSymbol();
-		imported.from = import_node;
-		imported.imported = schema.ref('$');
-		imported.local = schema.ref(node.root_import);
+		const imported = ImportedRef.from_root_import(import_node, node);
 		schema.map_ast(imported, node.root_import);
-
-		schema.add_elem(node.root_import, imported);
-	}
-
-	else if (node.imports) {
-		node.imports.imports.forEach((node) => {
-			const name_node = node.alias_name || node.source_name;
-			const imported = new ImportedSymbol();
-			imported.from = import_node;
-			imported.imported = schema.ref(node.source_name);
-			imported.local = schema.ref(name_node);
-			schema.map_ast(imported, node);
-	
-			schema.add_elem(name_node, imported);
-		});
+		schema.imported_refs.push(imported);
+		schema.map_elem(node.root_import, imported);
 	}
 
 	else {
-		throw new Error(`Invalid AST; encountered from declaration with no imports`);
+		assert(node.imports, 'Expected DeclareFromNode to have an import list');
+
+		for (const imported_node of node.imports.imports) {
+			const imported = ImportedRef.from_imported(import_node, imported_node);
+			schema.map_ast(imported, node);
+			schema.imported_refs.push(imported);
+			schema.map_elem(imported.local_token, imported);
+		}
 	}
 }
 
@@ -413,7 +446,7 @@ function build_type_expr(schema: Schema, node: ast.TypeExpr) : TypeExpr {
 	}
 
 	log.debug('Invalid node passed to build_type_expr', node);
-	schema.build_error(`Invalid AST: encountered unexpected node when expecting type expression`, node);
+	schema.error(node, `Invalid AST: encountered unexpected node when expecting type expression`);
 	return null;
 }
 
@@ -428,7 +461,7 @@ function build_type_expr_fixed_int(schema: Schema, node: ast.TypeExpr_builtin_fi
 
 	if (! int_info) {
 		log.debug('Invalid node passed to build_type_expr_fixed_int', node);
-		schema.build_error(`Unknown fixed int type`, node);
+		schema.error(node, `Unknown fixed int type`);
 	}
 	
 	else {
@@ -451,7 +484,7 @@ function build_type_expr_float(schema: Schema, node: ast.Type_expr_builtin_float
 
 	if (! float_info) {
 		log.debug('Invalid node passed to build_type_expr_float', node);
-		schema.build_error(`Unknown float type`, node);
+		schema.error(node, `Unknown float type`);
 	}
 
 	else {
@@ -469,33 +502,33 @@ function build_type_expr_array(schema: Schema, node: ast.TypeExpr_array) : TypeE
 
 	switch (node.length_type.type) {
 		case ast.node_type.kw_null:
-			expr.length_type = ArrayLengthType.null_terminated;
+			expr.length_type = len_type.null_terminated;
 			break;
 
 		case ast.node_type.op_expansion:
-			expr.length_type = ArrayLengthType.take_remaining;
+			expr.length_type = len_type.take_remaining;
 			break;
 
 		case ast.node_type.const_int:
 		case ast.node_type.const_hex_int:
-			expr.length_type = ArrayLengthType.static_length;
+			expr.length_type = len_type.static_length;
 			expr.static_length = build_int_const(schema, node.length_type);
 			break;
 
 		case ast.node_type.value_expr_path:
-			expr.length_type = ArrayLengthType.length_field;
-			expr.length_field = build_value_expr_path(schema, node.length_type) as ValueExpr<TypeExpr_length>;
+			expr.length_type = len_type.length_field;
+			expr.length_field = build_value_expr_path(node.length_type) as NamedRef<StructField<TypeExpr_length>>;
 			break;
 
 		case ast.node_type.name_builtin_uint:
 		case ast.node_type.name_builtin_sint:
 		case ast.node_type.name_builtin_bit:
-			expr.length_type = ArrayLengthType.length_prefix;
+			expr.length_type = len_type.length_prefix;
 			expr.length_prefix = build_type_expr_fixed_int(schema, node.length_type);
 			break;
 
 		case ast.node_type.type_expr_vint:
-			expr.length_type = ArrayLengthType.length_prefix;
+			expr.length_type = len_type.length_prefix;
 			expr.length_prefix = build_type_expr_vint(schema, node.length_type);
 			break;
 	}
@@ -507,7 +540,7 @@ function build_type_expr_checksum(schema: Schema, node: ast.TypeExpr_builtin_che
 	const expr = new TypeExpr_checksum();
 	schema.map_ast(expr, node);
 	expr.real_type = build_type_expr(schema, node.real_type);
-	expr.data_expr = build_value_expr_path(schema, node.data_expr);
+	expr.data_expr = build_value_expr_path(node.data_expr) as NamedRef<StructField>;
 	expr.func_name = build_string_const(schema, node.checksum_func);
 	return expr;
 }
@@ -522,7 +555,7 @@ function build_type_expr_len(schema: Schema, node: ast.TypeExpr_builtin_len) : T
 	}
 
 	else {
-		schema.build_error('Expected `len<real_type>` to have an integer type expr for `real_type`', node.real_type);
+		schema.error(real_type, 'Expected `len<real_type>` to have an integer type expr for `real_type`');
 	}
 
 	return expr;
@@ -531,11 +564,13 @@ function build_type_expr_len(schema: Schema, node: ast.TypeExpr_builtin_len) : T
 function build_type_expr_named(schema: Schema, node: ast.TypeExpr_named) : TypeExpr_named {
 	const expr = new TypeExpr_named();
 	schema.map_ast(expr, node);
-	expr.name = schema.ref(node.name);
+	expr.name = node.name.type === ast.node_type.name_root_schema
+		? RootRef.from_name(node.name)
+		: NamedRef.from_name(node.name);
 
 	if (node.params) {
 		expr.params.push(
-			...node.params.params.map((param) => build_value_expr_path(schema, param.param))
+			...node.params.params.map((param) => build_value_expr_path(param.param))
 		);
 	}
 
@@ -553,20 +588,18 @@ function build_type_expr_named_refinement(schema: Schema, node: ast.TypeExpr_nam
 function build_type_expr_struct_refinement(schema: Schema, node: ast.TypeExpr_struct_refinement) : TypeExpr_struct_refine {
 	const expr = new TypeExpr_struct_refine();
 	schema.map_ast(expr, node);
-
-	// TODO: build_type_expr_struct_refinement
-	log.warn('build_type_expr_struct_refinement not yet implemented');
-	
+	expr.parent_type = build_type_expr(schema, node.parent_type);
+	// TODO:
+	// expr.refined_type = build_struct_inline();
 	return expr;
 }
 
 function build_type_expr_switch_refinement(schema: Schema, node: ast.TypeExpr_switch_refinement) : TypeExpr_switch_refine {
 	const expr = new TypeExpr_switch_refine();
 	schema.map_ast(expr, node);
-
-	// TODO: build_type_expr_switch_refinement
-	log.warn('build_type_expr_switch_refinement not yet implemented');
-	
+	expr.parent_type = build_type_expr(schema, node.parent_type);
+	// TODO:
+	// expr.refined_type = build_switch_inline();
 	return expr;
 }
 
@@ -578,33 +611,33 @@ function build_type_expr_text(schema: Schema, node: ast.TypeExpr_builtin_text) :
 
 	switch (node.length_type.type) {
 		case ast.node_type.kw_null:
-			expr.length_type = TextLengthType.null_terminated;
+			expr.length_type = len_type.null_terminated;
 			break;
 
 		case ast.node_type.op_expansion:
-			expr.length_type = TextLengthType.take_remaining;
+			expr.length_type = len_type.take_remaining;
 			break;
 
 		case ast.node_type.const_int:
 		case ast.node_type.const_hex_int:
-			expr.length_type = TextLengthType.static_length;
+			expr.length_type = len_type.static_length;
 			expr.static_length = build_int_const(schema, node.length_type);
 			break;
 
 		// case ast.node_type.value_expr_path:
-		// 	expr.length_type = TextLengthType.length_field;
-		// 	// TODO: length field
+		// 	expr.length_type = LengthType.length_field;
+		// 	expr.length_field = build_value_expr_path(node.length_type) as NamedRef<StructField<TypeExpr_length>>;
 		// 	break;
 
 		case ast.node_type.name_builtin_uint:
 		case ast.node_type.name_builtin_sint:
 		case ast.node_type.name_builtin_bit:
-			expr.length_type = TextLengthType.length_prefix;
+			expr.length_type = len_type.length_prefix;
 			expr.length_prefix = build_type_expr_fixed_int(schema, node.length_type);
 			break;
 
 		case ast.node_type.type_expr_vint:
-			expr.length_type = TextLengthType.length_prefix;
+			expr.length_type = len_type.length_prefix;
 			expr.length_prefix = build_type_expr_vint(schema, node.length_type);
 			break;
 	}
@@ -631,7 +664,7 @@ function build_type_expr_vint(schema: Schema, node: ast.TypeExpr_builtin_vint) :
 	}
 	
 	else {
-		schema.build_error('Expected `len<real_type>` to have an integer type expr for `real_type`', node.real_type);
+		schema.error(real_type, 'Expected `len<real_type>` to have an integer type expr for `real_type`');
 	}
 
 	return expr;
@@ -649,109 +682,103 @@ function is_non_static_int(node: TypeExpr) : node is TypeExpr_fixed_int | TypeEx
 
 // ===== Value Expr =====
 
-function build_value_expr_path(schema: Schema, node: ast.ValueExpr_path) : ValueExpr {
-	const expr = new ValueExpr();
-	schema.map_ast(expr, node);
+function build_value_expr_path(ast_node: ast.ValueExpr_path) : NamedRef | RootRef | SelfRef {
+	let ref: NamedRef | RootRef | SelfRef;
 
-	switch (node.lh_name.type) {
+	switch (ast_node.lh_name.type) {
 		case ast.node_type.name_root_schema:
-			expr.root_type = ValueExprRootType.root_schema;
+			ref = RootRef.from_name(ast_node.lh_name);
 			break;
 
 		case ast.node_type.name_this_schema:
-			expr.root_type = ValueExprRootType.this_schema;
+			ref = SelfRef.from_name(ast_node.lh_name);
 			break;
 
 		case ast.node_type.name_normal:
-			expr.root_type = ValueExprRootType.named;
+			ref = NamedRef.from_name(ast_node.lh_name);
 			break;
 	}
 
-	expr.names.push(
-		schema.ref(node.lh_name),
-		...node.rh_names.map((access) => schema.ref(access.field_name))
-	);
+	for (const access of ast_node.rh_names) {
+		ref = NamedRef.from_name(access.field_name, ref as any as Ref<NamedParentRefable>);
+	}
 
-	return expr;
+	return ref;
 }
 
 
 
 // ===== Bool Expr =====
 
-function build_bool_expr(schema: Schema, node: ast.BoolExpr) : BoolExpr {
+function build_bool_expr(schema: Schema, ast_node: ast.BoolExpr) : BoolExpr {
 	let is_not = false;
-	let logical_op: BoolExprLogicalOperator;
-	let comparison_op: BoolExprComparisonOperator;
+	let logical_op: bool_expr_op_logical;
+	let comparison_op: bool_expr_op_compare;
 
-	switch (node.type) {
+	switch (ast_node.type) {
 		case ast.node_type.bool_expr_not:
 			is_not = true;
-			logical_op = BoolExprLogicalOperator.not;
+			logical_op = bool_expr_op_logical.not;
 			break;
 
 		case ast.node_type.bool_expr_and:
-			logical_op = BoolExprLogicalOperator.not;
+			logical_op = bool_expr_op_logical.not;
 			break;
 
 		case ast.node_type.bool_expr_or:
-			logical_op = BoolExprLogicalOperator.or;
+			logical_op = bool_expr_op_logical.or;
 			break;
 
 		case ast.node_type.bool_expr_xor:
-			logical_op = BoolExprLogicalOperator.xor;
+			logical_op = bool_expr_op_logical.xor;
 			break;
 
 		case ast.node_type.bool_expr_eq:
-			comparison_op = BoolExprComparisonOperator.eq;
+			comparison_op = bool_expr_op_compare.eq;
 			break;
 			
 		case ast.node_type.bool_expr_neq:
-			comparison_op = BoolExprComparisonOperator.neq;
+			comparison_op = bool_expr_op_compare.neq;
 			break;
 
 		default:
-			log.debug('Invalid node passed to build_bool_expr', node);
-			schema.build_error(`Invalid AST: encountered unexpected node when expecting bool expression`, node);
+			log.debug('Invalid node passed to build_bool_expr', ast_node);
+			schema.error(ast_node, `Invalid AST: encountered unexpected node when expecting bool expression`);
 			return null;
 	}
 
 	if (logical_op) {
 		const expr = new BoolExpr_logical();
-		schema.map_ast(expr, node);
+		schema.map_ast(expr, ast_node);
 		expr.operator = logical_op;
 
 		if (is_not) {
-			const node_ = node as ast.BoolExpr_not;
+			const node_ = ast_node as ast.BoolExpr_not;
 			expr.lh_expr = build_bool_expr(schema, node_.expr);
 			return expr;
 		}
 		
-		const node_ = node as ast.BoolExpr_and | ast.BoolExpr_or | ast.BoolExpr_xor;
-		expr.lh_expr = build_bool_expr(schema, node_.lh_expr);
+		const node = ast_node as ast.BoolExpr_and | ast.BoolExpr_or | ast.BoolExpr_xor;
+		expr.lh_expr = build_bool_expr(schema, node.lh_expr);
 		return expr;
 	}
 
-	const node_ = node as ast.BoolExpr_eq | ast.BoolExpr_neq;
+	const node = ast_node as ast.BoolExpr_eq | ast.BoolExpr_neq;
 	const expr = new BoolExpr_comparison();
-	schema.map_ast(expr, node);
+	schema.map_ast(expr, ast_node);
 	expr.operator = comparison_op;
-	expr.lh_expr = node_.lh_expr.type === ast.node_type.value_expr_path
-		? build_value_expr_path(schema, node_.lh_expr)
-		: build_const(schema, node_.lh_expr);
-	expr.rh_expr = node_.rh_expr.type === ast.node_type.value_expr_path
-		? build_value_expr_path(schema, node_.rh_expr)
-		: build_const(schema, node_.rh_expr);
+	expr.lh_expr = node.lh_expr.type === ast.node_type.value_expr_path
+		? build_value_expr_path(node.lh_expr)
+		: build_const(schema, node.lh_expr);
+	expr.rh_expr = node.rh_expr.type === ast.node_type.value_expr_path
+		? build_value_expr_path(node.rh_expr)
+		: build_const(schema, node.rh_expr);
 }
 
 
 
 
 // ===== Other =====
-
-function build_comments(comments: ast.CommentToken[]) : Comment[] {
-	return comments.map((comment) => new Comment(comment));
-}
 
 function build_const(schema: Schema, node: ast.ConstToken_ascii | ast.ConstToken_unicode | ast.ConstToken_int | ast.ConstToken_hex_int) : ConstInt | ConstString {
 	switch (node.type) {
@@ -765,63 +792,18 @@ function build_const(schema: Schema, node: ast.ConstToken_ascii | ast.ConstToken
 
 		default:
 			log.debug('Invalid node passed to build_const', node);
-			schema.build_error(`Invalid AST: encountered unexpected node when expecting const literal`, node);
+			schema.error(node, `Invalid AST: encountered unexpected node when expecting const literal`);
 	}
 }
 
 function build_string_const(schema: Schema, node: ast.ConstToken_ascii | ast.ConstToken_unicode) : ConstString {
-	const string = new ConstString();
-	string.unicode = node.type === ast.node_type.const_unicode;
-	string.value = node.text.slice(1, -1);
-
-	const ascii_escape = /\\(?:\\|n|r|t|b|0|x[0-9a-fA-F]{2})/g;
-	const unicode_escape = /\\(?:\\|n|r|t|b|0|x[0-9a-fA-F]{2}|u\{[0-9a-fA-F]{2,5}\})/g;
-
-	if (string.unicode) {
-		string.value = string.value.replace(unicode_escape, (match: string) : string => {
-			switch (match[1]) {
-				case '\\': return '\\';
-				case 'n': return '\n';
-				case 'r': return '\r';
-				case 't': return '\t';
-				case 'b': return '\b';
-				case '0': return '\0';
-				case 'x': {
-					const byte = parseInt(match.slice(2), 16);
-					return String.fromCharCode(byte);
-				};
-				case 'u': {
-					const code_point = parseInt(match.slice(3, -1), 16);
-					return String.fromCodePoint(code_point);
-				};
-			}
-		});
-	}
-
-	else {
-		string.value = string.value.replace(ascii_escape, (match: string) : string => {
-			switch (match[1]) {
-				case '\\': return '\\';
-				case 'n': return '\n';
-				case 'r': return '\r';
-				case 't': return '\t';
-				case 'b': return '\b';
-				case '0': return '\0';
-				case 'x': {
-					const byte = parseInt(match.slice(2), 16);
-					return String.fromCharCode(byte);
-				};
-			}
-		});
-	}
-
+	const string = ConstString.from_ast(node);
 	schema.map_ast(string, node);
 	return string;
 }
 
 function build_int_const(schema: Schema, node: ast.ConstToken_int | ast.ConstToken_hex_int) : ConstInt {
-	const int = new ConstInt();
-	int.value = BigInt(node.text);
+	const int = ConstInt.from_ast(node);
 	schema.map_ast(int, node);
 	return int;
 }

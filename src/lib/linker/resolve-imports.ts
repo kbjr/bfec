@@ -5,12 +5,6 @@ import { link_locals } from './link-locals';
 import { LinkerOptions } from './opts';
 
 export async function resolve_imports(from: Schema, opts: LinkerOptions, deps: Map<string, Promise<Schema>>, errors: BuildError[]) {
-	// Propagate any errors that occured from building the schema up to the
-	// "project level" error list
-	for (const error of from.errors) {
-		errors.push(error);
-	}
-
 	if (from.imports.length && ! opts.resolve_import) {
 		const node = from.include_source_maps
 			? from.source_map.get(from.imports[0])
