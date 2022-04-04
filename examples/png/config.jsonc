@@ -12,7 +12,7 @@
     "as": "./as",
     "md": {
       "dir": "./md",
-      "source_url": "https://github.com/kbjr/bfec/blob/schema-rework/examples/png/",
+      "source_url": "https://github.com/kbjr/bfec/blob/master/examples/png/",
       "include_external": false,
       "include_remote": false
     }
