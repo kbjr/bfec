@@ -9,6 +9,7 @@ export interface MarkdownCompilerOptions {
 	source_url?: string;
 	include_external?: boolean;
 	include_remote?: boolean;
+	no_generator_comment?: boolean;
 }
 
 export async function compile_to_markdown(schema: sch.Schema, opts: MarkdownCompilerOptions) {
@@ -38,14 +39,20 @@ export async function compile_to_markdown(schema: sch.Schema, opts: MarkdownComp
 async function compile_schema(schema: sch.Schema, opts: MarkdownCompilerOptions) {
 	log.verbose('Compiling schema to markdown', schema.source);
 
-	const lines: string[] = [
-		'<!-- THIS FILE WAS AUTOMATICALLY GENERATED -->\n'
+	const lines: string[] = opts.no_generator_comment ? [ ] : [
+		'',
+		'<!--',
+		' THIS FILE WAS AUTOMATICALLY GENERATED',
+		` ${(new Date).toISOString()}`,
+		'-->',
+		''
 	];
+
 	const src_link = source_link(opts.source_url, schema);
 
 	for (const struct of schema.structs) {
 		lines.push(`## ${struct.name.text}\n`);
-		lines.push(`**Struct (${struct.byte_aligned ? 'Byte Aligned' : 'Packed'})**\n`);
+		lines.push(`**Struct** (${struct.byte_aligned ? 'Byte Aligned' : 'Packed'})\n`);
 		lines.push(`_Source: ${src_link(line_number(schema, struct))}_\n`);
 		lines.push(comments(struct.comments) + '\n');
 		struct_param_list(struct, lines);
@@ -58,7 +65,7 @@ async function compile_schema(schema: sch.Schema, opts: MarkdownCompilerOptions)
 		lines.push(`**Type:** ${enum_ref(switch_node.arg_type)}\n`);
 		lines.push(`_Source: ${src_link(line_number(schema, switch_node))}_\n`);
 		lines.push(comments(switch_node.comments) + '\n');
-		// 
+		// TODO: Cases / Default
 	}
 
 	for (const enum_node of schema.enums) {
@@ -67,7 +74,7 @@ async function compile_schema(schema: sch.Schema, opts: MarkdownCompilerOptions)
 		lines.push(`**Type:** ${type_expr(enum_node.member_type)}\n`);
 		lines.push(`_Source: ${src_link(line_number(schema, enum_node))}_\n`);
 		lines.push(comments(enum_node.comments) + '\n');
-		// 
+		// TODO: Members
 	}
 
 	const contents = lines.join('\n');
@@ -100,6 +107,8 @@ function struct_param_list(struct: sch.Struct, lines: string[]) {
 
 		lines.push(`| ${name} | ${type} | ${fields.join(', ')} |`);
 	}
+
+	lines.push('');
 }
 
 function struct_field_list(struct: sch.Struct, lines: string[]) {
@@ -117,6 +126,8 @@ function struct_field_list(struct: sch.Struct, lines: string[]) {
 			lines.push(`| (todo: struct expansion) | ${type_expr(field.expanded_type)} | |`)
 		}
 	}
+
+	lines.push('');
 }
 
 function struct_field(field: sch.StructField, lines: string[], name_prefix = '') {
@@ -221,19 +232,20 @@ function type_expr(expr: sch.TypeExpr | sch.Const, wrap = true) {
 	}
 
 	if (sch.is_type_expr_checksum(expr)) {
+		const real_type = type_expr(expr.real_type, false);
+		const func_name = expr.func_name.token.text;
 		// TODO:
-		return code('checksum', wrap);
+		const data_expr = '(todo: value expr)';
+		return code(`checksum<${real_type}>(${data_expr}, ${func_name})`, wrap);
 	}
 
 	if (sch.is_type_expr_named(expr)) {
 		const name = expr.name.name;
 		const refed = expr.name.points_to;
 		
-		// if (expr.params && expr.params.length) {
-		// 	// TODO:
-		// 	`<code><a href=""></a></code>`
-		// 	return '';
-		// }
+		if (expr.params && expr.params.length) {
+			// TODO:
+		}
 		
 		let url = '#';
 
@@ -263,11 +275,20 @@ function type_expr(expr: sch.TypeExpr | sch.Const, wrap = true) {
 	if (sch.is_type_expr_switch_refine(expr)) {
 		const parent_type = type_expr(expr.parent_type, false);
 		const param_type = type_expr(expr.refined_type.arg_type, false);
+		// TODO:
 		// expr.param_expr
 		return code(`${parent_type} -> switch <${param_type}> ((todo: param expr))`, wrap);
 	}
 
 	return code('(unknown)', wrap);
+}
+
+function value_expr() {
+	// 
+}
+
+function bool_expr() {
+	// 
 }
 
 function code(content: string, wrap = true) {
@@ -317,12 +338,6 @@ function out_file_name(schema: sch.Schema) {
 		const parsed = new URL(schema.source);
 		return `$remote/${parsed.protocol}/${parsed.host}/${parsed.pathname.slice(1)}.md`;
 	}
-}
-
-function imported_ref(ref: sch.ImportedRef) {
-	const name = (ref.source_token || ref.local_token).text;
-	const file = out_file_name(ref.from.source_schema);
-	return `[${name}](${file}#${name})`;
 }
 
 function comments(nodes: sch.Comment[]) {
