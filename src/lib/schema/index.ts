@@ -198,7 +198,7 @@ function build_struct_field(schema: Schema, struct: Struct, node: ast.StructFiel
 	}
 
 	if (node.optional_value) {
-		field.field_value = build_value_expr_path(node.optional_value) as NamedRef;
+		field.field_value = build_value_expr_path(schema, node.optional_value) as NamedRef;
 	}
 
 	struct.add_field(node.field_name, field);
@@ -389,6 +389,7 @@ function build_switch_default(schema: Schema, switch_node: Switch, node: ast.Swi
 
 function build_from(schema: Schema, node: ast.DeclareFromNode, comments: ast.CommentToken[]) : void {
 	const import_node = new Import();
+	schema.map_ast(import_node, node);
 	import_node.parent_schema = schema;
 	import_node.comments = build_comments(comments);
 	import_node.source_expr = build_string_const(schema, node.source);
@@ -529,7 +530,7 @@ function build_type_expr_array(schema: Schema, node: ast.TypeExpr_array) : TypeE
 
 		case ast.node_type.value_expr_path:
 			expr.length_type = len_type.length_field;
-			expr.length_field = build_value_expr_path(node.length_type) as NamedRef<StructField<TypeExpr_length>>;
+			expr.length_field = build_value_expr_path(schema, node.length_type) as NamedRef<StructField<TypeExpr_length>>;
 			break;
 
 		case ast.node_type.name_builtin_uint:
@@ -552,7 +553,7 @@ function build_type_expr_checksum(schema: Schema, node: ast.TypeExpr_builtin_che
 	const expr = new TypeExpr_checksum();
 	schema.map_ast(expr, node);
 	expr.real_type = build_type_expr(schema, node.real_type);
-	expr.data_expr = build_value_expr_path(node.data_expr) as NamedRef<StructField>;
+	expr.data_expr = build_value_expr_path(schema, node.data_expr) as NamedRef<StructField>;
 	expr.func_name = build_string_const(schema, node.checksum_func);
 	return expr;
 }
@@ -580,9 +581,11 @@ function build_type_expr_named(schema: Schema, node: ast.TypeExpr_named) : TypeE
 		? RootRef.from_name(node.name)
 		: NamedRef.from_name(node.name);
 
+	schema.map_ast(expr.name, node.name);
+
 	if (node.params) {
 		expr.params.push(
-			...node.params.params.map((param) => build_value_expr_path(param.param))
+			...node.params.params.map((param) => build_value_expr_path(schema, param.param))
 		);
 	}
 
@@ -671,7 +674,7 @@ function build_type_expr_text(schema: Schema, node: ast.TypeExpr_builtin_text) :
 
 		// case ast.node_type.value_expr_path:
 		// 	expr.length_type = LengthType.length_field;
-		// 	expr.length_field = build_value_expr_path(node.length_type) as NamedRef<StructField<TypeExpr_length>>;
+		// 	expr.length_field = build_value_expr_path(schema, node.length_type) as NamedRef<StructField<TypeExpr_length>>;
 		// 	break;
 
 		case ast.node_type.name_builtin_uint:
@@ -727,7 +730,7 @@ function is_non_static_int(node: TypeExpr) : node is TypeExpr_fixed_int | TypeEx
 
 // ===== Value Expr =====
 
-function build_value_expr_path(ast_node: ast.ValueExpr_path) : NamedRef | RootRef | SelfRef {
+function build_value_expr_path(schema: Schema, ast_node: ast.ValueExpr_path) : NamedRef | RootRef | SelfRef {
 	let ref: NamedRef | RootRef | SelfRef;
 
 	switch (ast_node.lh_name.type) {
@@ -744,8 +747,11 @@ function build_value_expr_path(ast_node: ast.ValueExpr_path) : NamedRef | RootRe
 			break;
 	}
 
+	schema.map_ast(ref, ast_node.lh_name);
+
 	for (const access of ast_node.rh_names) {
 		ref = NamedRef.from_name(access.field_name, ref as any as Ref<NamedParentRefable>);
+		schema.map_ast(ref, access.field_name);
 	}
 
 	return ref;
@@ -813,10 +819,10 @@ function build_bool_expr(schema: Schema, ast_node: ast.BoolExpr) : BoolExpr {
 	schema.map_ast(expr, ast_node);
 	expr.operator = comparison_op;
 	expr.lh_expr = node.lh_expr.type === ast.node_type.value_expr_path
-		? build_value_expr_path(node.lh_expr)
+		? build_value_expr_path(schema, node.lh_expr)
 		: build_const(schema, node.lh_expr);
 	expr.rh_expr = node.rh_expr.type === ast.node_type.value_expr_path
-		? build_value_expr_path(node.rh_expr)
+		? build_value_expr_path(schema, node.rh_expr)
 		: build_const(schema, node.rh_expr);
 }
 

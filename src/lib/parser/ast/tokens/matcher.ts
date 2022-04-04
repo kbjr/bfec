@@ -12,7 +12,7 @@ export class TokenMatcher<T extends Token> {
 	public match(state: ParserState) : T {
 		state.trace('match', this.name || this.pattern);
 
-		if (! advance_state_to_next_non_empty_line(state)) {
+		if (advance_state_to_next_non_empty_line(state) < 0) {
 			return null;
 		}
 
@@ -48,7 +48,7 @@ export class SimpleTokenMatcher<T extends Token> {
 	public match(state: ParserState) : T {
 		state.trace('match', this.name || this.pattern);
 
-		if (! advance_state_to_next_non_empty_line(state)) {
+		if (advance_state_to_next_non_empty_line(state) < 0) {
 			return null;
 		}
 		
@@ -83,7 +83,7 @@ export class FencedTokenMatcher<T extends Token> {
 	public match(state: ParserState) : T {
 		state.trace('match', this.name || `${this.open_pattern} => ${this.close_pattern}`);
 
-		if (! advance_state_to_next_non_empty_line(state)) {
+		if (advance_state_to_next_non_empty_line(state) < 0) {
 			return null;
 		}
 		
@@ -144,17 +144,19 @@ export class FencedTokenMatcher<T extends Token> {
 
 function advance_state_to_next_non_empty_line(state: ParserState) {
 	if (state.line >= state.lines.length) {
-		return false;
+		return -1;
 	}
+	
+	const start = state.line;
 
 	while (state.char >= state.lines[state.line].length) {
 		state.line++;
 		state.char = 0;
 
-		if (! state.lines[state.line]) {
-			return false;
+		if (state.lines[state.line] == null) {
+			return -2;
 		}
 	}
 
-	return true;
+	return state.line - start;
 }

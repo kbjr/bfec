@@ -55,7 +55,7 @@ async function compile_schema(schema: sch.Schema, opts: MarkdownCompilerOptions)
 	for (const switch_node of schema.switches) {
 		lines.push(`## ${switch_node.name.text}\n`);
 		lines.push('**Switch**\n');
-		// TODO: arg type
+		lines.push(`**Type:** ${enum_ref(switch_node.arg_type)}\n`);
 		lines.push(`_Source: ${src_link(line_number(schema, switch_node))}_\n`);
 		lines.push(comments(switch_node.comments) + '\n');
 		// 
@@ -64,7 +64,7 @@ async function compile_schema(schema: sch.Schema, opts: MarkdownCompilerOptions)
 	for (const enum_node of schema.enums) {
 		lines.push(`## ${enum_node.name.text}\n`);
 		lines.push('**Enum**\n');
-		// TODO: member type
+		lines.push(`**Type:** ${type_expr(enum_node.member_type)}\n`);
 		lines.push(`_Source: ${src_link(line_number(schema, enum_node))}_\n`);
 		lines.push(comments(enum_node.comments) + '\n');
 		// 
@@ -139,6 +139,23 @@ function struct_field(field: sch.StructField, lines: string[], name_prefix = '')
 		}
 		// 
 	}
+}
+
+function enum_ref(ref: sch.NamedRef<sch.Enum>) {
+	const name = ref.name;
+	const refed = ref.points_to;
+	
+	let url = '#';
+
+	if (sch.is_imported_ref(refed)) {
+		url = out_file_name(refed.from.source_schema) + '#' + name;
+	}
+
+	else if (sch.is_enum(refed)) {
+		url = '#' + name.toLowerCase();
+	}
+
+	return code(`<a href="${url}">${name}</a>`);
 }
 
 function type_expr(expr: sch.TypeExpr | sch.Const, wrap = true) {

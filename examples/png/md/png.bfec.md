@@ -4,9 +4,10 @@
 
 **Struct (Byte Aligned)**
 
-_Source: [~/png.bfec#L7](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L7)_
+_Source: [~/png.bfec#L9](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L9)_
 
 PNG Image Format
+
 https://www.w3.org/TR/PNG
 
 ### Fields
@@ -20,7 +21,7 @@ https://www.w3.org/TR/PNG
 
 **Struct (Byte Aligned)**
 
-_Source: [~/png.bfec#L17](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L17)_
+_Source: [~/png.bfec#L21](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L21)_
 
 
 
@@ -41,7 +42,7 @@ _Source: [~/png.bfec#L17](https://github.com/kbjr/bfec/blob/schema-rework/exampl
 
 **Struct (Byte Aligned)**
 
-_Source: [~/png.bfec#L81](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L81)_
+_Source: [~/png.bfec#L92](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L92)_
 
 
 
@@ -60,7 +61,7 @@ _Source: [~/png.bfec#L81](https://github.com/kbjr/bfec/blob/schema-rework/exampl
 
 **Struct (Byte Aligned)**
 
-_Source: [~/png.bfec#L97](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L97)_
+_Source: [~/png.bfec#L110](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L110)_
 
 
 
@@ -75,7 +76,7 @@ _Source: [~/png.bfec#L97](https://github.com/kbjr/bfec/blob/schema-rework/exampl
 
 **Struct (Byte Aligned)**
 
-_Source: [~/png.bfec#L108](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L108)_
+_Source: [~/png.bfec#L123](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L123)_
 
 
 
@@ -88,7 +89,7 @@ _Source: [~/png.bfec#L108](https://github.com/kbjr/bfec/blob/schema-rework/examp
 
 **Struct (Byte Aligned)**
 
-_Source: [~/png.bfec#L111](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L111)_
+_Source: [~/png.bfec#L127](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L127)_
 
 
 
@@ -103,7 +104,7 @@ _Source: [~/png.bfec#L111](https://github.com/kbjr/bfec/blob/schema-rework/examp
 
 **Struct (Byte Aligned)**
 
-_Source: [~/png.bfec#L116](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L116)_
+_Source: [~/png.bfec#L133](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L133)_
 
 
 
@@ -116,7 +117,7 @@ _Source: [~/png.bfec#L116](https://github.com/kbjr/bfec/blob/schema-rework/examp
 
 **Struct (Byte Aligned)**
 
-_Source: [~/png.bfec#L119](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L119)_
+_Source: [~/png.bfec#L137](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L137)_
 
 
 
@@ -136,7 +137,7 @@ _Source: [~/png.bfec#L119](https://github.com/kbjr/bfec/blob/schema-rework/examp
 
 **Struct (Byte Aligned)**
 
-_Source: [~/png.bfec#L129](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L129)_
+_Source: [~/png.bfec#L148](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L148)_
 
 
 
@@ -149,7 +150,7 @@ _Source: [~/png.bfec#L129](https://github.com/kbjr/bfec/blob/schema-rework/examp
 
 **Struct (Byte Aligned)**
 
-_Source: [~/png.bfec#L132](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L132)_
+_Source: [~/png.bfec#L152](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L152)_
 
 
 
@@ -164,7 +165,7 @@ _Source: [~/png.bfec#L132](https://github.com/kbjr/bfec/blob/schema-rework/examp
 
 **Struct (Byte Aligned)**
 
-_Source: [~/png.bfec#L145](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L145)_
+_Source: [~/png.bfec#L167](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L167)_
 
 
 
@@ -178,7 +179,7 @@ _Source: [~/png.bfec#L145](https://github.com/kbjr/bfec/blob/schema-rework/examp
 
 **Struct (Byte Aligned)**
 
-_Source: [~/png.bfec#L149](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L149)_
+_Source: [~/png.bfec#L172](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L172)_
 
 
 
@@ -194,7 +195,7 @@ _Source: [~/png.bfec#L149](https://github.com/kbjr/bfec/blob/schema-rework/examp
 
 **Struct (Byte Aligned)**
 
-_Source: [~/png.bfec#L161](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L161)_
+_Source: [~/png.bfec#L186](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L186)_
 
 
 
@@ -207,7 +208,7 @@ _Source: [~/png.bfec#L161](https://github.com/kbjr/bfec/blob/schema-rework/examp
 
 **Struct (Byte Aligned)**
 
-_Source: [~/png.bfec#L164](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L164)_
+_Source: [~/png.bfec#L190](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L190)_
 
 
 
@@ -221,7 +222,7 @@ _Source: [~/png.bfec#L164](https://github.com/kbjr/bfec/blob/schema-rework/examp
 
 **Struct (Byte Aligned)**
 
-_Source: [~/png.bfec#L168](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L168)_
+_Source: [~/png.bfec#L195](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L195)_
 
 
 
@@ -236,7 +237,7 @@ _Source: [~/png.bfec#L168](https://github.com/kbjr/bfec/blob/schema-rework/examp
 
 **Struct (Byte Aligned)**
 
-_Source: [~/png.bfec#L177](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L177)_
+_Source: [~/png.bfec#L206](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L206)_
 
 
 
@@ -254,7 +255,7 @@ _Source: [~/png.bfec#L177](https://github.com/kbjr/bfec/blob/schema-rework/examp
 
 **Struct (Byte Aligned)**
 
-_Source: [~/png.bfec#L193](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L193)_
+_Source: [~/png.bfec#L224](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L224)_
 
 
 
@@ -267,7 +268,7 @@ _Source: [~/png.bfec#L193](https://github.com/kbjr/bfec/blob/schema-rework/examp
 
 **Struct (Byte Aligned)**
 
-_Source: [~/png.bfec#L196](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L196)_
+_Source: [~/png.bfec#L228](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L228)_
 
 
 
@@ -282,7 +283,7 @@ _Source: [~/png.bfec#L196](https://github.com/kbjr/bfec/blob/schema-rework/examp
 
 **Struct (Byte Aligned)**
 
-_Source: [~/png.bfec#L201](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L201)_
+_Source: [~/png.bfec#L234](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L234)_
 
 
 
@@ -295,7 +296,7 @@ _Source: [~/png.bfec#L201](https://github.com/kbjr/bfec/blob/schema-rework/examp
 
 **Struct (Byte Aligned)**
 
-_Source: [~/png.bfec#L204](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L204)_
+_Source: [~/png.bfec#L238](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L238)_
 
 
 
@@ -308,7 +309,7 @@ _Source: [~/png.bfec#L204](https://github.com/kbjr/bfec/blob/schema-rework/examp
 
 **Struct (Byte Aligned)**
 
-_Source: [~/png.bfec#L211](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L211)_
+_Source: [~/png.bfec#L247](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L247)_
 
 
 
@@ -323,7 +324,7 @@ _Source: [~/png.bfec#L211](https://github.com/kbjr/bfec/blob/schema-rework/examp
 
 **Struct (Byte Aligned)**
 
-_Source: [~/png.bfec#L220](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L220)_
+_Source: [~/png.bfec#L258](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L258)_
 
 
 
@@ -339,7 +340,7 @@ _Source: [~/png.bfec#L220](https://github.com/kbjr/bfec/blob/schema-rework/examp
 
 **Struct (Byte Aligned)**
 
-_Source: [~/png.bfec#L226](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L226)_
+_Source: [~/png.bfec#L265](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L265)_
 
 
 
@@ -355,7 +356,7 @@ _Source: [~/png.bfec#L226](https://github.com/kbjr/bfec/blob/schema-rework/examp
 
 **Struct (Byte Aligned)**
 
-_Source: [~/png.bfec#L237](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L237)_
+_Source: [~/png.bfec#L278](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L278)_
 
 
 
@@ -371,7 +372,7 @@ _Source: [~/png.bfec#L237](https://github.com/kbjr/bfec/blob/schema-rework/examp
 
 **Struct (Byte Aligned)**
 
-_Source: [~/png.bfec#L244](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L244)_
+_Source: [~/png.bfec#L286](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L286)_
 
 
 
@@ -389,7 +390,9 @@ _Source: [~/png.bfec#L244](https://github.com/kbjr/bfec/blob/schema-rework/examp
 
 **Switch**
 
-_Source: [~/png.bfec#L43](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L43)_
+**Type:** <code><a href="#chunktype">ChunkType</a></code>
+
+_Source: [~/png.bfec#L49](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L49)_
 
 
 
@@ -397,7 +400,9 @@ _Source: [~/png.bfec#L43](https://github.com/kbjr/bfec/blob/schema-rework/exampl
 
 **Switch**
 
-_Source: [~/png.bfec#L102](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L102)_
+**Type:** <code><a href="#colortype">ColorType</a></code>
+
+_Source: [~/png.bfec#L116](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L116)_
 
 
 
@@ -405,7 +410,9 @@ _Source: [~/png.bfec#L102](https://github.com/kbjr/bfec/blob/schema-rework/examp
 
 **Switch**
 
-_Source: [~/png.bfec#L137](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L137)_
+**Type:** <code><a href="#colortype">ColorType</a></code>
+
+_Source: [~/png.bfec#L158](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L158)_
 
 
 
@@ -413,7 +420,9 @@ _Source: [~/png.bfec#L137](https://github.com/kbjr/bfec/blob/schema-rework/examp
 
 **Switch**
 
-_Source: [~/png.bfec#L173](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L173)_
+**Type:** <code><a href="basics.bfec.md#bool">bool</a></code>
+
+_Source: [~/png.bfec#L201](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L201)_
 
 
 
@@ -421,7 +430,9 @@ _Source: [~/png.bfec#L173](https://github.com/kbjr/bfec/blob/schema-rework/examp
 
 **Switch**
 
-_Source: [~/png.bfec#L185](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L185)_
+**Type:** <code><a href="#colortype">ColorType</a></code>
+
+_Source: [~/png.bfec#L215](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L215)_
 
 
 
@@ -429,7 +440,9 @@ _Source: [~/png.bfec#L185](https://github.com/kbjr/bfec/blob/schema-rework/examp
 
 **Switch**
 
-_Source: [~/png.bfec#L232](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L232)_
+**Type:** <code><a href="#sampledepth">SampleDepth</a></code>
+
+_Source: [~/png.bfec#L272](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L272)_
 
 
 
@@ -437,7 +450,9 @@ _Source: [~/png.bfec#L232](https://github.com/kbjr/bfec/blob/schema-rework/examp
 
 **Enum**
 
-_Source: [~/png.bfec#L23](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L23)_
+**Type:** <code>ascii<4></code>
+
+_Source: [~/png.bfec#L28](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L28)_
 
 
 
@@ -445,7 +460,9 @@ _Source: [~/png.bfec#L23](https://github.com/kbjr/bfec/blob/schema-rework/exampl
 
 **Enum**
 
-_Source: [~/png.bfec#L64](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L64)_
+**Type:** <code>u8</code>
+
+_Source: [~/png.bfec#L71](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L71)_
 
 
 
@@ -453,7 +470,9 @@ _Source: [~/png.bfec#L64](https://github.com/kbjr/bfec/blob/schema-rework/exampl
 
 **Enum**
 
-_Source: [~/png.bfec#L71](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L71)_
+**Type:** <code>u8</code>
+
+_Source: [~/png.bfec#L79](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L79)_
 
 
 
@@ -461,7 +480,9 @@ _Source: [~/png.bfec#L71](https://github.com/kbjr/bfec/blob/schema-rework/exampl
 
 **Enum**
 
-_Source: [~/png.bfec#L74](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L74)_
+**Type:** <code>u8</code>
+
+_Source: [~/png.bfec#L83](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L83)_
 
 
 
@@ -469,7 +490,9 @@ _Source: [~/png.bfec#L74](https://github.com/kbjr/bfec/blob/schema-rework/exampl
 
 **Enum**
 
-_Source: [~/png.bfec#L77](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L77)_
+**Type:** <code>u8</code>
+
+_Source: [~/png.bfec#L87](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L87)_
 
 
 
@@ -477,7 +500,9 @@ _Source: [~/png.bfec#L77](https://github.com/kbjr/bfec/blob/schema-rework/exampl
 
 **Enum**
 
-_Source: [~/png.bfec#L90](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L90)_
+**Type:** <code>u8</code>
+
+_Source: [~/png.bfec#L102](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L102)_
 
 
 
@@ -485,7 +510,9 @@ _Source: [~/png.bfec#L90](https://github.com/kbjr/bfec/blob/schema-rework/exampl
 
 **Enum**
 
-_Source: [~/png.bfec#L155](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L155)_
+**Type:** <code>u8</code>
+
+_Source: [~/png.bfec#L179](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L179)_
 
 
 
@@ -493,7 +520,9 @@ _Source: [~/png.bfec#L155](https://github.com/kbjr/bfec/blob/schema-rework/examp
 
 **Enum**
 
-_Source: [~/png.bfec#L207](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L207)_
+**Type:** <code>u8</code>
+
+_Source: [~/png.bfec#L242](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L242)_
 
 
 
@@ -501,6 +530,8 @@ _Source: [~/png.bfec#L207](https://github.com/kbjr/bfec/blob/schema-rework/examp
 
 **Enum**
 
-_Source: [~/png.bfec#L216](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L216)_
+**Type:** <code>u8</code>
+
+_Source: [~/png.bfec#L253](https://github.com/kbjr/bfec/blob/schema-rework/examples/png/png.bfec#L253)_
 
 
