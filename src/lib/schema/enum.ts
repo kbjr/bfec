@@ -1,6 +1,6 @@
 
 import { ast } from '../parser';
-import { Const } from './const';
+import { ConstInt, ConstString } from './const';
 import { Schema } from './schema';
 import { Comment } from './comment';
 import { SchemaNode } from './node';
@@ -33,7 +33,7 @@ export class EnumMember extends SchemaNode {
 	public type = 'enum_member';
 	public comments: Comment[];
 	public name: ast.NameToken_normal;
-	public value: Const;
+	public value: ConstInt | ConstString;
 }
 
 export function is_enum(node: SchemaNode) : node is Enum {

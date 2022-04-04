@@ -65,7 +65,7 @@ async function compile_schema(schema: sch.Schema, opts: MarkdownCompilerOptions)
 		lines.push(`**Type:** ${enum_ref(switch_node.arg_type)}\n`);
 		lines.push(`_Source: ${src_link(line_number(schema, switch_node))}_\n`);
 		lines.push(comments(switch_node.comments) + '\n');
-		// TODO: Cases / Default
+		switch_case_list(switch_node, lines);
 	}
 
 	for (const enum_node of schema.enums) {
@@ -74,7 +74,7 @@ async function compile_schema(schema: sch.Schema, opts: MarkdownCompilerOptions)
 		lines.push(`**Type:** ${type_expr(enum_node.member_type)}\n`);
 		lines.push(`_Source: ${src_link(line_number(schema, enum_node))}_\n`);
 		lines.push(comments(enum_node.comments) + '\n');
-		// TODO: Members
+		enum_member_list(enum_node, lines);
 	}
 
 	const contents = lines.join('\n');
@@ -153,7 +153,7 @@ function struct_field_list(struct: sch.Struct, lines: string[]) {
 
 		else if (sch.is_struct_expansion(field)) {
 			// TODO: step down and inline
-			lines.push(`| (todo: struct expansion) | ${type_expr(field.expanded_type)} | |`)
+			lines.push(`| (todo: struct expansion) | ${type_expr(field.expanded_type)} | |`);
 		}
 	}
 
@@ -188,7 +188,103 @@ function struct_field(field: sch.StructField, lines: string[], has_comments: boo
 				lines.push(`| (todo: struct expansion) | ${type_expr(sub_field.expanded_type)} | |`)
 			}
 		}
-		// 
+	}
+}
+
+function switch_case_list(switch_node: sch.Switch, lines: string[]) {
+	lines.push('### Members\n');
+	let line1 = '| Case | Value |';
+	let line2 = '|------|-------|';
+
+	let has_comments = false;
+
+	for (const case_node of switch_node.cases) {
+		if (case_node.comments.length) {
+			has_comments = true;
+		}
+	}
+
+	if (switch_node.default && switch_node.default.comments.length) {
+		has_comments = true;
+	}
+
+	if (has_comments) {
+		line1 += ' Comments |';
+		line2 += '----------|';
+	}
+
+	lines.push(line1);
+	lines.push(line2);
+
+	for (const case_node of switch_node.cases) {
+		const name = code(case_node.case_value.name);
+		const value = switch_value(case_node);
+		let line = `| ${name} | ${value} |`;
+
+		if (has_comments) {
+			line += ` ${comments(case_node.comments)} |`;
+		}
+
+		lines.push(line);
+	}
+	
+	if (switch_node.default) {
+		const case_node = switch_node.default;
+		const value = switch_value(case_node);
+		let line = `| **default** | ${value} |`;
+
+		if (has_comments) {
+			line += ` ${comments(case_node.comments)} |`;
+		}
+
+		lines.push(line);
+	}
+}
+
+function switch_value(case_node: sch.SwitchCase) {
+	switch (case_node.case_type) {
+		case sch.switch_case_type.void:
+			return '<code><b>void</b></code>';
+			
+		case sch.switch_case_type.invalid:
+			return '<code><b>invalid</b></code>';
+			
+		case sch.switch_case_type.type_expr:
+			return type_expr(case_node.case_type_expr);
+	}
+}
+
+function enum_member_list(enum_node: sch.Enum, lines: string[]) {
+	lines.push('### Members\n');
+	let line1 = '| Name | Value |';
+	let line2 = '|------|-------|';
+
+	let has_comments = false;
+
+	for (const member of enum_node.members) {
+		if (member.comments.length) {
+			has_comments = true;
+		}
+	}
+
+	if (has_comments) {
+		line1 += ' Comments |';
+		line2 += '----------|';
+	}
+
+	lines.push(line1);
+	lines.push(line2);
+
+	for (const member of enum_node.members) {
+		const name = code(member.name.text);
+		const value = code(member.value.token.text);
+		let line = `| ${name} | ${value} |`;
+
+		if (has_comments) {
+			line += ` ${comments(member.comments)} |`;
+		}
+
+		lines.push(line);
 	}
 }
 
@@ -245,8 +341,8 @@ function type_expr(expr: sch.TypeExpr | sch.Const, wrap = true) {
 				return code(`${expr.encoding}<${type_expr(expr.length_prefix, false)}>`, wrap);
 				
 			case sch.len_type.length_field:
-				return code(`${expr.encoding}<(todo: length field)>`, wrap);
-				// return code(`${expr.encoding}<${expr.length_field}>`, wrap);
+				const len = value_expr(expr.length_field);
+				return code(`${expr.encoding}<${len}>`, wrap);
 		}
 	}
 
@@ -266,16 +362,15 @@ function type_expr(expr: sch.TypeExpr | sch.Const, wrap = true) {
 				return code(`${elem_type}[${type_expr(expr.length_prefix, false)}]`, wrap);
 				
 			case sch.len_type.length_field:
-				return code(`${elem_type}[(todo: length field)]`, wrap);
-				// return code(`${expr.encoding}<${expr.length_field}>`, wrap);
+				const len = value_expr(expr.length_field);
+				return code(`${elem_type}[${len}]`, wrap);
 		}
 	}
 
 	if (sch.is_type_expr_checksum(expr)) {
 		const real_type = type_expr(expr.real_type, false);
 		const func_name = expr.func_name.token.text;
-		// TODO:
-		const data_expr = '(todo: value expr)';
+		const data_expr = value_expr(expr.data_expr);
 		return code(`checksum<${real_type}>(${data_expr}, ${func_name})`, wrap);
 	}
 
@@ -315,15 +410,14 @@ function type_expr(expr: sch.TypeExpr | sch.Const, wrap = true) {
 	if (sch.is_type_expr_switch_refine(expr)) {
 		const parent_type = type_expr(expr.parent_type, false);
 		const param_type = type_expr(expr.refined_type.arg_type, false);
-		// TODO:
-		// expr.param_expr
-		return code(`${parent_type} -> switch <${param_type}> ((todo: param expr))`, wrap);
+		const param_expr = value_expr(expr.param_expr);
+		return code(`${parent_type} -> switch <${param_type}> (${param_expr})`, wrap);
 	}
 
 	return code('(unknown)', wrap);
 }
 
-function value_expr() {
+function value_expr(expr: sch.NamedRef) {
 	// TODO:
 	return '(todo: value expr)';
 }
