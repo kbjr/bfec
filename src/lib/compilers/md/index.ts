@@ -1,6 +1,5 @@
 
 import { URL } from 'url';
-import { ast } from '../../parser';
 import * as sch from '../../schema';
 import { c_md as log } from '../../log';
 import { WriteableDir } from '../../writeable-dir';
@@ -39,22 +38,37 @@ export async function compile_to_markdown(schema: sch.Schema, opts: MarkdownComp
 async function compile_schema(schema: sch.Schema, opts: MarkdownCompilerOptions) {
 	log.verbose('Compiling schema to markdown', schema.source);
 
-	const lines: string[] = [ ];
+	const lines: string[] = [
+		'<!-- THIS FILE WAS AUTOMATICALLY GENERATED -->\n'
+	];
 	const src_link = source_link(opts.source_url, schema);
 
-	// 
-
-	lines.push('## Structs\n');
-
 	for (const struct of schema.structs) {
-		lines.push(`### ${struct.name.text}\n`);
+		lines.push(`## ${struct.name.text}\n`);
+		lines.push(`**Struct (${struct.byte_aligned ? 'Byte Aligned' : 'Packed'})**\n`);
 		lines.push(`_Source: ${src_link(line_number(schema, struct))}_\n`);
 		lines.push(comments(struct.comments) + '\n');
 		struct_param_list(struct, lines);
 		struct_field_list(struct, lines);
 	}
 
-	// 
+	for (const switch_node of schema.switches) {
+		lines.push(`## ${switch_node.name.text}\n`);
+		lines.push('**Switch**\n');
+		// TODO: arg type
+		lines.push(`_Source: ${src_link(line_number(schema, switch_node))}_\n`);
+		lines.push(comments(switch_node.comments) + '\n');
+		// 
+	}
+
+	for (const enum_node of schema.enums) {
+		lines.push(`## ${enum_node.name.text}\n`);
+		lines.push('**Enum**\n');
+		// TODO: member type
+		lines.push(`_Source: ${src_link(line_number(schema, enum_node))}_\n`);
+		lines.push(comments(enum_node.comments) + '\n');
+		// 
+	}
 
 	const contents = lines.join('\n');
 	await opts.out_dir.write_file(out_file_name(schema), contents);
@@ -65,19 +79,31 @@ function struct_param_list(struct: sch.Struct, lines: string[]) {
 		return;
 	}
 
-	lines.push('#### Params\n');
-	lines.push('| Field Name | Type |');
-	lines.push('|------------|------|');
+	lines.push('### Params\n');
+	lines.push('| Param Name | Type | Field(s) |');
+	lines.push('|------------|------|----------|');
 
 	for (const param of struct.params) {
 		const name = code(param.name.text);
 		const type = type_expr(param.param_type);
-		lines.push(`| ${name} | ${type} |`);
+		const fields = struct.fields
+			.filter((field) : field is sch.StructField => {
+				if (sch.is_struct_field(field) && field.field_value) {
+					return field.field_value.name === param.name.text;
+				}
+
+				return false;
+			})
+			.map((field) => {
+				return code(field.name.text);
+			});
+
+		lines.push(`| ${name} | ${type} | ${fields.join(', ')} |`);
 	}
 }
 
 function struct_field_list(struct: sch.Struct, lines: string[]) {
-	lines.push('#### Fields\n');
+	lines.push('### Fields\n');
 	lines.push('| Field Name | Type | Comments |');
 	lines.push('|------------|------|----------|');
 
@@ -88,14 +114,31 @@ function struct_field_list(struct: sch.Struct, lines: string[]) {
 
 		else if (sch.is_struct_expansion(field)) {
 			// TODO: step down and inline
+			lines.push(`| (todo: struct expansion) | ${type_expr(field.expanded_type)} | |`)
 		}
 	}
 }
 
-function struct_field(field: sch.StructField, lines: string[]) {
-	const name = code(field.name.text);
+function struct_field(field: sch.StructField, lines: string[], name_prefix = '') {
+	const name = code(name_prefix + field.name.text);
 	const type = type_expr(field.field_type);
 	lines.push(`| ${name} | ${type} | ${comments(field.comments)} |`);
+
+	if (sch.is_type_expr_struct_refine(field.field_type)) {
+		const struct = field.field_type.refined_type;
+
+		for (const sub_field of struct.fields) {
+			if (sch.is_struct_field(sub_field)) {
+				struct_field(sub_field, lines, `${name_prefix}${field.name.text}.`);
+			}
+	
+			else if (sch.is_struct_expansion(sub_field)) {
+				// TODO: step down and inline
+				lines.push(`| (todo: struct expansion) | ${type_expr(sub_field.expanded_type)} | |`)
+			}
+		}
+		// 
+	}
 }
 
 function type_expr(expr: sch.TypeExpr | sch.Const, wrap = true) {
@@ -166,22 +209,23 @@ function type_expr(expr: sch.TypeExpr | sch.Const, wrap = true) {
 	}
 
 	if (sch.is_type_expr_named(expr)) {
-		let url = '#';
 		const name = expr.name.name;
 		const refed = expr.name.points_to;
-
+		
 		// if (expr.params && expr.params.length) {
 		// 	// TODO:
 		// 	`<code><a href=""></a></code>`
 		// 	return '';
 		// }
+		
+		let url = '#';
 
 		if (sch.is_imported_ref(refed)) {
 			url = out_file_name(refed.from.source_schema) + '#' + name;
 		}
 
 		else if (sch.is_struct(refed) || sch.is_enum(refed) || sch.is_switch(refed)) {
-			url = out_file_name(refed.parent_schema) + '#' + name;
+			url = '#' + name.toLowerCase();
 		}
 
 		return code(`<a href="${url}">${expr.name.name}</a>`, wrap);
@@ -194,11 +238,16 @@ function type_expr(expr: sch.TypeExpr | sch.Const, wrap = true) {
 	}
 
 	if (sch.is_type_expr_struct_refine(expr)) {
-		// 
+		const parent_type = type_expr(expr.parent_type, false);
+		const struct_kw = expr.refined_type.byte_aligned ? 'struct' : 'bin';
+		return code(`${parent_type} -> ${struct_kw} { ... }`, wrap);
 	}
 
 	if (sch.is_type_expr_switch_refine(expr)) {
-		// 
+		const parent_type = type_expr(expr.parent_type, false);
+		const param_type = type_expr(expr.refined_type.arg_type, false);
+		// expr.param_expr
+		return code(`${parent_type} -> switch <${param_type}> ((todo: param expr))`, wrap);
 	}
 
 	return code('(unknown)', wrap);

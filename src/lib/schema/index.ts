@@ -601,8 +601,40 @@ function build_type_expr_struct_refinement(schema: Schema, node: ast.TypeExpr_st
 	const expr = new TypeExpr_struct_refine();
 	schema.map_ast(expr, node);
 	expr.parent_type = build_type_expr(schema, node.parent_type);
-	// TODO:
-	// expr.refined_type = build_struct_inline();
+	
+	const struct = new Struct();
+	expr.refined_type = struct;
+	schema.map_ast(struct, node);
+	struct.parent_schema = schema;
+	struct.byte_aligned = node.struct_keyword.text === 'struct';
+
+	const child_comments: ast.CommentToken[] = [ ];
+
+	node.body.children.forEach((child) => {
+		switch (child.type) {
+			case ast.node_type.whitespace:
+				// skip
+				break;
+	
+			case ast.node_type.comment_line:
+			case ast.node_type.comment_block:
+				child_comments.push(child);
+				break;
+	
+			case ast.node_type.struct_field:
+				build_struct_field(schema, struct, child, child_comments.splice(0, child_comments.length));
+				break;
+
+			case ast.node_type.struct_expansion:
+				build_struct_expansion(schema, struct, child, child_comments.splice(0, child_comments.length));
+				break;
+	
+			default:
+				schema.error(child, `Invalid AST; encountered unexpected ${ast.node_type[(child as ast.ASTNode).type]} node as struct body child`);
+				break;
+		}
+	});
+
 	return expr;
 }
 
@@ -612,6 +644,7 @@ function build_type_expr_switch_refinement(schema: Schema, node: ast.TypeExpr_sw
 	expr.parent_type = build_type_expr(schema, node.parent_type);
 	// TODO:
 	// expr.refined_type = build_switch_inline();
+	// expr.param_expr
 	return expr;
 }
 
