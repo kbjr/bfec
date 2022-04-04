@@ -113,8 +113,8 @@ function struct_param_list(struct: sch.Struct, lines: string[]) {
 
 function struct_field_list(struct: sch.Struct, lines: string[]) {
 	lines.push('### Fields\n');
-	lines.push('| Field Name | Type | Comments |');
-	lines.push('|------------|------|----------|');
+	let line1 = '| Field Name | Type |';
+	let line2 = '|------------|------|';
 
 	let has_comments = false;
 	let has_conditions = false;
@@ -132,6 +132,19 @@ function struct_field_list(struct: sch.Struct, lines: string[]) {
 			}
 		}
 	}
+
+	if (has_comments) {
+		line1 += ' Comments |';
+		line2 += '----------|';
+	}
+
+	if (has_conditions) {
+		line1 += ' Condition |';
+		line2 += '-----------|';
+	}
+
+	lines.push(line1);
+	lines.push(line2);
 
 	for (const field of struct.fields) {
 		if (sch.is_struct_field(field)) {
