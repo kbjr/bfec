@@ -92,6 +92,7 @@ export function build_schema_from_ast(file: ast.FileNode, include_source_maps: b
 function build_struct(schema: Schema, node: ast.DeclareStructNode, comments: ast.CommentToken[]) : void {
 	const struct = new Struct();
 	schema.map_ast(struct, node);
+	struct.parent_schema = schema;
 	struct.comments = build_comments(comments);
 	struct.name = node.name;
 	struct.byte_aligned = node.struct_keyword.text === 'struct';
@@ -271,6 +272,7 @@ function build_enum_member(schema: Schema, enum_node: Enum, node: ast.EnumMember
 
 function build_switch(schema: Schema, node: ast.DeclareSwitchNode, comments: ast.CommentToken[]) : void {
 	const switch_node = new Switch();
+	switch_node.parent_schema = schema;
 	switch_node.comments = build_comments(comments);
 	switch_node.name = node.name;
 
@@ -387,6 +389,7 @@ function build_switch_default(schema: Schema, switch_node: Switch, node: ast.Swi
 
 function build_from(schema: Schema, node: ast.DeclareFromNode, comments: ast.CommentToken[]) : void {
 	const import_node = new Import();
+	import_node.parent_schema = schema;
 	import_node.comments = build_comments(comments);
 	import_node.source_expr = build_string_const(schema, node.source);
 

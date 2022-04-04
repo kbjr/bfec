@@ -4,6 +4,7 @@ import { Comment } from './comment';
 import { Enum, EnumMember } from './enum';
 import { SchemaNode } from './node';
 import { NamedRef } from './ref';
+import { Schema } from './schema';
 import { TypeExpr } from './type-expr';
 
 export class Switch extends SchemaNode {
@@ -13,6 +14,7 @@ export class Switch extends SchemaNode {
 	public arg_type: NamedRef<Enum>;
 	public cases: SwitchCase[] = [ ];
 	public default?: SwitchCase;
+	public parent_schema: Schema;
 }
 
 export class SwitchCase extends SchemaNode {
@@ -27,4 +29,8 @@ export enum switch_case_type {
 	type_expr = 'type_expr',
 	void      = 'void',
 	invalid   = 'invalid',
+}
+
+export function is_switch(node: SchemaNode) : node is Switch {
+	return node instanceof Switch;
 }

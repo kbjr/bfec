@@ -9,4 +9,5 @@ export class Import extends SchemaNode {
 	public comments: Comment[] = [];
 	public source_expr: ConstString;
 	public source_schema?: Schema;
+	public parent_schema: Schema;
 }
