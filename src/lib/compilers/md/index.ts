@@ -116,9 +116,26 @@ function struct_field_list(struct: sch.Struct, lines: string[]) {
 	lines.push('| Field Name | Type | Comments |');
 	lines.push('|------------|------|----------|');
 
+	let has_comments = false;
+	let has_conditions = false;
+
+	for (const field of struct.fields) {
+		// TODO: Check nested/inline structs
+		// TODO: Check expansions
+		if (sch.is_struct_field(field)) {
+			if (field.comments.length) {
+				has_comments = true;
+			}
+
+			if (field.condition) {
+				has_conditions = true;
+			}
+		}
+	}
+
 	for (const field of struct.fields) {
 		if (sch.is_struct_field(field)) {
-			struct_field(field, lines);
+			struct_field(field, lines, has_comments, has_conditions, '');
 		}
 
 		else if (sch.is_struct_expansion(field)) {
@@ -130,17 +147,27 @@ function struct_field_list(struct: sch.Struct, lines: string[]) {
 	lines.push('');
 }
 
-function struct_field(field: sch.StructField, lines: string[], name_prefix = '') {
+function struct_field(field: sch.StructField, lines: string[], has_comments: boolean, has_conditions: boolean, name_prefix = '') {
 	const name = code(name_prefix + field.name.text);
 	const type = type_expr(field.field_type);
-	lines.push(`| ${name} | ${type} | ${comments(field.comments)} |`);
+	let line = `| ${name} | ${type} |`;
+
+	if (has_comments) {
+		line += ` ${comments(field.comments)} |`;
+	}
+
+	if (has_conditions) {
+		line += ` ${field.condition ? bool_expr(field.condition) : ''} |`;
+	}
+
+	lines.push(line);
 
 	if (sch.is_type_expr_struct_refine(field.field_type)) {
 		const struct = field.field_type.refined_type;
 
 		for (const sub_field of struct.fields) {
 			if (sch.is_struct_field(sub_field)) {
-				struct_field(sub_field, lines, `${name_prefix}${field.name.text}.`);
+				struct_field(sub_field, lines, has_comments, has_conditions, `${name_prefix}${field.name.text}.`);
 			}
 	
 			else if (sch.is_struct_expansion(sub_field)) {
@@ -284,11 +311,13 @@ function type_expr(expr: sch.TypeExpr | sch.Const, wrap = true) {
 }
 
 function value_expr() {
-	// 
+	// TODO:
+	return '(todo: value expr)';
 }
 
-function bool_expr() {
-	// 
+function bool_expr(expr: sch.BoolExpr) {
+	// TODO:
+	return '(todo: bool expr)';
 }
 
 function code(content: string, wrap = true) {
