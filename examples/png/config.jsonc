@@ -12,7 +12,7 @@
     "as": "./as",
     "md": {
       "dir": "./md",
-      "source_url": "https://github.com/kbjr/bfec/blob/master/examples/png/",
+      "source_url": "../",
       "include_external": false,
       "include_remote": false
     }
