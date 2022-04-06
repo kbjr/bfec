@@ -26,7 +26,7 @@ import {
 import { BoolExpr, bool_expr_op_compare, bool_expr_op_logical, BoolExpr_comparison, BoolExpr_logical } from './bool-expr';
 import { builtin_text } from '../parser/ast/tokens';
 import { Schema } from './schema';
-import { fully_resolve, ImportedRef, is_named_ref, NamedParentRefable, NamedRef, Ref, RootRef, SelfRef } from './ref';
+import { fully_resolve, ImportedRef, is_named_ref, is_root_ref, is_self_ref, NamedParentRefable, NamedRef, Ref, RootRef, SelfRef } from './ref';
 import { BuildError, build_error_factory } from '../error';
 
 export * from './bool-expr';
@@ -584,9 +584,16 @@ function build_type_expr_named(schema: Schema, node: ast.TypeExpr_named) : TypeE
 	schema.map_ast(expr.name, node.name);
 
 	if (node.params) {
-		expr.params.push(
-			...node.params.params.map((param) => build_value_expr_path(schema, param.param))
-		);
+		for (const param of node.params.params) {
+			const param_expr = build_value_expr_path(schema, param.param);
+
+			if (is_root_ref(param_expr) || is_self_ref(param_expr)) {
+				schema.error(param, `"${param_expr.name}" cannot be used as a parameter`);
+				continue;
+			}
+
+			expr.params.push(param_expr as NamedRef<StructField | EnumMember | StructParam>);
+		}
 	}
 
 	return expr;

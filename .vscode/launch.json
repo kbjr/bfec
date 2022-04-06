@@ -5,13 +5,21 @@
   "version": "0.2.0",
   "configurations": [
     {
-        "name": "VSCode Extension",
-        "type": "extensionHost",
-        "request": "launch",
-        "runtimeExecutable": "${execPath}",
-        "args": [
-            "--extensionDevelopmentPath=${workspaceFolder}/vscode"
-        ]
+      "name": "VSCode Extension",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+          "--extensionDevelopmentPath=${workspaceFolder}/vscode"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch CLI",
+      "program": "${workspaceFolder}/src/cli/main.ts",
+      "outFiles": ["${workspaceFolder}/build/**/*.js"],
+      "args": ["-conf", "./examples/png/config.jsonc"],
     }
   ]
 }

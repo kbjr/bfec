@@ -2,7 +2,7 @@
 import { NamedRef, RootRef } from './ref';
 import { SchemaNode } from './node';
 import { EnumMember } from './enum';
-import { Struct, StructField } from './struct';
+import { Struct, StructField, StructParam } from './struct';
 import { Const, ConstInt, ConstString } from './const';
 import { Switch } from './switch';
 
@@ -86,7 +86,7 @@ export class TypeExpr_checksum extends TypeExpr {
 	public func_name: ConstString;
 }
 
-export type TypeExprNamedParam = NamedRef<StructField | EnumMember> | Const;
+export type TypeExprNamedParam = NamedRef<StructField | EnumMember | StructParam>; // | Const;
 
 export class TypeExpr_named extends TypeExpr {
 	public type_type = 'named';

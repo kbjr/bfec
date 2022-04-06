@@ -79,7 +79,11 @@ export class NamedRef<T extends NamedRefable = NamedRefable, P extends NamedPare
 	}
 
 	public get full_name() {
-		return this.parent_ref ? this.parent_ref.name + '.' + this.name : this.name;
+		return this.parent_ref
+			? is_named_ref(this.parent_ref)
+				? this.parent_ref.full_name + '.' + this.name
+				: this.parent_ref.name + '.' + this.name
+			: this.name;
 	}
 
 	public resolve_in(map: Map<string, T>, locality: ref_locality) : boolean {

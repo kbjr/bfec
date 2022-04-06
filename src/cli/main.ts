@@ -6,7 +6,6 @@ import { link_schema, parse_src_to_ast, build_schema_from_ast, compile_to_markdo
 import { main as log } from './log';
 import { jsonc } from 'jsonc';
 import { get_http } from './http';
-import { inspect } from 'util';
 
 const include_source_maps = true;
 

@@ -7,14 +7,8 @@ PNG Image Format
 https://www.w3.org/TR/PNG
 #--
 struct $ {
-  # Magic bytes to identify the PNG file format
   magic_number: "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a";
-  
-  # Image header should always be the first chunk, and we need to reference data out
-  # of it, so we'll statically define it here so we can `$.header` elsewhere
   header: Chunk(ChunkType.IHDR);
-
-  # The rest of the file we'll just read as a big list of chunks
   chunks: Chunk[...];
 }
 

@@ -14,12 +14,12 @@ export function link_locals(schema: sch.Schema, errors: BuildError[]) : void {
 		link_enum(schema, node, error);
 	}
 
-	for (const node of schema.switches) {
-		link_switch(schema, node, error);
-	}
-
 	for (const node of schema.structs) {
 		link_struct(schema, node, error);
+	}
+
+	for (const node of schema.switches) {
+		link_switch(schema, node, error);
 	}
 }
 
@@ -172,7 +172,7 @@ function link_type_expr(schema: sch.Schema, expr: sch.TypeExpr, error: BuildErro
 
 	if (sch.is_type_expr_named_refine(expr)) {
 		link_type_expr(schema, expr.parent_type, error, context);
-		link_named_type_expr(schema, expr.refined_type, error);
+		link_named_type_expr(schema, expr.refined_type, error, context);
 		return;
 	}
 
@@ -205,11 +205,9 @@ function link_named_type_expr(schema: sch.Schema, expr: sch.TypeExpr_named, erro
 	}
 
 	for (const param of expr.params) {
-		if (sch.is_const(param)) {
-			continue;
+		if (sch.is_named_ref(param)) {
+			link_value_expr(schema, param, error, context);
 		}
-
-		link_value_expr(schema, param, error, context);
 	}
 
 	expr.name.points_to = found;
@@ -227,6 +225,11 @@ function link_length_type(schema: sch.Schema, expr: sch.TypeExpr_array | sch.Typ
 // ===== Value Expr =====
 
 function link_value_expr(schema: sch.Schema, ref: sch.NamedRef, error: BuildErrorFactory, context?: sch.Struct) : void {
+	// Don't try to link the same thing multiple times
+	if (ref.points_to) {
+		return;
+	}
+
 	const parent = ref.parent_ref;
 	
 	if (sch.is_root_ref(parent)) {
@@ -273,15 +276,13 @@ function link_value_expr(schema: sch.Schema, ref: sch.NamedRef, error: BuildErro
 	}
 
 	else if (sch.is_named_ref(parent)) {
-		if (parent.parent_ref) {
-			link_value_expr(schema, parent, error, context);
-		}
+		link_value_expr(schema, parent, error, context);
 
 		const resolved_parent = sch.fully_resolve(parent);
 
 		if (sch.is_struct_field(resolved_parent)) {
 			if (sch.is_type_expr_named(resolved_parent.field_type)) {
-				link_named_type_expr(schema, resolved_parent.field_type, error);
+				// link_named_type_expr(schema, resolved_parent.field_type, error, context);
 
 				const points_to = sch.fully_resolve(resolved_parent.field_type.name);
 
@@ -300,7 +301,7 @@ function link_value_expr(schema: sch.Schema, ref: sch.NamedRef, error: BuildErro
 			}
 
 			else if (sch.is_type_expr_named_refine(resolved_parent.field_type)) {
-				link_named_type_expr(schema, resolved_parent.field_type.refined_type, error);
+				// link_named_type_expr(schema, resolved_parent.field_type.refined_type, error, context);
 
 				const points_to = sch.fully_resolve(resolved_parent.field_type.refined_type.name);
 
