@@ -9,8 +9,8 @@ export class BoolExpr extends SchemaNode {
 
 export class BoolExpr_logical extends BoolExpr {
 	public operator: bool_expr_op_logical;
-	public lh_expr: BoolExpr;
-	public rh_expr?: BoolExpr;
+	public lh_expr: BoolExpr_logical | BoolExpr_comparison;
+	public rh_expr?: BoolExpr_logical | BoolExpr_comparison;
 }
 
 export enum bool_expr_op_logical {

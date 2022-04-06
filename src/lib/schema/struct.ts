@@ -1,11 +1,11 @@
 
 import { Schema } from './schema';
 import { Const } from './const';
-import { BoolExpr } from './bool-expr';
 import { ast } from '../parser';
 import { SchemaNode } from './node';
 import { Comment } from './comment';
 import { NamedRef } from './ref';
+import { BoolExpr_comparison, BoolExpr_logical } from './bool-expr';
 import { TypeExpr, TypeExpr_named, TypeExpr_named_refine, TypeExpr_struct_refine, TypeExpr_switch_refine } from './type-expr';
 
 export type StructElem = StructField | StructExpansion;
@@ -50,7 +50,7 @@ export class StructField<T extends StructFieldType = StructFieldType> extends Sc
 	public type = 'struct_field';
 	public comments: Comment[] = [ ];
 	public name: ast.NameToken_normal;
-	public condition?: BoolExpr;
+	public condition?: BoolExpr_comparison | BoolExpr_logical;
 	public field_type: T;
 	public field_value?: NamedRef;
 }

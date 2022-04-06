@@ -1,7 +1,7 @@
 
 <!--
  THIS FILE WAS AUTOMATICALLY GENERATED
- 2022-04-04T02:51:35.296Z
+ 2022-04-05T02:24:14.764Z
 -->
 
 ## $
@@ -42,8 +42,8 @@ _Source: [~/png.bfec#L21](../png.bfec#L21)_
 |------------|------|
 | <code>length</code> | <code>len<u32_be></code> |
 | <code>type</code> | <code><a href="#chunktype">ChunkType</a></code> |
-| <code>data</code> | <code>u8[(todo: value expr)] -> <a href="#chunkdata">ChunkData</a></code> |
-| <code>crc</code> | <code>checksum<u32_be>((todo: value expr), 'crc32')</code> |
+| <code>data</code> | <code>u8[@.length] -> <a href="#chunkdata">ChunkData</a></code> |
+| <code>crc</code> | <code>checksum<u32_be>(@.data, 'crc32')</code> |
 
 ## ImageHeader
 

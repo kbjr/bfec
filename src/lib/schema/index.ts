@@ -761,7 +761,7 @@ function build_value_expr_path(schema: Schema, ast_node: ast.ValueExpr_path) : N
 
 // ===== Bool Expr =====
 
-function build_bool_expr(schema: Schema, ast_node: ast.BoolExpr) : BoolExpr {
+function build_bool_expr(schema: Schema, ast_node: ast.BoolExpr) : BoolExpr_logical | BoolExpr_comparison {
 	let is_not = false;
 	let logical_op: bool_expr_op_logical;
 	let comparison_op: bool_expr_op_compare;

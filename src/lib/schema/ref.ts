@@ -143,18 +143,18 @@ export function fully_resolve<T extends SchemaNode>(ref: Ref<T>) : T {
 	return points_to;
 }
 
-export function is_named_ref<T extends NamedRefable>(ref: Ref<T>) : ref is NamedRef<T> {
+export function is_named_ref<T extends NamedRefable>(ref: Ref<T> | SchemaNode) : ref is NamedRef<T> {
 	return ref instanceof NamedRef;
 }
 
-export function is_root_ref(ref: Ref) : ref is RootRef {
+export function is_root_ref(ref: Ref | SchemaNode) : ref is RootRef {
 	return ref instanceof RootRef;
 }
 
-export function is_self_ref(ref: Ref) : ref is SelfRef {
+export function is_self_ref(ref: Ref | SchemaNode) : ref is SelfRef {
 	return ref instanceof SelfRef;
 }
 
-export function is_imported_ref(ref: SchemaNode) : ref is ImportedRef {
+export function is_imported_ref<T extends NamedRefable>(ref: Ref<T> | SchemaNode) : ref is ImportedRef {
 	return ref instanceof ImportedRef;
 }

@@ -346,6 +346,7 @@ function parse_type_expr_named(state: ParserState) : TypeExpr_named {
 	state.commit_branch(branch);
 
 	const param_list = new TypeExprParamsList();
+	ast_node.params = param_list;
 	param_list.open_paren = open_paren;
 
 	state.scan_through_comments_and_whitespace(param_list.children);

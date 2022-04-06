@@ -3,6 +3,7 @@ import { URL } from 'url';
 import * as sch from '../../schema';
 import { c_md as log } from '../../log';
 import { WriteableDir } from '../../writeable-dir';
+import assert = require('assert');
 
 export interface MarkdownCompilerOptions {
 	out_dir: WriteableDir;
@@ -377,22 +378,23 @@ function type_expr(expr: sch.TypeExpr | sch.Const, wrap = true) {
 	if (sch.is_type_expr_named(expr)) {
 		const name = expr.name.name;
 		const refed = expr.name.points_to;
-		
+		let params = '';
+
 		if (expr.params && expr.params.length) {
-			// TODO:
+			params = `(${expr.params.map(value_expr).join(', ')})`;
 		}
 		
 		let url = '#';
 
 		if (sch.is_imported_ref(refed)) {
-			url = out_file_name(refed.from.source_schema) + '#' + name;
+			url = out_file_name(refed.from.source_schema) + '#' + name.toLowerCase();
 		}
 
 		else if (sch.is_struct(refed) || sch.is_enum(refed) || sch.is_switch(refed)) {
 			url = '#' + name.toLowerCase();
 		}
 
-		return code(`<a href="${url}">${expr.name.name}</a>`, wrap);
+		return code(`<a href="${url}">${name}${params}</a>`, wrap);
 	}
 
 	if (sch.is_type_expr_named_refine(expr)) {
@@ -417,14 +419,57 @@ function type_expr(expr: sch.TypeExpr | sch.Const, wrap = true) {
 	return code('(unknown)', wrap);
 }
 
-function value_expr(expr: sch.NamedRef) {
-	// TODO:
-	return '(todo: value expr)';
+function value_expr(expr: sch.NamedRef | sch.Const) {
+	if (sch.is_named_ref(expr)) {
+		if (sch.is_enum_member(expr.points_to)) {
+			const parent = sch.fully_resolve(expr.parent_ref);
+			assert(sch.is_enum(parent));
+
+			const enum_name = parent.name.text;
+			const member_name = expr.name;
+			
+			let url = '#';
+
+			if (sch.is_imported_ref(expr.parent_ref.points_to)) {
+				url = out_file_name(expr.parent_ref.points_to.from.source_schema) + '#' + enum_name.toLowerCase();
+			}
+
+			else {
+				url = '#' + enum_name.toLowerCase();
+			}
+
+			return `<a href="${url}">${enum_name}</a>.${member_name}`;
+		}
+
+		return expr.full_name;
+	}
+
+	return type_expr(expr, false);
 }
 
-function bool_expr(expr: sch.BoolExpr) {
-	// TODO:
-	return '(todo: bool expr)';
+function bool_expr(expr: sch.BoolExpr_logical | sch.BoolExpr_comparison) {
+	switch (expr.operator) {
+		case sch.bool_expr_op_logical.not:
+			return `! ${bool_expr(expr.lh_expr)}`;
+			
+		case sch.bool_expr_op_logical.and:
+			return `${bool_expr(expr.lh_expr)} & ${bool_expr(expr.rh_expr)}`;
+			
+		case sch.bool_expr_op_logical.or:
+			return `${bool_expr(expr.lh_expr)} | ${bool_expr(expr.rh_expr)}`;
+			
+		case sch.bool_expr_op_logical.xor:
+			return `${bool_expr(expr.lh_expr)} ^ ${bool_expr(expr.rh_expr)}`;
+			
+		case sch.bool_expr_op_compare.eq:
+			return `${value_expr(expr.lh_expr)} == ${value_expr(expr.rh_expr)}`;
+			
+		case sch.bool_expr_op_compare.neq:
+			return `${value_expr(expr.lh_expr)} != ${value_expr(expr.rh_expr)}`;
+
+		default:
+			return '(unknown)';
+	}
 }
 
 function code(content: string, wrap = true) {
