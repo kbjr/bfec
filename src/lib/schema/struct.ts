@@ -1,10 +1,10 @@
 
-import { Schema } from './schema';
-import { Const } from './const';
 import { ast } from '../parser';
-import { SchemaNode } from './node';
-import { Comment } from './comment';
+import { Schema } from './schema';
 import { NamedRef } from './ref';
+import { Comment } from './comment';
+import { SchemaNode } from './node';
+import { ConstInt, ConstString } from './const';
 import { BoolExpr_comparison, BoolExpr_logical } from './bool-expr';
 import { TypeExpr, TypeExpr_named, TypeExpr_named_refine, TypeExpr_struct_refine, TypeExpr_switch_refine } from './type-expr';
 
@@ -15,10 +15,13 @@ export class Struct extends SchemaNode {
 	public comments: Comment[] = [ ];
 	public name: ast.NameToken_normal | ast.NameToken_root_schema;
 	public byte_aligned: boolean;
-	public params: StructParam[] = [ ];
-	public param_map: Map<string, StructParam> = new Map();
+	
 	public fields: StructElem[] = [ ];
+	public params: StructParam[] = [ ];
+	
 	public field_map: Map<string, StructField> = new Map();
+	public param_map: Map<string, StructParam> = new Map();
+
 	public parent_schema: Schema;
 
 	public add_field(name_node: ast.NameToken_normal, field: StructField) {
@@ -44,7 +47,7 @@ export class StructParam extends SchemaNode {
 	public param_type: TypeExpr;
 }
 
-export type StructFieldType = TypeExpr | Const;
+export type StructFieldType = TypeExpr | ConstInt | ConstString;
 
 export class StructField<T extends StructFieldType = StructFieldType> extends SchemaNode {
 	public type = 'struct_field';

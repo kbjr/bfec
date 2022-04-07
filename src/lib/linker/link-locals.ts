@@ -282,8 +282,6 @@ function link_value_expr(schema: sch.Schema, ref: sch.NamedRef, error: BuildErro
 
 		if (sch.is_struct_field(resolved_parent)) {
 			if (sch.is_type_expr_named(resolved_parent.field_type)) {
-				// link_named_type_expr(schema, resolved_parent.field_type, error, context);
-
 				const points_to = sch.fully_resolve(resolved_parent.field_type.name);
 
 				if (sch.is_struct(points_to)) {
@@ -301,8 +299,6 @@ function link_value_expr(schema: sch.Schema, ref: sch.NamedRef, error: BuildErro
 			}
 
 			else if (sch.is_type_expr_named_refine(resolved_parent.field_type)) {
-				// link_named_type_expr(schema, resolved_parent.field_type.refined_type, error, context);
-
 				const points_to = sch.fully_resolve(resolved_parent.field_type.refined_type.name);
 
 				if (sch.is_struct(points_to)) {
@@ -317,10 +313,31 @@ function link_value_expr(schema: sch.Schema, ref: sch.NamedRef, error: BuildErro
 						error(ref.name_token, `Property "${ref.name}" of "${parent.full_name}" not found`);
 					}
 				}
+
+				else if (sch.is_switch(points_to)) {
+					// TODO:
+					error(ref.parent_ref, 'Enountered named refinement to a switch when attempting to resolve value expr');
+				}
+
+				else if (points_to) {
+					// 
+					error(ref.parent_ref, 'Encountered unexpected node type for named refine');
+				}
+
+				else {
+					// 
+					error(ref.parent_ref, 'Failed to resolve named refinement');
+				}
 			}
 
 			else if (sch.is_type_expr_struct_refine(resolved_parent.field_type)) {
-				// 
+				// TODO:
+				error(ref.parent_ref, 'Enountered struct refinement when attempting to resolve value expr');
+			}
+
+			else if (sch.is_type_expr_switch_refine(resolved_parent.field_type)) {
+				// TODO:
+				error(ref.parent_ref, 'Enountered switch refinement when attempting to resolve value expr');
 			}
 
 			else {

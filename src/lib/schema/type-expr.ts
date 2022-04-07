@@ -94,9 +94,9 @@ export class TypeExpr_named extends TypeExpr {
 	public params: TypeExprNamedParam[] = [ ];
 }
 
-export class TypeExpr_array extends TypeExpr {
+export class TypeExpr_array<T extends TypeExpr = TypeExpr> extends TypeExpr {
 	public type_type = 'array';
-	public element_type: TypeExpr;
+	public element_type: T;
 	public length_type: len_type;
 	public static_length?: ConstInt;
 	public length_prefix?: TypeExpr_fixed_int | TypeExpr_varint;

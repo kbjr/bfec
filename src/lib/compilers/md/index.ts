@@ -394,7 +394,7 @@ function type_expr(expr: sch.TypeExpr | sch.Const, wrap = true) {
 			url = '#' + name.toLowerCase();
 		}
 
-		return code(`<a href="${url}">${name}${params}</a>`, wrap);
+		return code(`<a href="${url}">${name}</a>${params}`, wrap);
 	}
 
 	if (sch.is_type_expr_named_refine(expr)) {

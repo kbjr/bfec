@@ -1,7 +1,7 @@
 
 <!--
  THIS FILE WAS AUTOMATICALLY GENERATED
- 2022-04-06T03:34:31.286Z
+ 2022-04-06T03:39:06.712Z
 -->
 
 ## $
@@ -19,7 +19,7 @@ https://www.w3.org/TR/PNG
 | Field Name | Type |
 |------------|------|
 | <code>magic_number</code> | <code>"\x89\x50\x4e\x47\x0d\x0a\x1a\x0a"</code> |
-| <code>header</code> | <code><a href="#chunk">Chunk(<a href="#chunktype">ChunkType</a>.IHDR)</a></code> |
+| <code>header</code> | <code><a href="#chunk">Chunk</a>(<a href="#chunktype">ChunkType</a>.IHDR)</code> |
 | <code>chunks</code> | <code><a href="#chunk">Chunk</a>[...]</code> |
 
 ## Chunk
@@ -42,7 +42,7 @@ _Source: [~/png.bfec#L15](../png.bfec#L15)_
 |------------|------|
 | <code>length</code> | <code>len<u32_be></code> |
 | <code>type</code> | <code><a href="#chunktype">ChunkType</a></code> |
-| <code>data</code> | <code>u8[@.length] -> <a href="#chunkdata">ChunkData(type)</a></code> |
+| <code>data</code> | <code>u8[@.length] -> <a href="#chunkdata">ChunkData</a>(type)</code> |
 | <code>crc</code> | <code>checksum<u32_be>(@.data, 'crc32')</code> |
 
 ## ImageHeader
@@ -270,7 +270,7 @@ _Source: [~/png.bfec#L200](../png.bfec#L200)_
 | <code>compression_method</code> | <code>u8</code> |
 | <code>language_tag</code> | <code>ascii<null></code> |
 | <code>translated_keyword</code> | <code>u8[null]</code> |
-| <code>text</code> | <code><a href="#internationaltextdatabody">InternationalTextDataBody(@.compression_flag)</a></code> |
+| <code>text</code> | <code><a href="#internationaltextdatabody">InternationalTextDataBody</a>(@.compression_flag)</code> |
 
 ## GreyscaleBackgroundData
 
@@ -394,7 +394,7 @@ _Source: [~/png.bfec#L272](../png.bfec#L272)_
 |------------|------|----------|
 | <code>pallete_name</code> | <code>ascii<null></code> |  |
 | <code>sample_depth</code> | <code><a href="#sampledepth">SampleDepth</a></code> |  |
-| (todo: struct expansion) | <code><a href="#sample">Sample(@.sample_depth)</a></code> | |
+| (todo: struct expansion) | <code><a href="#sample">Sample</a>(@.sample_depth)</code> | |
 | <code>frequencies</code> | <code>u16_be[...]</code> | sample: Sample(@.sample_depth); |
 
 ## LastModifiedTimestampData
@@ -434,16 +434,16 @@ _Source: [~/png.bfec#L43](../png.bfec#L43)_
 | <code>PLTE</code> | <code><a href="#pallete">Pallete</a>[...]</code> |
 | <code>IDAT</code> | <code><b>void</b></code> |
 | <code>IEND</code> | <code><b>void</b></code> |
-| <code>tRNS</code> | <code><a href="#transparencydata">TransparencyData($.header.data.color_type)</a></code> |
+| <code>tRNS</code> | <code><a href="#transparencydata">TransparencyData</a>($.header.data.color_type)</code> |
 | <code>cHRM</code> | <code><a href="#primarychromaticitiesandwhitepointdata">PrimaryChromaticitiesAndWhitePointData</a></code> |
 | <code>gAMA</code> | <code><a href="#gammadata">GammaData</a></code> |
 | <code>iCCP</code> | <code><a href="#embeddediccprofiledata">EmbeddedICCProfileData</a></code> |
-| <code>sBIT</code> | <code><a href="#signifigantbitsdata">SignifigantBitsData($.header.data.color_type)</a></code> |
+| <code>sBIT</code> | <code><a href="#signifigantbitsdata">SignifigantBitsData</a>($.header.data.color_type)</code> |
 | <code>sRGB</code> | <code><a href="#rgbcolorspacedata">RGBColorSpaceData</a></code> |
 | <code>tEXt</code> | <code><a href="#textdata">TextData</a></code> |
 | <code>xTXt</code> | <code><a href="#compressedtextdata">CompressedTextData</a></code> |
 | <code>iTXt</code> | <code><a href="#internationaltextdata">InternationalTextData</a></code> |
-| <code>bKGD</code> | <code><a href="#backgroundcolordata">BackgroundColorData($.header.data.color_type)</a></code> |
+| <code>bKGD</code> | <code><a href="#backgroundcolordata">BackgroundColorData</a>($.header.data.color_type)</code> |
 | <code>hIST</code> | <code><a href="#imagehistogramdata">ImageHistogramData</a></code> |
 | <code>pHYs</code> | <code><a href="#physicalpixeldimensionsdata">PhysicalPixelDimensionsData</a></code> |
 | <code>sPLT</code> | <code><a href="#suggestedpalletedata">SuggestedPalleteData</a></code> |
