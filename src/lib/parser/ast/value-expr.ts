@@ -31,6 +31,10 @@ export class ValueExpr_path extends ASTNode {
 	public pos() : [ line: number, char: number ] {
 		return this.lh_name.pos();
 	}
+
+	public get text() {
+		return this.lh_name.text + '.' + this.rh_names.map((name) => name.field_name.text).join('.');
+	}
 }
 
 // TODO: Support for new `[@]` token for accessing current branch, i.e.

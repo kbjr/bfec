@@ -1,0 +1,85 @@
+{
+	"structs": [
+		// #/structs[0]
+		{
+			"name": "$",
+			"fields": [
+				{
+					"name": "magic_number",
+					"field_type": {
+						"type": "const_byte_str",
+						"value": "\\x89\\x50\\x4e\\x47\\x0d\\x0a\\x1a\\x0a"
+					}
+				},
+				{
+					"name": "header",
+					// Original
+					"field_type": {
+						"type": "switch_ref",
+						"switch": "#/switches[0]",
+						"param": "IHDR"
+					},
+					// Resolved
+					"field_type": {
+						"type": "struct_ref",
+						"struct": "#/structs[2]"
+					}
+				}
+			]
+		},
+		// #/structs[1]
+		{ "name": "Chunk" },
+		// #/structs[2]
+		{ "name": "ImageHeader" },
+		// #/structs[3]
+		{ "name": "Pallete" },
+		// #/structs[4]
+		{ "name": "GreyscaleTransparencyData" }
+		// ...
+	],
+	"switches": [
+		// #/switches[0]
+		{
+			"name": "ChunkData",
+			"param_enum": "#/enums[0]",
+			"cases": [
+				{
+					"case": "#/enums[0]/members[0]",
+					"value": {
+						"type": "struct_ref",
+						"struct": "#/structs[1]"
+					}
+				},
+				{
+					"case": "#/enums[0]/members[1]",
+					"value": {
+						"type": "struct_ref",
+						"struct": "#/structs[3]"
+					}
+				}
+			],
+			"default": "void"
+		}
+	],
+	"enums": [
+		// #/enums[0]
+		{
+			"name": "ChunkType",
+			"member_type": {
+				"type": "ascii",
+				"length_type": "const",
+				"const_length": 4
+			},
+			"members": [
+				{
+					"name": "IHDR",
+					"value": {
+						"type": "const_byte_str",
+						"value": "IHDR"
+					}
+				}
+				// ...
+			]
+		}
+	]
+}

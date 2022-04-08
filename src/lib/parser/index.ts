@@ -18,8 +18,8 @@ const parsers: Parser<FileNodeElem>[] = [
 ];
 
 export function parse_src_to_ast(name: string, contents: string) : FileNode {
-	const ast_node = new FileNode(name);
 	const state = new ParserState(name, contents);
+	const ast_node = new FileNode(name, state.lines);
 	
 	state.trace('parse_src_to_ast', ast_node);
 

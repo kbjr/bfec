@@ -21,7 +21,8 @@ export class FileNode extends ASTNode {
 
 	constructor(
 		/** The source / file path representing where this file came from */
-		public source: string
+		public source: string,
+		public source_contents: string[]
 	) {
 		super();
 	}

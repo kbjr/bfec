@@ -27,6 +27,7 @@ export type TypeExpr
 	= ConstToken_int
 	| ConstToken_hex_int
 	| ConstToken_ascii
+	| ConstToken_unicode
 	| NameToken_builtin_uint
 	| NameToken_builtin_sint
 	| TypeExpr_builtin_vint
