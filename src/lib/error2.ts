@@ -30,7 +30,7 @@ export class BuildError {
 		let text = build_reference_text(this.source.source.source_contents, this.pos, ref_text_indent);
 
 		if (this.pos_secondary) {
-			text += `\n\n${ref_text_indent.repeat(2)}(${this.pos_text_secondary}):`;
+			text += `\n\n${ref_text_indent}(${this.pos_text_secondary})`;
 			text += `\n\n${build_reference_text(this.source.source.source_contents, this.pos_secondary, ref_text_indent.repeat(2))}`;
 		}
 
