@@ -3,6 +3,7 @@ import { ast } from '../parser';
 import { Comment } from './comment';
 import { ConstString } from './const';
 import { SchemaNode } from './node';
+import { pos } from './pos';
 import { Schema } from './schema';
 
 export class Import implements SchemaNode {
@@ -13,7 +14,7 @@ export class Import implements SchemaNode {
 	public schema: Schema;
 
 	public get pos() {
-		return null;
+		return pos(this.source.token);
 	}
 
 	public toJSON() {

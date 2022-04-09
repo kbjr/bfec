@@ -64,7 +64,13 @@ async function main() {
 			}
 
 			if (imported_contents) {
-				return parse_src_to_ast(path, imported_contents);
+				const ast = parse_src_to_ast(path, imported_contents);
+
+				if (! ast) {
+					throw new Error('Failed to parse bfec file');
+				}
+
+				return ast;
 			}
 
 			throw new Error('Failed to read import contents');
@@ -83,12 +89,12 @@ async function main() {
 	// If we encountered errors while building/linking, stop here
 	if (errors.length) {
 		errors.forEach((error) => {
-			log.error(`\n${red('Error')}: ${error.message}`);
+			log.error(`\n${red('Link Error')}: ${error.message}`);
 			log.error(`(${error.pos_text})\n`);
 			log.error(`${error.reference_text}\n`);
 		});
 
-		log.error(`\nErrors: ${yellow(errors.length)}`);
+		log.error(`\nLink Errors: ${yellow(errors.length)}`);
 		await exit_error(1, 'Failed to build and link schema');
 	}
 

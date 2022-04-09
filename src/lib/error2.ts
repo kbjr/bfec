@@ -1,8 +1,8 @@
 
 import { ast } from './parser';
 import * as sch from './linker2';
-import { red, blue, yellow, green, grey, cyan } from 'chalk';
-import { PositionRange, pos_for_type_expr } from './linker2';
+import { pos_for_type_expr } from './linker2';
+import { red, yellow, grey, cyan } from 'chalk';
 
 const ref_text_indent = '  ';
 
