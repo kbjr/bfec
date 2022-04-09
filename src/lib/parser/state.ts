@@ -1,4 +1,5 @@
 
+import { cyan, red, yellow } from 'chalk';
 import { parser as log } from '../log';
 import { ASTNode } from './ast';
 import { meta_block_comment, meta_line_comment, meta_newline, meta_whitespace } from './ast/tokens';
@@ -25,7 +26,7 @@ export class ParserState {
 	}
 
 	public pos() {
-		return `file=${this.name}, line=${this.line + 1}, char=${this.char + 1}`;
+		return `${cyan(this.name)}:${yellow(this.line + 1)}:${yellow(this.char + 1)}`;
 	}
 
 	public branch() {
@@ -98,9 +99,10 @@ export class ParserState {
 	}
 
 	public fatal(message: string) : never {
-		log.error(`\nFatal: ${message} (${this.pos()})`);
+		log.error(`\n${red('Parse Error')}: ${message}`);
+		log.error(`(${this.pos()})`);
 		log.error(`\n  ${this.lines[this.line].replace(/\t/g, ' ')}`);
-		log.error(`  ${' '.repeat(this.char)}^`);
+		log.error(`  ${' '.repeat(this.char)}${red('^')}\n`);
 		throw new Error(`failed to parse bfec file: ${message} (${this.pos()})`);
 	}
 }

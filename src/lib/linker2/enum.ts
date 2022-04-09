@@ -33,10 +33,19 @@ export class Enum<T extends EnumType = EnumType> implements SchemaNode {
 	public get pos() {
 		return pos(this.ast_node.enum_keyword, this.ast_node.body.close_brace);
 	}
+
+	public toJSON() {
+		return {
+			type: this.type,
+			comments: this.comments,
+			member_type: this.member_type,
+			members: this.members,
+		};
+	}
 }
 
 export class EnumMember<T extends EnumType = EnumType> implements SchemaNode {
-	public type = 'enum' as const;
+	public type = 'enum_member' as const;
 	public comments: Comment[];
 	public ast_node: ast.EnumMember;
 	public value: EnumMemberValue<T>;
@@ -51,5 +60,13 @@ export class EnumMember<T extends EnumType = EnumType> implements SchemaNode {
 
 	public get pos() {
 		return null;
+	}
+
+	public toJSON() {
+		return {
+			type: this.type,
+			comments: this.comments,
+			value: this.value,
+		};
 	}
 }

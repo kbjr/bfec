@@ -5,13 +5,17 @@ import { SchemaNode } from './node';
 import { pos, PositionRange, pos_for_type_expr, pos_for_value_expr } from './pos';
 import { StructFieldRef, StructRef, SwitchRef } from './ref';
 
+export type BuiltinType
+	= BaseType
+	| LengthType
+	| ChecksumType
+	;
+
 export type BaseType
 	= FixedIntType
 	| VarIntType
 	| FloatType
 	| TextType
-	| LengthType
-	| ChecksumType
 	| ArrayType
 	;
 
@@ -20,10 +24,14 @@ export class FixedIntType implements SchemaNode {
 	public ast_node: ast.TypeExpr_builtin_fixed_int;
 	public size_bits: number;
 	public is_signed: boolean;
-	public is_big_endian: number;
+	public is_big_endian: boolean;
 
 	public get pos() {
 		return pos(this.ast_node);
+	}
+
+	public get name() {
+		return this.ast_node.text;
 	}
 
 	public get min() {
@@ -33,12 +41,26 @@ export class FixedIntType implements SchemaNode {
 	public get max() {
 		return int_max(this.size_bits, this.is_signed);
 	}
+
+	public toJSON() {
+		return {
+			type: this.type,
+			name: this.name,
+			size_bits: this.size_bits,
+			is_signed: this.is_signed,
+			is_big_endian: this.is_big_endian,
+		};
+	}
 }
 
 export class VarIntType implements SchemaNode {
 	public type = 'type_var_int' as const;
 	public ast_node: ast.TypeExpr_builtin_vint;
 	public real_type: FixedIntType;
+
+	public get name() {
+		return `varint<${this.real_type.name}>`;
+	}
 
 	public get pos() {
 		return pos_for_type_expr(this.ast_node);
@@ -51,16 +73,37 @@ export class VarIntType implements SchemaNode {
 	public get max() {
 		return this.real_type.max;
 	}
+
+	public toJSON() {
+		return {
+			type: this.type,
+			name: this.name,
+			real_type: this.real_type,
+		};
+	}
 }
 
 export class FloatType implements SchemaNode {
 	public type = 'type_float' as const;
 	public ast_node: ast.Type_expr_builtin_float;
-	public decimal: boolean;
+	public is_decimal: boolean;
 	public size_bits: number;
+
+	public get name() {
+		return this.ast_node.text;
+	}
 
 	public get pos() {
 		return pos(this.ast_node);
+	}
+
+	public toJSON() {
+		return {
+			type: this.type,
+			name: this.name,
+			size_bits: this.size_bits,
+			is_decimal: this.is_decimal,
+		};
 	}
 }
 
@@ -69,8 +112,20 @@ export class TextType implements SchemaNode {
 	public ast_node: ast.TypeExpr_builtin_text;
 	public length: Length;
 
+	public get name() {
+		return this.ast_node.text_keyword.text;
+	}
+
 	public get pos() {
 		return pos_for_type_expr(this.ast_node);
+	}
+
+	public toJSON() {
+		return {
+			type: this.type,
+			name: this.name,
+			length: this.length,
+		};
 	}
 }
 
@@ -79,8 +134,20 @@ export class LengthType implements SchemaNode {
 	public ast_node: ast.TypeExpr_builtin_len;
 	public real_type: FixedIntType | VarIntType;
 
+	public get name() {
+		return `len<${this.real_type.name}>`;
+	}
+
 	public get pos() {
 		return pos_for_type_expr(this.ast_node);
+	}
+
+	public toJSON() {
+		return {
+			type: this.type,
+			name: this.name,
+			real_type: this.real_type,
+		};
 	}
 }
 
@@ -93,6 +160,15 @@ export class ChecksumType implements SchemaNode {
 
 	public get pos() {
 		return pos(this.ast_node.checksum_keyword, this.ast_node.close_paren);
+	}
+
+	public toJSON() {
+		return {
+			type: this.type,
+			real_type: this.real_type,
+			data_field: this.data_field,
+			checksum_func: this.checksum_func,
+		};
 	}
 }
 
@@ -107,6 +183,14 @@ export class ArrayType<T extends ArrayElemType = ArrayElemType> implements Schem
 	public get pos() {
 		return pos_for_type_expr(this.ast_node);
 	}
+
+	public toJSON() {
+		return {
+			type: this.type,
+			elem_type: this.elem_type,
+			length: this.length,
+		};
+	}
 }
 
 
@@ -120,6 +204,8 @@ export type Length
 	| LengthPrefix
 	| LengthField
 	;
+
+// TODO: toJSON() methods
 
 export abstract class AbstractLength implements SchemaNode {
 	public type = 'length';
@@ -177,6 +263,22 @@ export class LengthField extends AbstractLength {
 	public get pos() {
 		return pos_for_value_expr(this.ast_node);
 	}
+}
+
+
+
+// ===== Type Checks =====
+
+export interface TypeCheck<T> {
+	(value: any) : value is T;
+}
+
+export function is_fixed_int(value: any) : value is FixedIntType {
+	return value instanceof FixedIntType;
+}
+
+export function is_array_of<T extends ArrayElemType>(value: any, type_check: TypeCheck<T>) : value is ArrayType<T> {
+	return value instanceof ArrayType && type_check(value.elem_type);
 }
 
 

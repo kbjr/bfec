@@ -12,6 +12,10 @@ export class Comment implements SchemaNode {
 	public get pos() {
 		return pos(this.ast_node);
 	}
+
+	public toJSON() {
+		return this.content;
+	}
 }
 
 export function build_comment(ast_node: ast.CommentToken) {

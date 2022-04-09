@@ -1,6 +1,8 @@
 
 import { ast } from './parser';
-import * as sch from './schema2';
+import * as sch from './linker2';
+import { red, blue, yellow, green, grey, cyan } from 'chalk';
+import { PositionRange, pos_for_type_expr } from './linker2';
 
 const ref_text_indent = '  ';
 
@@ -13,15 +15,15 @@ export class BuildError {
 	) { }
 
 	public get pos_text() {
-		return `${this.source.source}:${this.pos.start.line + 1}:${this.pos.start.char + 1}`;
+		return `${cyan(this.source.source.source)}:${yellow(this.pos.start.line + 1)}:${yellow(this.pos.start.char + 1)}`;
 	}
 
 	public get pos_text_secondary() {
 		if (! this.pos_secondary) {
-			return '(no secondary pos)';
+			return grey('(no secondary pos)');
 		}
 
-		return `${this.source.source}:${this.pos_secondary.start.line + 1}:${this.pos_secondary.start.char + 1}`;
+		return `${cyan(this.source.source.source)}:${yellow(this.pos_secondary.start.line + 1)}:${yellow(this.pos_secondary.start.char + 1)}`;
 	}
 
 	public get reference_text() {
@@ -38,21 +40,30 @@ export class BuildError {
 
 export interface BuildErrorFactory {
 	(node: sch.SchemaNode | ast.Token, message: string, secondary?: sch.SchemaNode | ast.Token): void;
+	type_expr(node: ast.TypeExpr, message: string): void;
 }
 
 export function build_error_factory(errors: BuildError[], schema: sch.Schema) : BuildErrorFactory {
-	return function _build_error(node: sch.SchemaNode | ast.Token, message: string, secondary?: sch.SchemaNode | ast.Token) {
+	function _build_error(node: sch.SchemaNode | ast.Token, message: string, secondary?: sch.SchemaNode | ast.Token) {
 		const position1 = node instanceof ast.Token ? sch.pos(node) : node.pos;
 		const position2 = secondary ? (secondary instanceof ast.Token ? sch.pos(secondary) : secondary.pos) : null;
 		
 		errors.push(
 			new BuildError(message, schema, position1, position2)
 		);
+	}
+
+	_build_error.type_expr = function(node: ast.TypeExpr, message: string) {
+		errors.push(
+			new BuildError(message, schema, pos_for_type_expr(node))
+		);
 	};
+
+	return _build_error;
 }
 
 function build_reference_text(lines: string[], pos: sch.PositionRange, indent: string) {
-	let line = lines[pos.start.line];
+	let line = lines[pos.start.line].replace(/\t/g, ' ');
 	const orig_length = line.length;
 	
 	line = line.trimStart();
@@ -65,7 +76,7 @@ function build_reference_text(lines: string[], pos: sch.PositionRange, indent: s
 	// portion belonging to the first line
 	const underline_length = pos.start.line !== pos.end.line
 		? line.length - start_char
-		: pos.end.char - length_diff;
+		: pos.end.char - start_char - length_diff;
 
-	return `${indent}${line}\n${indent}${' '.repeat(start_char)}${'~'.repeat(underline_length)}`;
+	return `${indent}${line}\n${indent}${' '.repeat(start_char)}${red('~'.repeat(underline_length))}`;
 }

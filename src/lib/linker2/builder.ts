@@ -8,6 +8,8 @@ import { NamedSwitch, Switch, SwitchCase, SwitchDefault } from './switch';
 import { Enum, EnumMember } from './enum';
 import { Import } from './import';
 import { ImportedRef } from './ref';
+import { ConstString } from './const';
+import { build_enum_type, build_field_type } from './field-type';
 
 export function build_schema_from_ast(file: ast.FileNode, errors: BuildError[], root_schema?: Schema) {
 	const schema = new Schema();
@@ -157,7 +159,6 @@ function build_struct_field(ast_node: ast.StructField, comments: Comment[], erro
 	const node = new StructField();
 	node.ast_node = ast_node;
 	node.comments = comments;
-	// node.field_type
 
 	if (ast_node.optional_condition) {
 		// node.condition
@@ -245,10 +246,6 @@ function build_switch_case(ast_node: ast.SwitchCase, comments: Comment[], error:
 	const node = new SwitchCase();
 	node.ast_node = ast_node;
 	node.comments = comments;
-	// node.case_value
-
-	// 
-
 	return node;
 }
 
@@ -256,9 +253,6 @@ function build_switch_default(ast_node: ast.SwitchDefault, comments: Comment[], 
 	const node = new SwitchDefault();
 	node.ast_node = ast_node;
 	node.comments = comments;
-
-	// 
-
 	return node;
 }
 
@@ -270,6 +264,7 @@ function build_enum(ast_node: ast.DeclareEnumNode, comments: Comment[], error: B
 	const node = new Enum();
 	node.ast_node = ast_node;
 	node.comments = comments;
+	node.member_type = build_enum_type(ast_node.value_type, error);
 
 	build_enum_contents(node, ast_node.body, error);
 
@@ -314,9 +309,6 @@ function build_enum_member(ast_node: ast.EnumMember, comments: Comment[], error:
 	const node = new EnumMember();
 	node.ast_node = ast_node;
 	node.comments = comments;
-
-	// 
-
 	return node;
 }
 
@@ -328,6 +320,7 @@ function build_from(ast_node: ast.DeclareFromNode, comments: Comment[], error: B
 	const import_node = new Import();
 	import_node.ast_node = ast_node;
 	import_node.comments = comments;
+	import_node.source = ConstString.from_ast(ast_node.source);
 
 	const imported: ImportedRef[] = [ ];
 

@@ -1,13 +1,11 @@
 
+import { get_http } from './http';
+import { main as log } from './log';
 import { output_format, parse_args } from './args';
 import { exit_error, exit_successful } from './exit';
 import { InputLoader, MarkdownConf, OutputWriter } from './fs';
-import { link_schema, parse_src_to_ast, build_schema_from_ast, compile_to_markdown, MarkdownCompilerOptions } from '../lib';
-import { main as log } from './log';
-import { jsonc } from 'jsonc';
-import { get_http } from './http';
-
-const include_source_maps = true;
+import { parse_src_to_ast, compile_to_markdown, MarkdownCompilerOptions, link_schema2 } from '../lib';
+import { red, yellow } from 'chalk';
 
 main();
 
@@ -19,6 +17,10 @@ async function main() {
 	// Load and parse the main entrypoint file
 	const entrypoint_file_contents = await input.read_entrypoint();
 	const entrypoint_ast = parse_src_to_ast('~/' + args.in.entrypoint_file, entrypoint_file_contents);
+
+	if (! entrypoint_ast) {
+		await exit_error(1, 'Failed to parse bfec schema');
+	}
 
 	// Figure out what all we need to do based on what outputs we're generating
 	const ast_out = args.out.find((out) => out.format === output_format.ast_json);
@@ -37,20 +39,9 @@ async function main() {
 		await exit_successful();
 	}
 
-	// Otherwise, compile actually build the schema now
-	const schema = build_schema_from_ast(entrypoint_ast, include_source_maps);
-	let schema_out_dir: OutputWriter;
-
-	// If we need to output a schema file, do that
-	if (schema_out) {
-		schema_out_dir = new OutputWriter(schema_out.directory);
-		await schema_out_dir.create();
-		await schema_out_dir.write_file('schema.json', jsonc.stringify(schema, { handleCircular: true }));
-	}
-
-	// Link the schema, pulling in any other imported schemas and connecting all of the symbol
+	// Build and link the schema, pulling in any other imported schemas and connecting all of the symbol
 	// references to their referenced declarations
-	const errors = await link_schema(schema, {
+	const { schema, errors } = await link_schema2(entrypoint_ast, {
 		async resolve_import(path: string) {
 			log.debug('resolve_import', path);
 
@@ -73,93 +64,71 @@ async function main() {
 			}
 
 			if (imported_contents) {
-				const imported_ast = parse_src_to_ast(path, imported_contents);
-
-				if (imported_ast) {
-					return build_schema_from_ast(imported_ast, include_source_maps, schema);
-				}
-
-				throw new Error('Failed to parse file');
+				return parse_src_to_ast(path, imported_contents);
 			}
 
 			throw new Error('Failed to read import contents');
 		}
 	});
 
-	// If we need schema output, we should also output the linked version of the schema
+	let schema_out_dir: OutputWriter;
+
+	// If we need to output a schema file, do that
 	if (schema_out) {
-		await schema_out_dir.write_file('linked.json', JSON.stringify(schema, replacer()));
-		// await schema_out_dir.write_file('linked.json', jsonc.stringify(schema, { handleCircular: true }));
-
-		function replacer() {
-			const seen = new Set();
-
-			return function(key: string, value: any) {
-				if (value && typeof value === 'object') {
-					if (seen.has(value)) {
-						return '[Circular]';
-					}
-
-					seen.add(value);
-				}
-
-				if (typeof value === 'bigint') {
-					return value.toString();
-				}
-
-				return value;
-			};
-		}
+		schema_out_dir = new OutputWriter(schema_out.directory);
+		await schema_out_dir.create();
+		await schema_out_dir.write_file('schema.json', JSON.stringify(schema, null, '  '));
 	}
 
-	// If we encountered errors while building, stop here
+	// If we encountered errors while building/linking, stop here
 	if (errors.length) {
 		errors.forEach((error) => {
-			log.error('\n' + error.message, `(${error.source.source}:${error.line}:${error.char})`);
-			// TODO: Log `error.text` once its being defined
+			log.error(`\n${red('Error')}: ${error.message}`);
+			log.error(`(${error.pos_text})\n`);
+			log.error(`${error.reference_text}\n`);
 		});
 
-		log.error(`\nErrors: ${errors.length}\n`);
+		log.error(`\nErrors: ${yellow(errors.length)}`);
 		await exit_error(1, 'Failed to build and link schema');
 	}
 
-	// If more outputs are required
-	for (let out of args.out) {
-		const out_dir = new OutputWriter(out.directory);
-		await out_dir.create();
+	// // If more outputs are required, compile each of those
+	// for (let out of args.out) {
+	// 	const out_dir = new OutputWriter(out.directory);
+	// 	await out_dir.create();
 
-		switch (out.format) {
-			case output_format.as:
-				// TODO: Output AssemblyScript
-				break;
+	// 	switch (out.format) {
+	// 		case output_format.as:
+	// 			// TODO: Output AssemblyScript
+	// 			break;
 
-			case output_format.html:
-				// TODO: Output HTML Documentation
-				break;
+	// 		case output_format.html:
+	// 			// TODO: Output HTML Documentation
+	// 			break;
 
-			case output_format.ts:
-				// TODO: Output TypeScript
-				break;
+	// 		case output_format.ts:
+	// 			// TODO: Output TypeScript
+	// 			break;
 
-			case output_format.md:
-				const opts: MarkdownCompilerOptions = { out_dir };
+	// 		case output_format.md:
+	// 			const opts: MarkdownCompilerOptions = { out_dir };
 
-				if (out.conf) {
-					const conf = out.conf as MarkdownConf;
-					opts.source_url = conf.source_url;
-					opts.include_external = conf.include_external;
-					opts.include_remote = conf.include_remote;
-				}
+	// 			if (out.conf) {
+	// 				const conf = out.conf as MarkdownConf;
+	// 				opts.source_url = conf.source_url;
+	// 				opts.include_external = conf.include_external;
+	// 				opts.include_remote = conf.include_remote;
+	// 			}
 
-				await compile_to_markdown(schema, opts);
-				break;
+	// 			await compile_to_markdown(schema, opts);
+	// 			break;
 
-			case output_format.ast_json:
-			case output_format.sch_json:
-				// skip, already handled
-				break;
-		}
-	}
+	// 		case output_format.ast_json:
+	// 		case output_format.sch_json:
+	// 			// skip, already handled
+	// 			break;
+	// 	}
+	// }
 
 	await exit_successful();
 }

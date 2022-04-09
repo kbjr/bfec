@@ -2,5 +2,69 @@
   "$schema": "http://json-schema.org/draft-07/schema",
   "$id": "https://bfec.io/json/schema/v1.json",
   "type": "object",
-  "properties": { }
+  "properties": {
+    "source": {
+      "type": "string",
+      "description": "Identifier for a given schema file; Typically a file path or URL",
+      "examples": [
+        "~/some/file/path.bfec",
+        "https://bfec.io/bfec/basics.bfec"
+      ]
+    },
+    "is_external": {
+      "type": "boolean",
+      "description": "Represents whether or not the schema file was source from outside of the local project"
+    },
+    "is_remote": {
+      "type": "boolean",
+      "description": "Represents whether or not the schema file was sourced from a remote (i.e. networked) location"
+    },
+    "imports": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/import" },
+      "description": "A list of all imported schemas referenced by this schema"
+    },
+    "imported_refs": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/imported_ref" }
+    },
+    "structs": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/struct" }
+    },
+    "switches": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/switch" }
+    },
+    "enums": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/enum" }
+    }
+  },
+  "$defs": {
+    "import": {
+      "type": "object",
+      "properties": { }
+    },
+    "imported_ref": {
+      "type": "string",
+      "description": "Represents an imported symbol from another schema",
+      "examples": [
+        "@[imported foo as bar from ~/baz.bfec]",
+        "@[imported bool from https://bfec.io/bfec/basics.bfec]"
+      ]
+    },
+    "struct": {
+      "type": "object",
+      "properties": { }
+    },
+    "switch": {
+      "type": "object",
+      "properties": { }
+    },
+    "enum": {
+      "type": "object",
+      "properties": { }
+    }
+  }
 }

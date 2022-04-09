@@ -5,7 +5,7 @@ import { NamedStruct, Struct, StructField, StructMember } from './struct';
 import { pos, pos_for_type_expr, pos_for_value_expr } from './pos';
 import { Import } from './import';
 import { Enum } from './enum';
-import { NamedSwitch } from './switch';
+import { NamedSwitch, Switch } from './switch';
 
 export type ImportedRefable = NamedStruct | NamedSwitch | Enum | ImportedRef;
 
@@ -33,13 +33,14 @@ export class ImportedRef<T extends ImportedRefable = ImportedRefable> implements
 
 	public toJSON() {
 		const alias = this.ast_node.alias_name ? ` as ${this.ast_node.alias_name}` : '';
-		return `@[imported ${this.ast_node.source_name.text}${alias} from ${this.from.source_token.text}]`;
+		return `@[imported ${this.ast_node.source_name.text}${alias} from ${this.from.source.value}]`;
 	}
 }
 
 export class StructRef<F extends StructMember = StructMember> implements SchemaNode {
 	public type = 'struct_ref' as const;
 	public ast_node: ast.TypeExpr_named;
+	public imported?: ImportedRef;
 	public points_to: Struct<F>;
 	// TODO: How to represent params?
 
@@ -57,7 +58,8 @@ export type StructFieldRef = LocalFieldRef| GlobalFieldRef;
 export class SwitchRef implements SchemaNode {
 	public type = 'switch_ref' as const;
 	public ast_node: ast.TypeExpr_named;
-	// public points_to: Switch;
+	public imported?: ImportedRef;
+	public points_to: Switch;
 	// TODO: How to represent the param?
 
 	public get pos() {
@@ -72,7 +74,8 @@ export class SwitchRef implements SchemaNode {
 export class EnumRef implements SchemaNode {
 	public type = 'enum_ref' as const;
 	public ast_node: ast.TypeExpr_named;
-	// public points_to: Enum;
+	public imported?: ImportedRef;
+	public points_to: Enum;
 
 	public get pos() {
 		return pos_for_type_expr(this.ast_node);
@@ -85,7 +88,7 @@ export class EnumRef implements SchemaNode {
 
 export class EnumMemberRef implements SchemaNode {
 	public type = 'enum_member_ref' as const;
-	public ast_node: ast.ValueExpr_path;
+	public ast_node: ast.ValueExpr_path; // | ast.NameToken_normal
 	// public points_to: EnumMember;
 	
 	public get pos() {

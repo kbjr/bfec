@@ -157,7 +157,7 @@ function parse_type_expr_len(state: ParserState) : TypeExpr_builtin_len {
 	}
 	
 	state.scan_through_comments_and_whitespace(ast_node.children);
-	ast_node.real_type = parse_type_expr_fixed_int(state) || parse_type_expr_varint(state);
+	ast_node.real_type = parse_type_expr_non_const_fixed_int(state) || parse_type_expr_varint(state);
 
 	if (! ast_node.real_type) {
 		state.fatal('expected a fixed int type expr for len real type');
@@ -530,6 +530,11 @@ function parse_type_expr_named_refinement(state: ParserState, lh_expr: TypeExpr,
 	ast_node.refined_type = rh_expr;
 	
 	return ast_node;
+}
+
+function parse_type_expr_non_const_fixed_int(state: ParserState) {
+	state.trace('parse_type_expr_non_const_fixed_int');
+	return name_builtin_uint.match(state) || name_builtin_sint.match(state) || name_builtin_bit.match(state);
 }
 
 function parse_type_expr_fixed_int(state: ParserState) : TypeExpr_int {

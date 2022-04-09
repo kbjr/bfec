@@ -23,6 +23,8 @@ import {
 import { StructBody } from './struct';
 import { SwitchBody } from './switch';
 
+export type LengthType = TypeExpr_int | OpToken_expansion | ValueExpr | KeywordToken_null;
+
 export type TypeExpr
 	= ConstToken_int
 	| ConstToken_hex_int
@@ -88,12 +90,19 @@ export class TypeExpr_builtin_vint extends ASTNode {
 	}
 }
 
+export type LengthRealType
+	= NameToken_builtin_uint
+	| NameToken_builtin_sint
+	| TypeExpr_builtin_vint
+	| NameToken_builtin_bit
+	;
+
 export class TypeExpr_builtin_len extends ASTNode {
 	public type: node_type.type_expr_len = node_type.type_expr_len;
 	public len_keyword: NameToken_builtin_len;
 	public open_bracket: PuncToken_open_angle_bracket;
 	public close_bracket: PuncToken_close_angle_bracket;
-	public real_type: TypeExpr;
+	public real_type: LengthRealType;
 	public children: Ignored[] = [ ];
 
 	public toJSON(): object {
@@ -117,7 +126,7 @@ export class TypeExpr_array extends ASTNode {
 	public elem_type: TypeExpr;
 	public open_bracket: PuncToken_open_square_bracket;
 	public close_bracket: PuncToken_close_square_bracket;
-	public length_type: TypeExpr | OpToken_expansion | ValueExpr | KeywordToken_null;
+	public length_type: LengthType;
 	public children: Ignored[] = [ ];
 
 	public toJSON(): object {
@@ -283,7 +292,7 @@ export class TypeExpr_builtin_text extends ASTNode {
 	public text_keyword: NameToken_builtin_text;
 	public open_bracket: PuncToken_open_angle_bracket;
 	public close_bracket: PuncToken_close_angle_bracket;
-	public length_type: TypeExpr | OpToken_expansion | KeywordToken_null;
+	public length_type: LengthType;
 	public children: Ignored[] = [ ];
 
 	public toJSON(): object {

@@ -1,19 +1,18 @@
 
 import { ast } from '../parser';
 import { Comment } from './comment';
-import { ConstInt, ConstString } from './const';
+import { FieldType } from './field-type';
 import { SchemaNode } from './node';
-import { pos, PositionRange } from './pos';
-import { EnumMemberRef, ImportedRef, ParamRef, StructRef, SwitchRef } from './ref';
 import { NamedSwitch } from './switch';
+import { pos, PositionRange } from './pos';
+import { ConstInt, ConstString } from './const';
+import { EnumMemberRef, ImportedRef, ParamRef, StructRef, SwitchRef } from './ref';
 
 export type ExpandedStruct = Struct<StructField>;
 
 export type Struct<F extends StructMember = StructMember> = NamedStruct<F> | InlineStruct<F>;
 
 export type StructMember = StructField | StructExpansion;
-
-export type StructFieldType = StructRef | SwitchRef;
 
 export type StructExpandableType = StructRef | SwitchRef | ImportedRef<NamedStruct | NamedSwitch>;
 
@@ -27,6 +26,17 @@ export abstract class AbstractStruct<F extends StructMember = StructMember> impl
 	public abstract get name() : string;
 	public abstract get is_byte_aligned() : boolean;
 	public abstract get pos() : PositionRange;
+
+	public toJSON() {
+		return {
+			type: this.type,
+			struct_type: this.struct_type,
+			is_byte_aligned: this.is_byte_aligned,
+			name: this.name,
+			comments: this.comments,
+			fields: this.fields,
+		};
+	}
 }
 
 export class NamedStruct<F extends StructMember = StructMember> extends AbstractStruct<F> {
@@ -67,7 +77,7 @@ export class InlineStruct<F extends StructMember = StructMember> extends Abstrac
 	}
 }
 
-export class StructField<T extends StructFieldType = StructFieldType> implements SchemaNode {
+export class StructField<T extends FieldType = FieldType> implements SchemaNode {
 	public type = 'struct_field' as const;
 	public ast_node: ast.StructField;
 	public comments: Comment[];
@@ -86,16 +96,35 @@ export class StructField<T extends StructFieldType = StructFieldType> implements
 	public get pos() {
 		return pos(this.name_token, this.ast_node.terminator);
 	}
+
+	public toJSON() {
+		return {
+			type: this.type,
+			name: this.name,
+			comments: this.comments,
+			field_type: this.field_type,
+			condition: this.condition,
+			field_value: this.field_value,
+		};
+	}
 }
 
 export class StructExpansion<T extends StructExpandableType = StructExpandableType> implements SchemaNode {
-	public type = 'struct_field_expansion' as const;
+	public type = 'struct_expansion' as const;
 	public ast_node: ast.StructExpansion;
 	public comments: Comment[];
 	public expanded_type: T;
 
 	public get pos() {
 		return pos(this.ast_node.expansion_op, this.ast_node.terminator);
+	}
+
+	public toJSON() {
+		return {
+			type: this.type,
+			comments: this.comments,
+			expanded_type: this.expanded_type,
+		};
 	}
 }
 

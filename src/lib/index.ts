@@ -4,6 +4,8 @@ export { parse_src_to_ast, ast } from './parser';
 export { build_schema_from_ast } from './schema';
 export { link_schema, LinkerOptions } from './linker';
 
+export { link_schema as link_schema2 } from './linker2';
+
 export * from './error';
 export * from './writeable-dir';
 

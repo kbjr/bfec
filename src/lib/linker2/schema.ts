@@ -1,9 +1,9 @@
 
 import { Enum } from './enum';
 import { Import } from './import';
+import { ImportedRef } from './ref';
 import { NamedStruct, Struct } from './struct';
 import { NamedSwitch, Switch } from './switch';
-import { ImportedRef } from './ref';
 import { schema_json_schema } from '../constants';
 import { ast } from '../parser';
 
@@ -22,13 +22,47 @@ export class Schema {
 
 	public toJSON() {
 		return {
-			$schema: schema_json_schema,
+			$schema: this.root_schema ? void 0 : schema_json_schema,
 			source: this.source.source,
-			imports: this.imports,
+			is_external: this.is_external,
+			is_remote: this.is_remote,
+			imports: this.root_schema ? void 0 : this.get_all_imports(),
 			imported_refs: this.imported_refs,
 			structs: this.structs,
 			switches: this.switches,
 			enums: this.enums,
 		};
+	}
+
+	private get_all_imports() {
+		const seen = new Set<Schema>();
+		const imports: Import[] = this.imports.slice();
+
+		top_loop:
+		for (let i = 0; i < imports.length; i++) {
+			const imported = imports[i];
+
+			if (! imported.schema) {
+				continue top_loop;
+			}
+
+			seen.add(imported.schema);
+
+			sub_loop:
+			for (const child of imported.schema.imports) {
+				if (! child.schema) {
+					continue sub_loop;
+				}
+
+				if (seen.has(child.schema)) {
+					continue sub_loop;
+				}
+
+				imports.push(child);
+				seen.add(child.schema);
+			}
+		}
+
+		return imports;
 	}
 }

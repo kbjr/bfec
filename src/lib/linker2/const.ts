@@ -15,6 +15,13 @@ export class ConstInt implements SchemaNode {
 		return pos(this.token);
 	}
 
+	public toJSON() {
+		return {
+			type: this.type,
+			value: this.value,
+		};
+	}
+
 	public static from_ast(node: ast.ConstToken_int | ast.ConstToken_hex_int) {
 		const int = new ConstInt();
 		int.token = node;
@@ -31,6 +38,14 @@ export class ConstString implements SchemaNode {
 
 	public get pos() {
 		return pos(this.token);
+	}
+
+	public toJSON() {
+		return {
+			type: this.type,
+			unicode: this.unicode,
+			value: this.value,
+		};
 	}
 
 	public static from_ast(node: ast.ConstToken_ascii | ast.ConstToken_unicode) {
