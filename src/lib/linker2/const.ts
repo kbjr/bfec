@@ -18,7 +18,7 @@ export class ConstInt implements SchemaNode {
 	public toJSON() {
 		return {
 			type: this.type,
-			value: this.value,
+			value: this.value.toString(),
 		};
 	}
 

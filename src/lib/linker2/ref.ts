@@ -4,8 +4,12 @@ import { SchemaNode } from './node';
 import { NamedStruct, Struct, StructField, StructMember } from './struct';
 import { pos, pos_for_type_expr, pos_for_value_expr } from './pos';
 import { Import } from './import';
-import { Enum } from './enum';
+import { Enum, EnumMember } from './enum';
 import { NamedSwitch, Switch } from './switch';
+import { FieldType } from './field-type';
+import { StructParam } from '../schema';
+
+export type ParamType = StructFieldRef | EnumMemberRef;
 
 export type ImportedRefable = NamedStruct | NamedSwitch | Enum | ImportedRef;
 
@@ -42,7 +46,7 @@ export class StructRef<F extends StructMember = StructMember> implements SchemaN
 	public ast_node: ast.TypeExpr_named;
 	public imported?: ImportedRef;
 	public points_to: Struct<F>;
-	// TODO: How to represent params?
+	public params: ParamType[];
 
 	public get pos() {
 		return pos_for_type_expr(this.ast_node);
@@ -53,14 +57,14 @@ export class StructRef<F extends StructMember = StructMember> implements SchemaN
 	}
 }
 
-export type StructFieldRef = LocalFieldRef| GlobalFieldRef;
+export type StructFieldRef<T extends FieldType = FieldType> = LocalFieldRef<T> | GlobalFieldRef<T>;
 	
 export class SwitchRef implements SchemaNode {
 	public type = 'switch_ref' as const;
 	public ast_node: ast.TypeExpr_named;
 	public imported?: ImportedRef;
 	public points_to: Switch;
-	// TODO: How to represent the param?
+	public param: ParamType;
 
 	public get pos() {
 		return pos_for_type_expr(this.ast_node);
@@ -89,7 +93,7 @@ export class EnumRef implements SchemaNode {
 export class EnumMemberRef implements SchemaNode {
 	public type = 'enum_member_ref' as const;
 	public ast_node: ast.ValueExpr_path; // | ast.NameToken_normal
-	// public points_to: EnumMember;
+	public points_to: EnumMember;
 	
 	public get pos() {
 		return pos_for_value_expr(this.ast_node);
@@ -100,10 +104,10 @@ export class EnumMemberRef implements SchemaNode {
 	}
 }
 
-export class LocalFieldRef implements SchemaNode {
+export class LocalFieldRef<T extends FieldType = FieldType> implements SchemaNode {
 	public type = 'local_field_ref' as const;
 	public ast_node: ast.ValueExpr_path;
-	public points_to: StructField;
+	public points_to: StructField<T>;
 	
 	public get pos() {
 		return pos_for_value_expr(this.ast_node);
@@ -114,10 +118,10 @@ export class LocalFieldRef implements SchemaNode {
 	}
 }
 
-export class GlobalFieldRef implements SchemaNode {
+export class GlobalFieldRef<T extends FieldType = FieldType> implements SchemaNode {
 	public type = 'global_field_ref' as const;
 	public ast_node: ast.ValueExpr_path;
-	public points_to: StructField;
+	public points_to: StructField<T>;
 	
 	public get pos() {
 		return pos_for_value_expr(this.ast_node);
@@ -131,7 +135,7 @@ export class GlobalFieldRef implements SchemaNode {
 export class ParamRef implements SchemaNode {
 	public type = 'param_ref' as const;
 	public ast_node: ast.ValueExpr_path;
-	// public points_to: StructParam;
+	public points_to: StructParam;
 	
 	public get pos() {
 		return pos_for_value_expr(this.ast_node);

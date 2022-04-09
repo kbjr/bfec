@@ -71,7 +71,7 @@ export class TypeExpr_builtin_vint extends ASTNode {
 	public varint_keyword: NameToken_builtin_vint;
 	public open_bracket: PuncToken_open_angle_bracket;
 	public close_bracket: PuncToken_close_angle_bracket;
-	public real_type: TypeExpr;
+	public real_type: TypeExpr_builtin_fixed_int;
 	public children: Ignored[] = [ ];
 
 	public toJSON(): object {

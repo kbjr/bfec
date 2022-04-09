@@ -121,7 +121,7 @@ function parse_type_expr_varint(state: ParserState) : TypeExpr_builtin_vint {
 	}
 	
 	state.scan_through_comments_and_whitespace(ast_node.children);
-	ast_node.real_type = parse_type_expr_fixed_int(state);
+	ast_node.real_type = parse_type_expr_non_const_fixed_int(state);
 
 	if (! ast_node.real_type) {
 		state.fatal('expected a fixed int type expr for varint real type');

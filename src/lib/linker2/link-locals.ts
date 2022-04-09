@@ -7,6 +7,7 @@ import { Struct } from './struct';
 import { ImportedRef } from './ref';
 import { build_field_type } from './field-type';
 import { BuildError, BuildErrorFactory, build_error_factory } from '../error2';
+import { ChecksumType } from './base-types';
 
 export function link_locals(schema: Schema, errors: BuildError[]) {
 	const error = build_error_factory(errors, schema);
@@ -74,4 +75,8 @@ function link_switch(schema: Schema, node: Switch, error: BuildErrorFactory) {
 
 function link_enum(schema: Schema, node: Enum, error: BuildErrorFactory) {
 	// 
+}
+
+function link_checksum_type(schema: Schema, node: ChecksumType, error: BuildErrorFactory) {
+	// TODO: node.data_field
 }

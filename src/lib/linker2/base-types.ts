@@ -3,7 +3,7 @@ import { ast } from '../parser';
 import { ConstInt, ConstString } from './const';
 import { SchemaNode } from './node';
 import { pos, PositionRange, pos_for_type_expr, pos_for_value_expr } from './pos';
-import { StructFieldRef, StructRef, SwitchRef } from './ref';
+import { EnumRef, ImportedRef, StructFieldRef, StructRef, SwitchRef } from './ref';
 
 export type BuiltinType
 	= BaseType
@@ -172,7 +172,7 @@ export class ChecksumType implements SchemaNode {
 	}
 }
 
-export type ArrayElemType = BaseType | StructRef | SwitchRef;
+export type ArrayElemType = BaseType | StructRef | SwitchRef | EnumRef | ImportedRef;
 
 export class ArrayType<T extends ArrayElemType = ArrayElemType> implements SchemaNode {
 	public type = 'type_array' as const;
@@ -222,6 +222,13 @@ export class NullTerminatedLength extends AbstractLength {
 	public get pos() {
 		return pos(this.ast_node);
 	}
+
+	public toJSON() {
+		return {
+			type: this.type,
+			length_type: this.length_type,
+		};
+	}
 }
 
 export class TakeRemainingLength extends AbstractLength {
@@ -230,6 +237,13 @@ export class TakeRemainingLength extends AbstractLength {
 
 	public get pos() {
 		return pos(this.ast_node);
+	}
+
+	public toJSON() {
+		return {
+			type: this.type,
+			length_type: this.length_type,
+		};
 	}
 }
 
@@ -241,11 +255,20 @@ export class StaticLength extends AbstractLength {
 	public get pos() {
 		return pos(this.ast_node);
 	}
+
+	public toJSON() {
+		return {
+			type: this.type,
+			length_type: this.length_type,
+			value: this.value,
+		};
+	}
 }
 
 export class LengthPrefix extends AbstractLength {
 	public length_type = 'length_prefix';
-	public ast_node: ast.TypeExpr_int;
+	public ast_node: ast.TypeExpr_builtin_fixed_int | ast.TypeExpr_builtin_vint;
+	public prefix_type: FixedIntType | VarIntType;
 
 	public get pos() {
 		if (this.ast_node.type == ast.node_type.type_expr_vint) {
@@ -254,14 +277,31 @@ export class LengthPrefix extends AbstractLength {
 
 		return pos(this.ast_node);
 	}
+
+	public toJSON() {
+		return {
+			type: this.type,
+			length_type: this.length_type,
+			prefix_type: this.prefix_type,
+		};
+	}
 }
 
 export class LengthField extends AbstractLength {
 	public length_type = 'length_field';
 	public ast_node: ast.ValueExpr_path;
+	public field: StructFieldRef<LengthType>;
 
 	public get pos() {
 		return pos_for_value_expr(this.ast_node);
+	}
+
+	public toJSON() {
+		return {
+			type: this.type,
+			length_type: this.length_type,
+			field: this.field,
+		};
 	}
 }
 
