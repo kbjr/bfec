@@ -1,0 +1,23 @@
+
+# Represents a simple boolean value
+enum bool: b1 {
+  false = 0;
+  true  = 1;
+}
+
+#--
+Semantic Versioning 2.0.0
+
+https://semver.org/
+#--
+struct semver {
+  flags: u8 -> bin {
+    has_pre_release: bool;
+    has_build_metadata: bool;
+  };
+  major: varint<u32>;
+  minor: varint<u32>;
+  patch: varint<u32>;
+  pre_release?(@.flags.has_pre_release): ascii<varint<u32>>;
+  build_metadata?(@.flags.has_build_metadata): ascii<varint<u32>>;
+}

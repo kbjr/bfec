@@ -1,5 +1,5 @@
 
-from '~/basics.bfec' { bool };
+from 'https://bfec.io/bfec/basics/v1.bfec' { bool };
 
 #--
 PNG Image Format

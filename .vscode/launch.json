@@ -20,6 +20,14 @@
       "program": "${workspaceFolder}/src/cli/main.ts",
       "outFiles": ["${workspaceFolder}/build/**/*.js"],
       "args": ["-conf", "./examples/png/config.jsonc"],
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Build CLI",
+      "program": "${workspaceFolder}/node_modules/.bin/tsc",
+      "outFiles": ["${workspaceFolder}/build/**/*.js"],
+      "args": ["--build", "tsconfig.json"],
     }
   ]
 }

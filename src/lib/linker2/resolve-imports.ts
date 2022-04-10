@@ -1,7 +1,7 @@
 
 import { Schema } from './schema';
 import { Import } from './import';
-import { link_locals } from './link-locals';
+import { link_types } from './link-types';
 import { LinkerOptions } from './options';
 import { linker as log } from '../log';
 import { build_schema_from_ast } from './builder';
@@ -31,7 +31,7 @@ export async function resolve_imports(from: Schema, root: Schema, opts: LinkerOp
 				async (ast_node) => {
 					const schema = build_schema_from_ast(ast_node, errors, from);
 					await resolve_imports(schema, root, opts, deps, errors);
-					link_locals(schema, errors);
+					link_types(schema, errors);
 					return schema;
 				}
 			);

@@ -1,5 +1,0 @@
-
-enum bool: b1 {
-  false = 0;
-  true  = 1;
-}

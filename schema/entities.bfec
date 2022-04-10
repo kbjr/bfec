@@ -37,3 +37,14 @@ struct NamespaceEntityContents {
 
 # ...or a more generic name?
 #     image_data: transform<ImageData>('compress:gzip');
+
+
+
+
+
+# TODO: Map enum to other value literal?
+# map bool_str<bool, ascii> {
+#   case false: "false";
+#   case true:  "true";
+# }
+

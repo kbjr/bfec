@@ -46,6 +46,10 @@ export class NamedSwitch extends AbstractSwitch {
 		return this.ast_node.name;
 	}
 
+	public get arg_type_node() {
+		return this.ast_node.param.param_type;
+	}
+
 	public get pos() {
 		return null;
 	}
@@ -57,6 +61,10 @@ export class InlineSwitch extends AbstractSwitch {
 
 	public get name() {
 		return '<inline_switch>';
+	}
+
+	public get arg_type_node() {
+		return this.ast_node.param.param_type;
 	}
 
 	public get pos() {

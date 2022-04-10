@@ -6,7 +6,9 @@ import { SchemaNode } from './node';
 import { NamedSwitch } from './switch';
 import { pos, PositionRange } from './pos';
 import { ConstInt, ConstString } from './const';
-import { EnumMemberRef, ImportedRef, ParamRef, StructRef, SwitchRef } from './ref';
+import { EnumMemberRef, EnumRef, ImportedRef, ParamRef, StructRef, SwitchRef } from './ref';
+import { BaseType } from './base-types';
+import { BoolExpr } from './bool-expr';
 
 export type ExpandedStruct = Struct<StructField>;
 
@@ -21,6 +23,7 @@ export abstract class AbstractStruct<F extends StructMember = StructMember> impl
 	public comments: Comment[];
 	public fields: F[];
 	public symbols = new Map<string, StructField>();
+	public params: StructParam[];
 	
 	public abstract readonly struct_type: string;
 	public abstract get name() : string;
@@ -81,7 +84,7 @@ export class StructField<T extends FieldType = FieldType> implements SchemaNode 
 	public type = 'struct_field' as const;
 	public ast_node: ast.StructField;
 	public comments: Comment[];
-	public condition?: void;
+	public condition?: BoolExpr;
 	public field_type: T;
 	public field_value?: ParamRef | EnumMemberRef | ConstInt | ConstString;
 
@@ -91,6 +94,14 @@ export class StructField<T extends FieldType = FieldType> implements SchemaNode 
 
 	public get name_token() {
 		return this.ast_node.field_name;
+	}
+
+	public get has_condition() {
+		return this.ast_node.optional_condition != null;
+	}
+
+	public get has_field_value() {
+		return this.ast_node.optional_value != null;
 	}
 
 	public get pos() {
@@ -124,6 +135,32 @@ export class StructExpansion<T extends StructExpandableType = StructExpandableTy
 			type: this.type,
 			comments: this.comments,
 			expanded_type: this.expanded_type,
+		};
+	}
+}
+
+export class StructParam implements SchemaNode {
+	public type = 'struct_param' as const;
+	public ast_node: ast.StructParamNode;
+	public param_type: BaseType | EnumRef;
+
+	public get name() {
+		return this.name_token.text;
+	}
+
+	public get name_token() {
+		return this.ast_node.name;
+	}
+
+	public get pos() {
+		return pos(this.name_token);
+	}
+
+	public toJSON() {
+		return {
+			type: this.type,
+			name: this.name,
+			param_type: this.param_type,
 		};
 	}
 }

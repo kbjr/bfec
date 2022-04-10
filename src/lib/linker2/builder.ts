@@ -9,7 +9,7 @@ import { Enum, EnumMember } from './enum';
 import { Import } from './import';
 import { ImportedRef } from './ref';
 import { ConstString } from './const';
-import { build_enum_type, build_field_type } from './field-type';
+import { build_enum_type } from './field-type';
 
 export function build_schema_from_ast(file: ast.FileNode, errors: BuildError[], root_schema?: Schema) {
 	const schema = new Schema();

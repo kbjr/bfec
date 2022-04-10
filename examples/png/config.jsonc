@@ -1,15 +1,14 @@
 {
-  "$schema": "../../json/config/v1.json",
-  // "$schema": "https://bfec.io/json/config/v1.json",
+  "$schema": "https://bfec.io/json/config/v1.json",
   "in": {
     "dir": ".",
     "file": "png.bfec"
   },
   "out": {
-    "ast_json": "./ast",
-    "sch_json": "./schema",
-    "ts": "./ts",
-    "as": "./as",
+    // "ast_json": "./ast",
+    // "sch_json": "./schema",
+    // "ts": "./ts",
+    // "as": "./as",
     "md": {
       "dir": "./md",
       "source_url": "../",
@@ -18,6 +17,6 @@
     }
   },
   "allowed_remotes": [
-    // "https://bfec.io/bfec/"
+    "https://bfec.io/bfec/"
   ]
 }

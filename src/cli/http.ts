@@ -1,6 +1,7 @@
 
 import { request as request_http } from 'http';
 import { request as request_https } from 'https';
+import { main as log } from './log';
 
 const timeout_ms = 10_000;
 const cached_promises = new Map<string, Promise<string>>();
@@ -41,5 +42,7 @@ export function get_http(url: string) : Promise<string> {
 		req.on('error', (err) => {
 			reject(err);
 		});
+
+		req.end();
 	});
 }

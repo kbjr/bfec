@@ -1,8 +1,8 @@
 
 import { ast } from '../parser';
 import { Schema } from './schema';
-import { NamedSwitch, Switch } from './switch';
-import { NamedStruct, Struct } from './struct';
+import { Switch } from './switch';
+import { Struct } from './struct';
 import { BuildErrorFactory } from '../error2';
 import { ConstInt, ConstString } from './const';
 import { Enum, EnumType } from './enum';
@@ -24,8 +24,9 @@ import {
 	is_array_of, is_fixed_int,
 	Length, LengthField, LengthPrefix, LengthType, NullTerminatedLength, StaticLength, TakeRemainingLength,
 } from './base-types';
+import { ASTRefinement, RefinementBase, TypeRefinement } from './type-refinement';
 
-export type FieldType = BuiltinType | EnumRef | StructRef | SwitchRef | ImportedRef<NamedStruct | NamedSwitch>; // | TypeRefinement
+export type FieldType = BuiltinType | EnumRef | StructRef | SwitchRef | TypeRefinement;
 
 export function build_field_type(schema: Schema, expr: ast.TypeExpr, error: BuildErrorFactory) : FieldType {
 	switch (expr.type) {
@@ -140,7 +141,7 @@ export function build_array(schema: Schema, expr: ast.TypeExpr_array, error: Bui
 
 	const elem_type = build_field_type(schema, expr.elem_type, error);
 
-	if (elem_type.type === 'type_checksum' || elem_type.type === 'type_len') {
+	if (elem_type.type === 'type_checksum' || elem_type.type === 'type_len' || elem_type.type === 'type_refinement') {
 		error(elem_type, 'Invalid element type for array type expr');
 		return type;
 	}
@@ -391,18 +392,51 @@ export function build_length(expr: ast.LengthType, error: BuildErrorFactory) : L
 }
 
 export function build_named_refinement(schema: Schema, expr: ast.TypeExpr_named_refinement, error: BuildErrorFactory) {
-	error.type_expr(expr, 'Named type refinements not yet supported');
-	return null;
+	const type = build_refinement_base(schema, expr, error);
+	const refined = build_field_type(schema, expr.refined_type, error);
+
+	if (refined.type === 'struct_ref' || refined.type === 'switch_ref') {
+		type.refined_type = refined;
+	}
+
+	else {
+		error(refined, 'Invalid refinement target; Result of type refinement must be a struct or switch');
+	}
+	
+	return type;
 }
 
 export function build_struct_refinement(schema: Schema, expr: ast.TypeExpr_struct_refinement, error: BuildErrorFactory) {
-	error.type_expr(expr, 'Struct type refinements not yet supported');
-	return null;
+	const type = build_refinement_base(schema, expr, error);
+
+	// TODO: type.refined_type
+	
+	return type;
 }
 
 export function build_switch_refinement(schema: Schema, expr: ast.TypeExpr_switch_refinement, error: BuildErrorFactory) {
-	error.type_expr(expr, 'Switch type refinements not yet supported');
-	return null;
+	const type = build_refinement_base(schema, expr, error);
+
+	// TODO: type.refined_type
+	
+	return type;
+}
+
+function build_refinement_base(schema: Schema, expr: ASTRefinement, error: BuildErrorFactory) {
+	const type = new TypeRefinement();
+	type.ast_node = expr;
+
+	const base_type = build_field_type(schema, expr.parent_type, error);
+
+	if (base_type.type === 'type_fixed_int' || base_type.type === 'type_array' && base_type.elem_type.type === 'type_fixed_int') {
+		type.base_type = base_type as RefinementBase;
+	}
+
+	else {
+		error(base_type, 'Invalid base type for type refinement; Only integers and byte arrays may be refined');
+	}
+
+	return type;
 }
 
 export function build_struct_field_ref(expr: ast.ValueExpr_path, error: BuildErrorFactory) {

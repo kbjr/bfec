@@ -51,7 +51,8 @@ async function main() {
 				if (! check_remote_is_allowed(args.allowed_remotes, path)) {
 					throw new Error('Remote location not allowed');
 				}
-
+				
+				// TODO: Build on-disk caching mechanism to avoid repeated calls for the same files
 				imported_contents = await get_http(path);
 			}
 
