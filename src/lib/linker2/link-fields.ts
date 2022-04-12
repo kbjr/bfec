@@ -2,13 +2,14 @@
 import { ast } from '../parser';
 import { Switch } from './switch';
 import { Schema } from './schema';
-import { ChecksumType } from './base-types';
+import { ArrayType, ChecksumType, Length, TextType } from './base-types';
 import { Struct, StructField } from './struct';
 import { BuildError, BuildErrorFactory, build_error_factory } from '../error2';
 import { BoolExpr_and, BoolExpr_eq, BoolExpr_neq, BoolExpr_not, BoolExpr_or, BoolExpr_xor } from './bool-expr';
 import { ConstInt, ConstString } from './const';
 import { EnumMemberRef, EnumRef, ImportedRef, ImportedRefable, ParamRef } from './ref';
 import { NameToken_normal } from '../parser/ast';
+import { FieldType } from './field-type';
 
 export function link_fields(schema: Schema, errors: BuildError[]) {
 	const error = build_error_factory(errors, schema);
@@ -25,6 +26,8 @@ export function link_fields(schema: Schema, errors: BuildError[]) {
 function link_struct(schema: Schema, node: Struct, error: BuildErrorFactory) {
 	for (const field of node.fields) {
 		if (field.type === 'struct_field') {
+			link_field_type(schema, field.field_type, error, node);
+
 			if (field.has_condition) {
 				build_and_link_bool_expr(schema, node, field.ast_node.optional_condition.condition, error);
 			}
@@ -56,6 +59,7 @@ function link_struct(schema: Schema, node: Struct, error: BuildErrorFactory) {
 	}
 }
 
+// TODO: type validation
 export function build_struct_value_ref(schema: Schema, expr: ast.ValueExpr_path, struct: Struct, error: BuildErrorFactory) {
 	const found_param = struct.param_map.get(expr.lh_name.text);
 
@@ -187,6 +191,44 @@ function link_switch(schema: Schema, node: Switch, error: BuildErrorFactory) {
 	}
 }
 
-function link_checksum_type(schema: Schema, node: ChecksumType, error: BuildErrorFactory) {
-	// TODO: node.data_field
+
+
+// ===== Field Types =====
+
+function link_field_type(schema: Schema, field_type: FieldType, error: BuildErrorFactory, struct?: Struct) {
+	switch (field_type.type) {
+		case 'struct_ref':
+			// TODO: params
+			break;
+
+		case 'switch_ref':
+			// TODO: param
+			break;
+			
+		case 'type_array':
+			link_field_type(schema, field_type.elem_type, error, struct);
+			// no break
+
+		case 'type_text':
+			link_length(schema, field_type, field_type.length, error, struct);
+			break;
+
+		case 'type_checksum':
+			link_checksum_type(schema, field_type, error, struct);
+			break;
+
+		case 'type_refinement':
+			// TODO: refined type
+			break;
+	}
+}
+
+function link_length(schema: Schema, node: ArrayType | TextType, length: Length, error: BuildErrorFactory, struct?: Struct) {
+	if (length.length_type === 'length_field') {
+		// TODO: Link & Validate: length.field
+	}
+}
+
+function link_checksum_type(schema: Schema, node: ChecksumType, error: BuildErrorFactory, struct?: Struct) {
+	// TODO: Link: node.data_field
 }

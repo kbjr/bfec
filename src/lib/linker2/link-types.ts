@@ -24,6 +24,23 @@ function link_struct(schema: Schema, node: Struct, error: BuildErrorFactory) {
 		if (field.type === 'struct_field') {
 			field.field_type = build_field_type(schema, field.ast_node.field_type, error);
 		}
+
+		else if (field.type === 'struct_expansion') {
+			const expanded_type = build_field_type(schema, field.ast_node.expanded_type, error);
+
+			if (expanded_type.type === 'struct_ref') {
+				field.expanded_type = expanded_type;
+			}
+
+			else if (expanded_type.type === 'switch_ref') {
+				field.expanded_type = expanded_type;
+				// TODO: Validate underlying type(s)
+			}
+
+			else {
+				error(expanded_type, 'Expected struct expansion to resolve to something with fields');
+			}
+		}
 	}
 
 	if (node.ast_node.type === ast.node_type.decl_struct) {
@@ -52,6 +69,8 @@ function link_struct(schema: Schema, node: Struct, error: BuildErrorFactory) {
 				 || param_type.type === 'type_checksum'
 				 || param_type.type === 'type_len'
 				 || param_type.type === 'type_refinement'
+				 || param_type.type === 'const_int'
+				 || param_type.type === 'const_string'
 				) {
 					error(param_type, 'Unexpected type for parameter; Must be a basic type or an enum reference');
 					continue;

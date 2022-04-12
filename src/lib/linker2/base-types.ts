@@ -172,7 +172,7 @@ export class ChecksumType implements SchemaNode {
 	}
 }
 
-export type ArrayElemType = BaseType | StructRef | SwitchRef | EnumRef | ImportedRef;
+export type ArrayElemType = BaseType | StructRef | SwitchRef | EnumRef;
 
 export class ArrayType<T extends ArrayElemType = ArrayElemType> implements SchemaNode {
 	public type = 'type_array' as const;
@@ -216,7 +216,7 @@ export abstract class AbstractLength implements SchemaNode {
 }
 
 export class NullTerminatedLength extends AbstractLength {
-	public length_type = 'null_terminated';
+	public length_type = 'null_terminated' as const;
 	public ast_node: ast.KeywordToken_null;
 
 	public get pos() {
@@ -232,7 +232,7 @@ export class NullTerminatedLength extends AbstractLength {
 }
 
 export class TakeRemainingLength extends AbstractLength {
-	public length_type = 'take_remaining';
+	public length_type = 'take_remaining' as const;
 	public ast_node: ast.OpToken_expansion;
 
 	public get pos() {
@@ -248,7 +248,7 @@ export class TakeRemainingLength extends AbstractLength {
 }
 
 export class StaticLength extends AbstractLength {
-	public length_type = 'static_length';
+	public length_type = 'static_length' as const;
 	public ast_node: ast.ConstToken_int | ast.ConstToken_hex_int;
 	public value: ConstInt;
 
@@ -266,7 +266,7 @@ export class StaticLength extends AbstractLength {
 }
 
 export class LengthPrefix extends AbstractLength {
-	public length_type = 'length_prefix';
+	public length_type = 'length_prefix' as const;
 	public ast_node: ast.TypeExpr_builtin_fixed_int | ast.TypeExpr_builtin_vint;
 	public prefix_type: FixedIntType | VarIntType;
 
@@ -288,7 +288,7 @@ export class LengthPrefix extends AbstractLength {
 }
 
 export class LengthField extends AbstractLength {
-	public length_type = 'length_field';
+	public length_type = 'length_field' as const;
 	public ast_node: ast.ValueExpr_path;
 	public field: StructFieldRef<LengthType>;
 

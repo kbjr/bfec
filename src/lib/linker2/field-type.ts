@@ -27,7 +27,7 @@ import {
 } from './base-types';
 import { ASTRefinement, RefinementBase, TypeRefinement } from './type-refinement';
 
-export type FieldType = BuiltinType | EnumRef | StructRef | SwitchRef | TypeRefinement;
+export type FieldType = BuiltinType | EnumRef | StructRef | SwitchRef | TypeRefinement | ConstString | ConstInt;
 
 export function build_field_type(schema: Schema, expr: ast.TypeExpr, error: BuildErrorFactory) : FieldType {
 	switch (expr.type) {
@@ -66,6 +66,14 @@ export function build_field_type(schema: Schema, expr: ast.TypeExpr, error: Buil
 		case ast.node_type.name_builtin_bin_float:
 		case ast.node_type.name_builtin_dec_float:
 			return build_float(expr, error);
+
+		case ast.node_type.const_ascii:
+		case ast.node_type.const_unicode:
+			return ConstString.from_ast(expr);
+
+		case ast.node_type.const_int:
+		case ast.node_type.const_hex_int:
+			return ConstInt.from_ast(expr);
 	}
 }
 
@@ -142,7 +150,12 @@ export function build_array(schema: Schema, expr: ast.TypeExpr_array, error: Bui
 
 	const elem_type = build_field_type(schema, expr.elem_type, error);
 
-	if (elem_type.type === 'type_checksum' || elem_type.type === 'type_len' || elem_type.type === 'type_refinement') {
+	if (elem_type.type === 'type_checksum'
+	 || elem_type.type === 'type_len'
+	 || elem_type.type === 'type_refinement'
+	 || elem_type.type === 'const_int'
+	 || elem_type.type === 'const_string'
+	) {
 		error(elem_type, 'Invalid element type for array type expr');
 		return type;
 	}

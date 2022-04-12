@@ -16,7 +16,7 @@ export type Struct<F extends StructMember = StructMember> = NamedStruct<F> | Inl
 
 export type StructMember = StructField | StructExpansion;
 
-export type StructExpandableType = StructRef | SwitchRef | ImportedRef<NamedStruct | NamedSwitch>;
+export type StructExpandableType = StructRef | SwitchRef;
 
 export abstract class AbstractStruct<F extends StructMember = StructMember> implements SchemaNode {
 	public type = 'struct' as const;
