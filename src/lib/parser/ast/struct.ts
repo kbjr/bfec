@@ -16,7 +16,11 @@ import {
 	Ignored,
 	PuncToken_condition,
 	KeywordToken_struct,
-	KeywordToken_bin
+	KeywordToken_bin,
+	ConstToken_ascii,
+	ConstToken_hex_int,
+	ConstToken_int,
+	ConstToken_unicode
 } from './tokens';
 import { TypeExpr } from './type-expr';
 import { ValueExpr } from './value-expr';
@@ -139,7 +143,7 @@ export class StructField extends ASTNode {
 	public field_type_colon: PuncToken_colon;
 	public field_type: TypeExpr;
 	public optional_assign: PuncToken_assign;
-	public optional_value: ValueExpr;
+	public optional_value: ValueExpr | ConstToken_ascii | ConstToken_unicode | ConstToken_int | ConstToken_hex_int;
 	public terminator: PuncToken_terminator;
 	public children: Ignored[] = [ ];
 

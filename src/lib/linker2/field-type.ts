@@ -12,7 +12,8 @@ import {
 	ImportedRef, ImportedRefable,
 	ParamType,
 	GlobalFieldRef, LocalFieldRef, StructRef,
-	SwitchRef
+	SwitchRef,
+	ParamRef
 } from './ref';
 import {
 	BuiltinType,

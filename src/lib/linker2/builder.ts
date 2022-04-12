@@ -160,14 +160,6 @@ function build_struct_field(ast_node: ast.StructField, comments: Comment[], erro
 	node.ast_node = ast_node;
 	node.comments = comments;
 
-	if (ast_node.optional_condition) {
-		// node.condition
-	}
-
-	if (ast_node.optional_value) {
-		// node.field_value
-	}
-
 	return node;
 }
 

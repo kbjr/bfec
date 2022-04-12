@@ -24,6 +24,7 @@ export abstract class AbstractStruct<F extends StructMember = StructMember> impl
 	public fields: F[];
 	public symbols = new Map<string, StructField>();
 	public params: StructParam[];
+	public param_map = new Map<string, StructParam>();
 	
 	public abstract readonly struct_type: string;
 	public abstract get name() : string;

@@ -6,6 +6,9 @@ import { ChecksumType } from './base-types';
 import { Struct, StructField } from './struct';
 import { BuildError, BuildErrorFactory, build_error_factory } from '../error2';
 import { BoolExpr_and, BoolExpr_eq, BoolExpr_neq, BoolExpr_not, BoolExpr_or, BoolExpr_xor } from './bool-expr';
+import { ConstInt, ConstString } from './const';
+import { EnumMemberRef, EnumRef, ImportedRef, ImportedRefable, ParamRef } from './ref';
+import { NameToken_normal } from '../parser/ast';
 
 export function link_fields(schema: Schema, errors: BuildError[]) {
 	const error = build_error_factory(errors, schema);
@@ -27,10 +30,104 @@ function link_struct(schema: Schema, node: Struct, error: BuildErrorFactory) {
 			}
 
 			if (field.has_field_value) {
-				// TODO: field.field_value
+				const value_node = field.ast_node.optional_value;
+
+				switch (value_node.type) {
+					case ast.node_type.value_expr_path:
+						field.field_value = build_struct_value_ref(schema, value_node, node, error);
+						break;
+
+					case ast.node_type.const_ascii:
+					case ast.node_type.const_unicode:
+						field.field_value = ConstString.from_ast(value_node);
+						break;
+
+					case ast.node_type.const_int:
+					case ast.node_type.const_hex_int:
+						field.field_value = ConstInt.from_ast(value_node);
+						break;
+				}
 			}
 		}
+
+		else if (field.type === 'struct_expansion') {
+			// 
+		}
 	}
+}
+
+export function build_struct_value_ref(schema: Schema, expr: ast.ValueExpr_path, struct: Struct, error: BuildErrorFactory) {
+	const found_param = struct.param_map.get(expr.lh_name.text);
+
+	if (found_param) {
+		const ref = new ParamRef();
+		ref.ast_node = expr;
+		ref.points_to = found_param;
+
+		if (expr.rh_names.length) {
+			const access = expr.rh_names[0].field_name;
+			error(access, `Cannot access field "${access.text}" of a parameter`);
+		}
+
+		return ref;
+	}
+
+	const found_global = schema.symbols.get(expr.lh_name.text);
+
+	if (! found_global) {
+		error(expr.lh_name, `Referenced name "${expr.lh_name.text}" not found`);
+		return;
+	}
+
+	let points_to: ImportedRefable = found_global;
+
+	while (points_to && points_to.type === 'imported_ref') {
+		points_to = points_to.points_to;
+	}
+
+	if (! points_to) {
+		error(expr.lh_name, `Failed to resolve imported symbol "${expr.lh_name.text}"`);
+		return null;
+	}
+	
+	if (points_to.type !== 'enum') {
+		error(expr.lh_name, `Expected resolved name to refer to an enum`);
+		return null;
+	}
+
+	const enum_ref = new EnumRef();
+	enum_ref.ast_node = expr.lh_name as NameToken_normal;
+
+	if (found_global.type === 'imported_ref') {
+		enum_ref.imported = found_global;
+	}
+
+	enum_ref.points_to = points_to;
+
+	if (! expr.rh_names.length) {
+		error(enum_ref, 'Unexpected reference to a whole enum; expected to find a following member name');
+		return null;
+	}
+
+	const member_name = expr.rh_names[0].field_name;
+	const found_member = points_to.symbols.get(member_name.text);
+
+	if (! found_member) {
+		error(member_name, `Member "${member_name.text}" of enum "${points_to.name}" not found`);
+		return null;
+	}
+
+	const member_ref = new EnumMemberRef();
+	member_ref.ast_node = expr;
+	member_ref.enum_ref = enum_ref;
+	member_ref.points_to = found_member;
+
+	if (expr.rh_names.length > 1) {
+		error(expr.rh_names[1].field_name, `Unexpected attempt to access a property of an enum member`);
+		return null;
+	}
+
+	return member_ref;
 }
 
 function build_and_link_bool_expr(schema: Schema, struct: Struct, expr: ast.BoolExpr, error: BuildErrorFactory) {

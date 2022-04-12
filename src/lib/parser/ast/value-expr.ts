@@ -33,7 +33,9 @@ export class ValueExpr_path extends ASTNode {
 	}
 
 	public get text() {
-		return this.lh_name.text + '.' + this.rh_names.map((name) => name.field_name.text).join('.');
+		return this.rh_names.length
+			? this.lh_name.text + '.' + this.rh_names.map((name) => name.field_name.text).join('.')
+			: this.lh_name.text;
 	}
 }
 

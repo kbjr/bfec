@@ -198,7 +198,7 @@ function build_struct_field(schema: Schema, struct: Struct, node: ast.StructFiel
 	}
 
 	if (node.optional_value) {
-		field.field_value = build_value_expr_path(schema, node.optional_value) as NamedRef;
+		field.field_value = build_value_expr_path(schema, node.optional_value as ast.ValueExpr_path) as NamedRef;
 	}
 
 	struct.add_field(node.field_name, field);

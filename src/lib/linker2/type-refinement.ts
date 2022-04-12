@@ -25,4 +25,12 @@ export class TypeRefinement<
 	public get pos() {
 		return pos_for_type_expr(this.ast_node);
 	}
+
+	public toJSON() {
+		return {
+			type: this.type,
+			base_type: this.base_type,
+			refined_type: this.refined_type,
+		};
+	}
 }

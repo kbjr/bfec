@@ -96,16 +96,20 @@ export class SwitchRef implements SchemaNode {
 
 export class EnumRef implements SchemaNode {
 	public type = 'enum_ref' as const;
-	public ast_node: ast.TypeExpr_named;
+	public ast_node: ast.TypeExpr_named | ast.NameToken_normal;
 	public imported?: ImportedRef;
 	public points_to: Enum;
 
 	public get name() {
-		return this.ast_node.name.text;
+		return this.name_token.text;
+	}
+
+	public get name_token() {
+		return this.ast_node.type === ast.node_type.name_normal ? this.ast_node : this.ast_node.name;
 	}
 
 	public get pos() {
-		return pos_for_type_expr(this.ast_node);
+		return pos(this.name_token);
 	}
 
 	public toJSON() {
@@ -116,6 +120,7 @@ export class EnumRef implements SchemaNode {
 export class EnumMemberRef implements SchemaNode {
 	public type = 'enum_member_ref' as const;
 	public ast_node: ast.ValueExpr_path | ast.NameToken_normal;
+	public enum_ref?: EnumRef;
 	public points_to: EnumMember;
 
 	public get name() {
