@@ -6,6 +6,7 @@ import { exit_error, exit_successful } from './exit';
 import { InputLoader, MarkdownConf, OutputWriter } from './fs';
 import { parse_src_to_ast, compile_to_markdown, MarkdownCompilerOptions, link_schema2 } from '../lib';
 import { red, yellow } from 'chalk';
+import { Cache } from './cache';
 
 main();
 
@@ -39,6 +40,9 @@ async function main() {
 		await exit_successful();
 	}
 
+	// In case we end up needing to resolve remote modules, get a cache instance ready
+	const cache = new Cache(args.cache_dir, args.skip_cache);
+
 	// Build and link the schema, pulling in any other imported schemas and connecting all of the symbol
 	// references to their referenced declarations
 	const { schema, errors } = await link_schema2(entrypoint_ast, {
@@ -47,13 +51,28 @@ async function main() {
 
 			let imported_contents: string;
 
+			get_contents:
 			if (path.startsWith('http://') || path.startsWith('https://')) {
 				if (! check_remote_is_allowed(args.allowed_remotes, path)) {
 					throw new Error('Remote location not allowed');
 				}
-				
-				// TODO: Build on-disk caching mechanism to avoid repeated calls for the same files
+
+				// First, attempt to read from the on-disk cache
+				imported_contents = await cache.get_if_exists(path);
+
+				if (imported_contents) {
+					break get_contents;
+				}
+
+				log.info('Remote module not found in cache, fetching...', path);
+
+				// If we didn't find the module in cache, fetch it from the remote
 				imported_contents = await get_http(path);
+
+				// If we found something at the remote, store it to the cache for next time
+				if (imported_contents) {
+					await cache.write_to_cache(path, imported_contents);
+				}
 			}
 
 			else if (path.startsWith('~/')) {

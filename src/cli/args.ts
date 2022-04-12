@@ -4,12 +4,17 @@ import { ConfLoader, MarkdownConf } from './fs';
 import { print_help, print_version } from './help';
 import { log_level, main as log, set_log_level } from './log';
 import { exit_error, exit_successful } from './exit';
+import { homedir } from 'os';
+import { resolve } from 'path';
 
 export interface Args {
 	conf?: string;
 	in: Input;
 	out: Output[];
 	quiet?: boolean;
+	skip_cache?: boolean;
+	bfec_dir: string;
+	cache_dir: string;
 	allowed_remotes?: string[];
 }
 
@@ -153,6 +158,14 @@ export async function parse_args(args: string[]) : Promise<Args> {
 
 	if (result.quiet) {
 		set_log_level('*', log_level.none);
+	}
+
+	if (! result.bfec_dir) {
+		result.cache_dir = resolve(homedir(), '.bfec');
+	}
+
+	if (! result.cache_dir) {
+		result.cache_dir = resolve(result.bfec_dir, 'remote-cache');
 	}
 
 	log.debug('args', result);

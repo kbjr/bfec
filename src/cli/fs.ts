@@ -6,6 +6,7 @@ import * as mkdirp from 'mkdirp';
 import { jsonc } from 'jsonc';
 import { exit_error } from './exit';
 import { WriteableDir } from '../lib';
+import { main as log } from './log';
 
 export interface Conf {
 	$schema?: string;
@@ -123,5 +124,42 @@ export class OutputWriter implements WriteableDir {
 	public async write_file(file_path: string, contents: string) {
 		await mkdirp(dirname(file_path));
 		await fs.writeFile(resolve_path(this.directory, file_path), contents, 'utf8');
+	}
+}
+
+export class CacheDir {
+	constructor(
+		public directory: string
+	) { }
+
+	public async init() {
+		await mkdirp(this.directory);
+	}
+
+	public async stat(path: string) {
+		try {
+			return await fs.stat(resolve_path(this.directory, path));
+		}
+
+		catch (error) {
+			log.debug('fs.stat error', error);
+			return null;
+		}
+	}
+
+	public async mkdirp(path: string) {
+		await mkdirp(resolve_path(this.directory, path));
+	}
+
+	public read_file(path: string) {
+		return fs.readFile(resolve_path(this.directory, path), 'utf8');
+	}
+
+	public async write_file(path: string, contents: string) {
+		const full_path = resolve_path(this.directory, path);
+		const dir_path = dirname(full_path);
+
+		await this.mkdirp(dir_path);
+		await fs.writeFile(full_path, contents, 'utf8');
 	}
 }
