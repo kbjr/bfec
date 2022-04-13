@@ -1,14 +1,14 @@
 
 import { ast } from '../parser';
+import { Schema } from './schema';
 import { Comment } from './comment';
-import { FieldType } from './field-type';
-import { SchemaNode } from './node';
-import { NamedSwitch } from './switch';
-import { pos, PositionRange } from './pos';
-import { ConstInt, ConstString } from './const';
-import { EnumMemberRef, EnumRef, ImportedRef, ParamRef, StructRef, SwitchRef } from './ref';
 import { BaseType } from './base-types';
 import { BoolExpr } from './bool-expr';
+import { FieldType } from './field-type';
+import { SchemaNode } from './node';
+import { pos, PositionRange } from './pos';
+import { ConstInt, ConstString } from './const';
+import { EnumMemberRef, EnumRef, ParamRef, StructRef, SwitchRef } from './ref';
 
 export type ExpandedStruct = Struct<StructField>;
 
@@ -46,6 +46,7 @@ export abstract class AbstractStruct<F extends StructMember = StructMember> impl
 export class NamedStruct<F extends StructMember = StructMember> extends AbstractStruct<F> {
 	public struct_type = 'named' as const;
 	public ast_node: ast.DeclareStructNode;
+	public parent: Schema;
 
 	public get name() {
 		return this.ast_node.name.text;
@@ -67,6 +68,7 @@ export class NamedStruct<F extends StructMember = StructMember> extends Abstract
 export class InlineStruct<F extends StructMember = StructMember> extends AbstractStruct<F> {
 	public struct_type = 'inline' as const;
 	public ast_node: ast.TypeExpr_struct_refinement;
+	public parent: Struct;
 
 	public get name() {
 		return '<inline_struct>';
@@ -88,6 +90,7 @@ export class StructField<T extends FieldType = FieldType> implements SchemaNode 
 	public condition?: BoolExpr;
 	public field_type: T;
 	public field_value?: ParamRef | EnumMemberRef | ConstInt | ConstString;
+	public parent: Struct;
 
 	public get name() {
 		return this.ast_node.field_name.text;
@@ -126,6 +129,7 @@ export class StructExpansion<T extends StructExpandableType = StructExpandableTy
 	public ast_node: ast.StructExpansion;
 	public comments: Comment[];
 	public expanded_type: T;
+	public parent: Struct;
 
 	public get pos() {
 		return pos(this.ast_node.expansion_op, this.ast_node.terminator);
@@ -144,6 +148,7 @@ export class StructParam implements SchemaNode {
 	public type = 'struct_param' as const;
 	public ast_node: ast.StructParamNode;
 	public param_type: BaseType | EnumRef;
+	public parent: NamedStruct;
 
 	public get name() {
 		return this.name_token.text;

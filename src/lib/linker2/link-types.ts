@@ -101,6 +101,7 @@ function link_switch(schema: Schema, node: Switch, error: BuildErrorFactory) {
 		if (node.arg_type) {
 			const ref = new EnumMemberRef();
 			ref.ast_node = case_node.case_name_token;
+			ref.enum_ref = arg_type;
 			case_node.case_value = ref;
 
 			const found = arg_type.points_to.symbols.get(case_node.case_name);

@@ -1,17 +1,16 @@
 
-import { BuildError } from '../error2';
 import { ast } from '../parser';
+import { BuildError } from '../error2';
+import { Schema } from './schema';
+import { LinkerOptions } from './options';
 import { build_schema_from_ast } from './builder';
-import { link_fields } from './link-fields';
+import { resolve_imports } from './resolve-imports';
 import { link_imports } from './link-imports';
 import { link_types } from './link-types';
-import { LinkerOptions } from './options';
-import { resolve_imports } from './resolve-imports';
-import { Schema } from './schema';
-
-export { build_schema_from_ast } from './builder';
+import { link_fields } from './link-fields';
 
 export * from './base-types';
+export * from './bool-expr';
 export * from './comment';
 export * from './const';
 export * from './enum';
@@ -22,6 +21,7 @@ export * from './ref';
 export * from './schema';
 export * from './struct';
 export * from './switch';
+export * from './type-refinement';
 
 export async function link_schema(entrypoint_ast: ast.FileNode, opts: LinkerOptions) {
 	const errors: BuildError[] = [ ];

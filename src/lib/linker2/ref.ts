@@ -120,7 +120,7 @@ export class EnumRef implements SchemaNode {
 export class EnumMemberRef implements SchemaNode {
 	public type = 'enum_member_ref' as const;
 	public ast_node: ast.ValueExpr_path | ast.NameToken_normal;
-	public enum_ref?: EnumRef;
+	public enum_ref: EnumRef;
 	public points_to: EnumMember;
 
 	public get name() {

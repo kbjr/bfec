@@ -8,7 +8,7 @@ import { NamedSwitch, Switch, SwitchCase, SwitchDefault } from './switch';
 import { Enum, EnumMember } from './enum';
 import { Import } from './import';
 import { ImportedRef } from './ref';
-import { ConstString } from './const';
+import { ConstInt, ConstString } from './const';
 import { build_enum_type } from './field-type';
 
 export function build_schema_from_ast(file: ast.FileNode, errors: BuildError[], root_schema?: Schema) {
@@ -32,7 +32,7 @@ export function build_schema_from_ast(file: ast.FileNode, errors: BuildError[], 
 				break;
 	
 			case ast.node_type.decl_struct: {
-				const struct_node = build_struct(node, take_comments(), error);
+				const struct_node = build_struct(schema, node, take_comments(), error);
 				schema.structs.push(struct_node);
 				
 				if (schema.symbols.has(struct_node.name)) {
@@ -46,7 +46,7 @@ export function build_schema_from_ast(file: ast.FileNode, errors: BuildError[], 
 			};
 	
 			case ast.node_type.decl_enum: {
-				const enum_node = build_enum(node, take_comments(), error);
+				const enum_node = build_enum(schema, node, take_comments(), error);
 				schema.enums.push(enum_node);
 				
 				if (schema.symbols.has(enum_node.name)) {
@@ -60,7 +60,7 @@ export function build_schema_from_ast(file: ast.FileNode, errors: BuildError[], 
 			}
 	
 			case ast.node_type.decl_switch: {
-				const switch_node = build_switch(node, take_comments(), error);
+				const switch_node = build_switch(schema, node, take_comments(), error);
 				schema.switches.push(switch_node);
 				
 				if (schema.symbols.has(switch_node.name)) {
@@ -102,10 +102,11 @@ export function build_schema_from_ast(file: ast.FileNode, errors: BuildError[], 
 
 // ===== Struct =====
 
-function build_struct(ast_node: ast.DeclareStructNode, comments: Comment[], error: BuildErrorFactory) {
+function build_struct(schema: Schema, ast_node: ast.DeclareStructNode, comments: Comment[], error: BuildErrorFactory) {
 	const node = new NamedStruct();
 	node.ast_node = ast_node;
 	node.comments = comments;
+	node.parent = schema;
 
 	build_struct_contents(node, ast_node.body, error);
 
@@ -130,7 +131,7 @@ function build_struct_contents(node: Struct, ast_node: ast.StructBody, error: Bu
 				break;
 
 			case ast.node_type.struct_field: {
-				const field_node = build_struct_field(elem, take_comments(), error);
+				const field_node = build_struct_field(node, elem, take_comments(), error);
 				node.fields.push(field_node);
 				
 				if (node.symbols.has(field_node.name)) {
@@ -144,7 +145,7 @@ function build_struct_contents(node: Struct, ast_node: ast.StructBody, error: Bu
 			}
 
 			case ast.node_type.struct_expansion: {
-				const expansion_node = build_struct_expansion(elem, take_comments(), error);
+				const expansion_node = build_struct_expansion(node, elem, take_comments(), error);
 				node.fields.push(expansion_node);
 				break;
 			}
@@ -155,21 +156,20 @@ function build_struct_contents(node: Struct, ast_node: ast.StructBody, error: Bu
 	}
 }
 
-function build_struct_field(ast_node: ast.StructField, comments: Comment[], error: BuildErrorFactory) {
+function build_struct_field(struct: Struct, ast_node: ast.StructField, comments: Comment[], error: BuildErrorFactory) {
 	const node = new StructField();
 	node.ast_node = ast_node;
 	node.comments = comments;
+	node.parent = struct;
 
 	return node;
 }
 
-function build_struct_expansion(ast_node: ast.StructExpansion, comments: Comment[], error: BuildErrorFactory) {
+function build_struct_expansion(struct: Struct, ast_node: ast.StructExpansion, comments: Comment[], error: BuildErrorFactory) {
 	const node = new StructExpansion();
 	node.ast_node = ast_node;
 	node.comments = comments;
-	// node.expanded_type
-
-	// 
+	node.parent = struct;
 
 	return node;
 }
@@ -178,10 +178,11 @@ function build_struct_expansion(ast_node: ast.StructExpansion, comments: Comment
 
 // ===== Switch =====
 
-function build_switch(ast_node: ast.DeclareSwitchNode, comments: Comment[], error: BuildErrorFactory) {
+function build_switch(schema: Schema, ast_node: ast.DeclareSwitchNode, comments: Comment[], error: BuildErrorFactory) {
 	const node = new NamedSwitch();
 	node.ast_node = ast_node;
 	node.comments = comments;
+	node.parent = schema;
 
 	build_switch_contents(node, ast_node.body, error);
 
@@ -206,7 +207,7 @@ function build_switch_contents(node: Switch, ast_node: ast.SwitchBody, error: Bu
 				break;
 
 			case ast.node_type.switch_case: {
-				const case_node = build_switch_case(elem, take_comments(), error);
+				const case_node = build_switch_case(node, elem, take_comments(), error);
 				node.cases.push(case_node);
 				
 				if (node.case_map.has(case_node.case_name)) {
@@ -220,7 +221,7 @@ function build_switch_contents(node: Switch, ast_node: ast.SwitchBody, error: Bu
 			}
 
 			case ast.node_type.switch_default: {
-				const default_node = build_switch_default(elem, take_comments(), error);
+				const default_node = build_switch_default(node, elem, take_comments(), error);
 
 				if (node.default) {
 					error(default_node, `Multiple default cases provided for switch`, node.default);
@@ -234,17 +235,19 @@ function build_switch_contents(node: Switch, ast_node: ast.SwitchBody, error: Bu
 	}
 }
 
-function build_switch_case(ast_node: ast.SwitchCase, comments: Comment[], error: BuildErrorFactory) {
+function build_switch_case(switch_node: Switch, ast_node: ast.SwitchCase, comments: Comment[], error: BuildErrorFactory) {
 	const node = new SwitchCase();
 	node.ast_node = ast_node;
 	node.comments = comments;
+	node.parent = switch_node;
 	return node;
 }
 
-function build_switch_default(ast_node: ast.SwitchDefault, comments: Comment[], error: BuildErrorFactory) {
+function build_switch_default(switch_node: Switch, ast_node: ast.SwitchDefault, comments: Comment[], error: BuildErrorFactory) {
 	const node = new SwitchDefault();
 	node.ast_node = ast_node;
 	node.comments = comments;
+	node.parent = switch_node;
 	return node;
 }
 
@@ -252,10 +255,11 @@ function build_switch_default(ast_node: ast.SwitchDefault, comments: Comment[], 
 
 // ===== Enum =====
 
-function build_enum(ast_node: ast.DeclareEnumNode, comments: Comment[], error: BuildErrorFactory) {
+function build_enum(schema: Schema, ast_node: ast.DeclareEnumNode, comments: Comment[], error: BuildErrorFactory) {
 	const node = new Enum();
 	node.ast_node = ast_node;
 	node.comments = comments;
+	node.parent = schema;
 	node.member_type = build_enum_type(ast_node.value_type, error);
 
 	build_enum_contents(node, ast_node.body, error);
@@ -281,7 +285,7 @@ function build_enum_contents(node: Enum, ast_node: ast.EnumBody, error: BuildErr
 				break;
 
 			case ast.node_type.enum_member: {
-				const member_node = build_enum_member(elem, take_comments(), error);
+				const member_node = build_enum_member(node, elem, take_comments(), error);
 				node.members.push(member_node);
 				
 				if (node.symbols.has(member_node.name)) {
@@ -297,10 +301,12 @@ function build_enum_contents(node: Enum, ast_node: ast.EnumBody, error: BuildErr
 	}
 }
 
-function build_enum_member(ast_node: ast.EnumMember, comments: Comment[], error: BuildErrorFactory) {
+function build_enum_member(enum_node: Enum, ast_node: ast.EnumMember, comments: Comment[], error: BuildErrorFactory) {
 	const node = new EnumMember();
 	node.ast_node = ast_node;
 	node.comments = comments;
+	node.parent = enum_node;
+	node.value = build_const(ast_node.value_expr);
 	return node;
 }
 
@@ -333,4 +339,18 @@ function build_from(ast_node: ast.DeclareFromNode, comments: Comment[], error: B
 }
 
 
+
+// ===== Const Expr =====
+
+function build_const(expr: ast.ConstExpr) {
+	switch (expr.type) {
+		case ast.node_type.const_ascii:
+		case ast.node_type.const_unicode:
+			return ConstString.from_ast(expr);
+			
+		case ast.node_type.const_int:
+		case ast.node_type.const_hex_int:
+			return ConstInt.from_ast(expr);
+	}
+}
 

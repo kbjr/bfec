@@ -12,7 +12,7 @@ struct $ {
   chunks: Chunk[...];
 }
 
-struct Chunk (type: ChunkType) {
+struct Chunk(type: ChunkType) {
   length: len<u32_be>;
   type: ChunkType = type;
   data: u8[@.length] -> ChunkData(type);
@@ -273,7 +273,6 @@ struct SuggestedPalleteData {
   pallete_name: ascii<null>;
   sample_depth: SampleDepth;
   ...Sample(@.sample_depth);
-  # sample: Sample(@.sample_depth);
   frequencies: u16_be[...];
 }
 

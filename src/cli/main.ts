@@ -119,42 +119,42 @@ async function main() {
 	}
 
 	// // If more outputs are required, compile each of those
-	// for (let out of args.out) {
-	// 	const out_dir = new OutputWriter(out.directory);
-	// 	await out_dir.create();
+	for (let out of args.out) {
+		const out_dir = new OutputWriter(out.directory);
+		await out_dir.create();
 
-	// 	switch (out.format) {
-	// 		case output_format.as:
-	// 			// TODO: Output AssemblyScript
-	// 			break;
+		switch (out.format) {
+			case output_format.as:
+				// TODO: Output AssemblyScript
+				break;
 
-	// 		case output_format.html:
-	// 			// TODO: Output HTML Documentation
-	// 			break;
+			case output_format.html:
+				// TODO: Output HTML Documentation
+				break;
 
-	// 		case output_format.ts:
-	// 			// TODO: Output TypeScript
-	// 			break;
+			case output_format.ts:
+				// TODO: Output TypeScript
+				break;
 
-	// 		case output_format.md:
-	// 			const opts: MarkdownCompilerOptions = { out_dir };
+			case output_format.md:
+				const opts: MarkdownCompilerOptions = { out_dir };
 
-	// 			if (out.conf) {
-	// 				const conf = out.conf as MarkdownConf;
-	// 				opts.source_url = conf.source_url;
-	// 				opts.include_external = conf.include_external;
-	// 				opts.include_remote = conf.include_remote;
-	// 			}
+				if (out.conf) {
+					const conf = out.conf as MarkdownConf;
+					opts.source_url = conf.source_url;
+					opts.include_external = conf.include_external;
+					opts.include_remote = conf.include_remote;
+				}
 
-	// 			await compile_to_markdown(schema, opts);
-	// 			break;
+				await compile_to_markdown(schema, opts);
+				break;
 
-	// 		case output_format.ast_json:
-	// 		case output_format.sch_json:
-	// 			// skip, already handled
-	// 			break;
-	// 	}
-	// }
+			case output_format.ast_json:
+			case output_format.sch_json:
+				// skip, already handled
+				break;
+		}
+	}
 
 	await exit_successful();
 }

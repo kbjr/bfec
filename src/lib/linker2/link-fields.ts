@@ -54,7 +54,7 @@ function link_struct(schema: Schema, node: Struct, error: BuildErrorFactory) {
 		}
 
 		else if (field.type === 'struct_expansion') {
-			// 
+			link_field_type(schema, field.expanded_type, error, node);
 		}
 	}
 }
