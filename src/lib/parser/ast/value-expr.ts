@@ -13,9 +13,9 @@ export type ConstExpr = ConstToken_int | ConstToken_hex_int | ConstToken_ascii |
 
 export type LeftHandName = NameToken_normal | NameToken_root_schema | NameToken_this_schema;
 
-export class ValueExpr_path extends ASTNode {
+export class ValueExpr_path<LH extends LeftHandName = LeftHandName> extends ASTNode {
 	public type: node_type.value_expr_path = node_type.value_expr_path;
-	public lh_name: LeftHandName;
+	public lh_name: LH;
 	public rh_names: ValueExpr_path_access[] = [ ];
 	public children: Ignored[] = [ ];
 

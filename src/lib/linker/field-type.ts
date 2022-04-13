@@ -13,7 +13,11 @@ import {
 	ParamType,
 	GlobalFieldRef, LocalFieldRef, StructRef,
 	SwitchRef,
-	ParamRef
+	ParamRef,
+	FieldRefStep,
+	RootRef,
+	SelfRef,
+	StructFieldRef
 } from './ref';
 import {
 	BuiltinType,
@@ -244,7 +248,7 @@ export function build_named(schema: Schema, expr: ast.TypeExpr_named, error: Bui
 
 			switch (points_to.type) {
 				case 'struct': return struct_ref(expr, points_to, found, params);
-				case 'switch': return switch_ref(expr, points_to, found, params);
+				case 'switch': return switch_ref(expr, points_to, error, found, params);
 
 				case 'enum':
 					if (params.length) {
@@ -259,7 +263,7 @@ export function build_named(schema: Schema, expr: ast.TypeExpr_named, error: Bui
 			}
 
 		case 'struct': return struct_ref(expr, found, void 0, params);
-		case 'switch': return switch_ref(expr, found, void 0, params);
+		case 'switch': return switch_ref(expr, found, error, void 0, params);
 
 		case 'enum':
 			if (params.length) {
@@ -279,14 +283,28 @@ function struct_ref(expr: ast.TypeExpr_named, points_to: Struct, imported?: Impo
 	ref.ast_node = expr;
 	ref.points_to = points_to;
 	ref.imported = imported;
+	ref.params = params;
 	return ref;
 }
 
-function switch_ref(expr: ast.TypeExpr_named, points_to: Switch, imported?: ImportedRef, params?: ParamType[]) {
+function switch_ref(expr: ast.TypeExpr_named, points_to: Switch, error: BuildErrorFactory, imported?: ImportedRef, params?: ParamType[]) {
 	const ref = new SwitchRef();
 	ref.ast_node = expr;
 	ref.points_to = points_to;
 	ref.imported = imported;
+
+	if (params.length === 0) {
+		error(ref, 'Expected switch reference to include a parameter expr');
+	}
+
+	else if (params.length > 1) {
+		error(ref, 'Expected switch reference to include only one parameter expr');
+	}
+
+	else {
+		ref.param = params[0];
+	}
+
 	return ref;
 }
 
@@ -396,6 +414,7 @@ export function build_length(expr: ast.LengthType, error: BuildErrorFactory) : L
 		case ast.node_type.value_expr_path: {
 			const len = new LengthField();
 			len.ast_node = expr;
+			len.field = build_struct_field_ref(expr, error) as StructFieldRef<LengthType>;
 			return len;
 		}
 
@@ -453,17 +472,31 @@ function build_refinement_base(schema: Schema, expr: ASTRefinement, error: Build
 	return type;
 }
 
+function build_field_ref_steps(names: ast.ValueExpr_path_access[]) {
+	return names.map((name) => {
+		const step = new FieldRefStep();
+		step.ast_node = name.field_name;
+		return step;
+	});
+}
+
 export function build_struct_field_ref(expr: ast.ValueExpr_path, error: BuildErrorFactory) {
-	switch (expr.lh_name.text) {
-		case '$': {
+	switch (expr.lh_name.type) {
+		case ast.node_type.name_root_schema: {
 			const ref = new GlobalFieldRef();
 			ref.ast_node = expr;
+			ref.root = new RootRef();
+			ref.root.ast_node = expr.lh_name;
+			ref.steps = build_field_ref_steps(expr.rh_names);
 			return ref;
 		}
 
-		case '@': {
+		case ast.node_type.name_this_schema: {
 			const ref = new LocalFieldRef();
 			ref.ast_node = expr;
+			ref.root = new SelfRef();
+			ref.root.ast_node = expr.lh_name;
+			ref.steps = build_field_ref_steps(expr.rh_names);
 			return ref;
 		}
 
@@ -473,16 +506,22 @@ export function build_struct_field_ref(expr: ast.ValueExpr_path, error: BuildErr
 }
 
 export function build_named_param(expr: ast.ValueExpr_path, error: BuildErrorFactory) {
-	switch (expr.lh_name.text) {
-		case '$': {
+	switch (expr.lh_name.type) {
+		case ast.node_type.name_root_schema: {
 			const ref = new GlobalFieldRef();
 			ref.ast_node = expr;
+			ref.root = new RootRef();
+			ref.root.ast_node = expr.lh_name;
+			ref.steps = build_field_ref_steps(expr.rh_names);
 			return ref;
 		}
 
-		case '@': {
+		case ast.node_type.name_this_schema: {
 			const ref = new LocalFieldRef();
 			ref.ast_node = expr;
+			ref.root = new SelfRef();
+			ref.root.ast_node = expr.lh_name;
+			ref.steps = build_field_ref_steps(expr.rh_names);
 			return ref;
 		}
 

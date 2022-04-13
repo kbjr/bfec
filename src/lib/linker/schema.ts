@@ -16,6 +16,8 @@ export class Schema {
 	public symbols = new Map<string, ImportedRef | NamedStruct | NamedSwitch | Enum>();
 	public source: ast.FileNode;
 
+	public root_struct?: NamedStruct;
+
 	public root_schema?: Schema;
 	public is_external: boolean = false;
 	public is_remote: boolean = false;

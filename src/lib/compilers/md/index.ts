@@ -251,6 +251,8 @@ function switch_case_list(switch_node: lnk.Switch, lines: string[]) {
 
 		lines.push(line);
 	}
+
+	lines.push('');
 }
 
 function switch_value(case_node: lnk.SwitchCase | lnk.SwitchDefault) {
@@ -298,6 +300,8 @@ function enum_member_list(enum_node: lnk.Enum, lines: string[]) {
 
 		lines.push(line);
 	}
+
+	lines.push('');
 }
 
 function enum_ref(ref: lnk.EnumRef) {
@@ -372,7 +376,7 @@ function type_expr(expr: TypeExpr, wrap = true) {
 				params = `(${expr.params.map(value_expr).join(', ')})`;
 			}
 		
-			return code(`<a href="${url}">${expr.name}${params}</a>`, wrap);
+			return code(`<a href="${url}">${expr.name}</a>${params}`, wrap);
 		}
 			
 		case 'switch_ref': {
@@ -380,8 +384,7 @@ function type_expr(expr: TypeExpr, wrap = true) {
 				? out_file_name(expr.imported.from.schema) + '#' + expr.name.toLowerCase()
 				: '#' + expr.name.toLowerCase();
 
-			// return code(`<a href="${url}">${expr.name}</a>(${value_expr(expr.param)})`, wrap);
-			return code(`<a href="${url}">${expr.name}</a>(todo: switch param)`, wrap);
+			return code(`<a href="${url}">${expr.name}</a>(${value_expr(expr.param)})`, wrap);
 		}
 
 		case 'type_refinement': {
@@ -424,8 +427,7 @@ function length(expr: lnk.Length) {
 			return type_expr(expr.prefix_type, false);
 			
 		case 'length_field':
-			// return value_expr(expr.field);
-            return '(todo: length field)';
+			return value_expr(expr.field);
 	}
 }
 

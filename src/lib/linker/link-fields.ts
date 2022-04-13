@@ -7,9 +7,9 @@ import { Struct, StructField } from './struct';
 import { BuildError, BuildErrorFactory, build_error_factory } from '../error';
 import { BoolExpr_and, BoolExpr_eq, BoolExpr_neq, BoolExpr_not, BoolExpr_or, BoolExpr_xor } from './bool-expr';
 import { ConstInt, ConstString } from './const';
-import { EnumMemberRef, EnumRef, ImportedRef, ImportedRefable, ParamRef } from './ref';
-import { NameToken_normal } from '../parser/ast';
-import { FieldType } from './field-type';
+import { EnumMemberRef, EnumRef, RootRef, ImportedRef, ImportedRefable, SelfRef, ParamRef, StructRef, StructFieldRef } from './ref';
+import { NameToken_normal, ValueExpr_path } from '../parser/ast';
+import { build_struct_field_ref, FieldType } from './field-type';
 
 export function link_fields(schema: Schema, errors: BuildError[]) {
 	const error = build_error_factory(errors, schema);
@@ -198,11 +198,13 @@ function link_switch(schema: Schema, node: Switch, error: BuildErrorFactory) {
 function link_field_type(schema: Schema, field_type: FieldType, error: BuildErrorFactory, struct?: Struct) {
 	switch (field_type.type) {
 		case 'struct_ref':
-			// TODO: params
+			for (const param of field_type.params) {
+				link_param_expr(schema, param, error, struct);
+			}
 			break;
 
 		case 'switch_ref':
-			// TODO: param
+			link_param_expr(schema, field_type.param, error, struct);
 			break;
 			
 		case 'type_array':
@@ -223,12 +225,48 @@ function link_field_type(schema: Schema, field_type: FieldType, error: BuildErro
 	}
 }
 
+function link_param_expr(schema: Schema, param: StructFieldRef | EnumMemberRef, error: BuildErrorFactory, struct?: Struct) {
+	switch (param.type) {
+		case 'local_field_ref':
+		case 'global_field_ref':
+			link_field_ref(schema, param, error, struct);
+			break;
+
+		case 'enum_member_ref':
+			// 
+			break;
+	}
+}
+
 function link_length(schema: Schema, node: ArrayType | TextType, length: Length, error: BuildErrorFactory, struct?: Struct) {
 	if (length.length_type === 'length_field') {
-		// TODO: Link & Validate: length.field
+		link_field_ref(schema, length.field, error, struct);
 	}
 }
 
 function link_checksum_type(schema: Schema, node: ChecksumType, error: BuildErrorFactory, struct?: Struct) {
-	// TODO: Link: node.data_field
+	link_field_ref(schema, node.data_field, error, struct);
+}
+
+function link_field_ref(schema: Schema, ref: StructFieldRef, error: BuildErrorFactory, struct?: Struct) {
+	if (ref.type === 'global_field_ref') {
+		ref.root.points_to = schema.root_struct || (schema.root_schema && schema.root_schema.root_struct);
+
+		if (! ref.root.points_to) {
+			error(ref.root, 'Absolute field reference made in a context where no root struct was found');
+			return;
+		}
+	}
+
+	else if (ref.type === 'local_field_ref') {
+		ref.root.points_to = struct;
+
+		if (! struct) {
+			error(ref.root, 'Local field reference made in a non-struct scope');
+			return;
+		}
+	}
+
+	// TODO: actually resolve field
+	// top_level.symbols.get();
 }

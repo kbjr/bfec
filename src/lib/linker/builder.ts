@@ -42,6 +42,10 @@ export function build_schema_from_ast(file: ast.FileNode, errors: BuildError[], 
 				}
 
 				schema.symbols.set(struct_node.name, struct_node);
+
+				if (struct_node.name === '$') {
+					schema.root_struct = struct_node;
+				}
 				break;
 			};
 	

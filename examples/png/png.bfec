@@ -13,6 +13,7 @@ struct $ {
 }
 
 struct Chunk(type: ChunkType) {
+  # The length of the `data` field (in bytes)
   length: len<u32_be>;
   type: ChunkType = type;
   data: u8[@.length] -> ChunkData(type);

@@ -72,6 +72,42 @@ export class StructRef<F extends StructMember = StructMember> implements SchemaN
 	}
 }
 
+export class RootRef implements SchemaNode {
+	public type = 'root_ref' as const;
+	public ast_node: ast.NameToken_root_schema;
+	public points_to: Struct;
+
+	public get name() {
+		return this.ast_node.text;
+	}
+
+	public get pos() {
+		return pos(this.ast_node);
+	}
+
+	public toJSON() {
+		return `@[root_ref]`;
+	}
+}
+
+export class SelfRef implements SchemaNode {
+	public type = 'self_ref' as const;
+	public ast_node: ast.NameToken_this_schema;
+	public points_to: Struct;
+
+	public get name() {
+		return this.ast_node.text;
+	}
+
+	public get pos() {
+		return pos(this.ast_node);
+	}
+
+	public toJSON() {
+		return `@[self_ref]`;
+	}
+}
+
 export type StructFieldRef<T extends FieldType = FieldType> = LocalFieldRef<T> | GlobalFieldRef<T>;
 	
 export class SwitchRef implements SchemaNode {
@@ -145,6 +181,9 @@ export class LocalFieldRef<T extends FieldType = FieldType> implements SchemaNod
 	public ast_node: ast.ValueExpr_path;
 	public points_to: StructField<T>;
 
+	public root: SelfRef;
+	public steps: FieldRefStep[];
+
 	public get name() {
 		return this.ast_node.text;
 	}
@@ -163,6 +202,9 @@ export class GlobalFieldRef<T extends FieldType = FieldType> implements SchemaNo
 	public ast_node: ast.ValueExpr_path;
 	public points_to: StructField<T>;
 
+	public root: RootRef;
+	public steps: FieldRefStep[];
+
 	public get name() {
 		return this.ast_node.text;
 	}
@@ -173,6 +215,24 @@ export class GlobalFieldRef<T extends FieldType = FieldType> implements SchemaNo
 
 	public toJSON() {
 		return `@[global_field ${this.name}]`;
+	}
+}
+
+export class FieldRefStep implements SchemaNode {
+	public type = 'field_ref_step' as const;
+	public ast_node: ast.NameToken_normal;
+	public points_to: StructField;
+
+	public get name() {
+		return this.ast_node.text;
+	}
+
+	public get pos() {
+		return pos(this.ast_node);
+	}
+
+	public toJSON() {
+		return `@[field ${this.name}]`;
 	}
 }
 
