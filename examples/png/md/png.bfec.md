@@ -1,7 +1,7 @@
 
 <!--
  THIS FILE WAS AUTOMATICALLY GENERATED
- 2022-04-13T05:20:42.685Z
+ 2022-04-13T05:23:16.906Z
 -->
 
 ## $
@@ -560,24 +560,24 @@ _Source: [~/png.bfec#L23](../png.bfec#L23)_
 
 | Name | Value |
 |------|-------|
-| <code>IHDR</code> | <code>IHDR</code> |
-| <code>PLTE</code> | <code>PLTE</code> |
-| <code>IDAT</code> | <code>IDAT</code> |
-| <code>IEND</code> | <code>IEND</code> |
-| <code>tRNS</code> | <code>tRNS</code> |
-| <code>cHRM</code> | <code>cHRM</code> |
-| <code>gAMA</code> | <code>gAMA</code> |
-| <code>iCCP</code> | <code>iCCP</code> |
-| <code>sBIT</code> | <code>sBIT</code> |
-| <code>sRGB</code> | <code>sRGB</code> |
-| <code>tEXt</code> | <code>tEXt</code> |
-| <code>xTXt</code> | <code>xTXt</code> |
-| <code>iTXt</code> | <code>iTXt</code> |
-| <code>bKGD</code> | <code>bKGD</code> |
-| <code>hIST</code> | <code>hIST</code> |
-| <code>pHYs</code> | <code>pHYs</code> |
-| <code>sPLT</code> | <code>sPLT</code> |
-| <code>tIME</code> | <code>tIME</code> |
+| <code>IHDR</code> | <code>"IHDR"</code> |
+| <code>PLTE</code> | <code>"PLTE"</code> |
+| <code>IDAT</code> | <code>"IDAT"</code> |
+| <code>IEND</code> | <code>"IEND"</code> |
+| <code>tRNS</code> | <code>"tRNS"</code> |
+| <code>cHRM</code> | <code>"cHRM"</code> |
+| <code>gAMA</code> | <code>"gAMA"</code> |
+| <code>iCCP</code> | <code>"iCCP"</code> |
+| <code>sBIT</code> | <code>"sBIT"</code> |
+| <code>sRGB</code> | <code>"sRGB"</code> |
+| <code>tEXt</code> | <code>"tEXt"</code> |
+| <code>xTXt</code> | <code>"xTXt"</code> |
+| <code>iTXt</code> | <code>"iTXt"</code> |
+| <code>bKGD</code> | <code>"bKGD"</code> |
+| <code>hIST</code> | <code>"hIST"</code> |
+| <code>pHYs</code> | <code>"pHYs"</code> |
+| <code>sPLT</code> | <code>"sPLT"</code> |
+| <code>tIME</code> | <code>"tIME"</code> |
 
 ## BitDepth
 

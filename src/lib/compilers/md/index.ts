@@ -291,7 +291,7 @@ function enum_member_list(enum_node: lnk.Enum, lines: string[]) {
 
 	for (const member of enum_node.members) {
 		const name = code(member.name);
-		const value = code(String(member.value.value));
+		const value = code(member.value.token.text);
 		let line = `| ${name} | ${value} |`;
 
 		if (has_comments) {

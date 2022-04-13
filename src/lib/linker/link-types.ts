@@ -2,11 +2,10 @@
 import { ast } from '../parser';
 import { Switch } from './switch';
 import { Schema } from './schema';
-import { EnumMemberRef, EnumRef, StructFieldRef, StructRef, SwitchRef } from './ref';
 import { Struct, StructParam } from './struct';
 import { build_field_type, FieldType } from './field-type';
+import { EnumMemberRef, EnumRef, StructFieldRef } from './ref';
 import { BuildError, BuildErrorFactory, build_error_factory } from '../error';
-import { ConstInt, ConstString } from './const';
 
 export function link_types(schema: Schema, errors: BuildError[]) {
 	const error = build_error_factory(errors, schema);
