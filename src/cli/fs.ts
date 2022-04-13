@@ -122,7 +122,8 @@ export class OutputWriter implements WriteableDir {
 	}
 
 	public async write_file(file_path: string, contents: string) {
-		log.info('OutputWriter.write_file', this.directory, file_path);
+		log.debug('OutputWriter.write_file', this.directory, file_path);
+
 		const full_path = resolve_path(this.directory, file_path);
 		await mkdirp(dirname(full_path));
 		await fs.writeFile(full_path, contents, 'utf8');
@@ -158,6 +159,8 @@ export class CacheDir {
 	}
 
 	public async write_file(path: string, contents: string) {
+		log.debug('CacheDir.write_file', this.directory, path);
+
 		const full_path = resolve_path(this.directory, path);
 		const dir_path = dirname(full_path);
 
