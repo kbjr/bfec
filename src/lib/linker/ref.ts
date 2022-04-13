@@ -162,6 +162,12 @@ export class EnumMemberRef implements SchemaNode {
 	public get name() {
 		return this.ast_node.text;
 	}
+
+	public get member_name() {
+		return this.ast_node.type === ast.node_type.value_expr_path
+			? this.ast_node.rh_names[0].field_name.text
+			: this.ast_node.text;
+	}
 	
 	public get pos() {
 		if (this.ast_node.type === ast.node_type.name_normal) {

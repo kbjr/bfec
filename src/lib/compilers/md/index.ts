@@ -439,7 +439,10 @@ function value_expr(expr: lnk.StructFieldRef | lnk.EnumMemberRef | lnk.ParamRef 
 
 		case 'local_field_ref':
 		case 'global_field_ref':
+			return expr.name;
+
 		case 'param_ref':
+			// TODO: link to params block
 			return expr.name;
 
 		case 'enum_member_ref':
@@ -450,7 +453,7 @@ function value_expr(expr: lnk.StructFieldRef | lnk.EnumMemberRef | lnk.ParamRef 
 			let url = '#';
 
 			const enum_name = expr.points_to.parent.name;
-			const member_name = expr.name;
+			const member_name = expr.points_to.name;
 
 			if (expr.enum_ref.imported) {
 				url = out_file_name(expr.enum_ref.imported.from.schema) + '#' + enum_name.toLowerCase();

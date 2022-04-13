@@ -2,10 +2,11 @@
 import { ast } from '../parser';
 import { Switch } from './switch';
 import { Schema } from './schema';
-import { EnumMemberRef } from './ref';
+import { EnumMemberRef, EnumRef, StructFieldRef, StructRef, SwitchRef } from './ref';
 import { Struct, StructParam } from './struct';
-import { build_field_type } from './field-type';
+import { build_field_type, FieldType } from './field-type';
 import { BuildError, BuildErrorFactory, build_error_factory } from '../error';
+import { ConstInt, ConstString } from './const';
 
 export function link_types(schema: Schema, errors: BuildError[]) {
 	const error = build_error_factory(errors, schema);
@@ -23,6 +24,7 @@ function link_struct(schema: Schema, node: Struct, error: BuildErrorFactory) {
 	for (const field of node.fields) {
 		if (field.type === 'struct_field') {
 			field.field_type = build_field_type(schema, field.ast_node.field_type, error);
+			link_field_type(schema, field.field_type, error);
 		}
 
 		else if (field.type === 'struct_expansion') {
@@ -82,6 +84,76 @@ function link_struct(schema: Schema, node: Struct, error: BuildErrorFactory) {
 	}
 }
 
+function link_param_expr(schema: Schema, param: StructFieldRef | EnumMemberRef, error: BuildErrorFactory) {
+	if (param.type !== 'enum_member_ref') {
+		return;
+	}
+	
+	const ast_node = param.ast_node;
+
+	if (ast_node.type === ast.node_type.value_expr_path) {
+		const name = ast_node.lh_name.text;
+		const found_enum = schema.symbols.get(name);
+
+		if (ast_node.lh_name.type !== ast.node_type.name_normal) {
+			error(ast_node.lh_name, `Expected parameter to refer to an enum, but found ${name}`);
+			return;
+		}
+
+		if (! found_enum) {
+			error(ast_node.lh_name, `Referenced name "${name}" not found`);
+			return;
+		}
+
+		let points_to = found_enum;
+
+		while (points_to.type === 'imported_ref' && points_to.points_to) {
+			points_to = points_to.points_to;
+		}
+
+		if (points_to.type === 'imported_ref') {
+			error(ast_node.lh_name, `Failed to fully resolve imported reference`);
+			return;
+		}
+
+		if (points_to.type !== 'enum') {
+			error(ast_node.lh_name, `Expected parameter to refer to an enum, but found ${found_enum.type}`);
+			return;
+		}
+
+		param.enum_ref = new EnumRef();
+		param.enum_ref.ast_node = ast_node.lh_name;
+		param.enum_ref.points_to = points_to;
+		
+		const rh_name = ast_node.rh_names[0].field_name;
+		const member_name = rh_name.text;
+		const found_member = points_to.symbols.get(member_name);
+
+		if (! found_member) {
+			error(rh_name, `Referenced enum member "${member_name}" of "${name}" not found`);
+			return;
+		}
+
+		param.points_to = found_member;
+	}
+}
+
+function link_field_type(schema: Schema, field_type: FieldType, error: BuildErrorFactory) {
+	switch (field_type.type) {
+		case 'struct_ref':
+			for (const param of field_type.params) {
+				link_param_expr(schema, param, error);
+			}
+			break;
+
+		case 'switch_ref':
+			link_param_expr(schema, field_type.param, error);
+			break;
+
+		// TODO: refinements
+	}
+}
+
 function link_switch(schema: Schema, node: Switch, error: BuildErrorFactory) {
 	const expr = node.arg_type_node;
 	const arg_type = build_field_type(schema, expr, error);
@@ -118,11 +190,13 @@ function link_switch(schema: Schema, node: Switch, error: BuildErrorFactory) {
 		if (case_node.is_type) {
 			const type_node = case_node.ast_node.selection as ast.TypeExpr;
 			case_node.case_type = build_field_type(schema, type_node, error);
+			link_field_type(schema, case_node.case_type, error);
 		}
 	}
 
 	if (node.default && node.default.is_type) {
 		const type_node = node.default.ast_node.selection as ast.TypeExpr;
 		node.default.default_type = build_field_type(schema, type_node, error);
+		link_field_type(schema, node.default.default_type, error);
 	}
 }

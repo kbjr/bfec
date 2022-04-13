@@ -1,7 +1,7 @@
 
 <!--
  THIS FILE WAS AUTOMATICALLY GENERATED
- 2022-04-13T04:51:52.887Z
+ 2022-04-13T05:20:42.685Z
 -->
 
 ## $
@@ -19,7 +19,7 @@ https://www.w3.org/TR/PNG
 | Field Name | Type |
 |------------|------|
 | <code>magic_number</code> | <code>"\x89\x50\x4e\x47\x0d\x0a\x1a\x0a"</code> |
-| <code>header</code> | <code><a href="#chunk">Chunk</a>(ChunkType.IHDR)</code> |
+| <code>header</code> | <code><a href="#chunk">Chunk</a>(<a href="#chunktype">ChunkType</a>.IHDR)</code> |
 | <code>chunks</code> | <code><a href="#chunk">Chunk</a>[...]</code> |
 
 ## Chunk

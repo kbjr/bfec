@@ -10,6 +10,7 @@ import { ConstInt, ConstString } from './const';
 import { EnumMemberRef, EnumRef, RootRef, ImportedRef, ImportedRefable, SelfRef, ParamRef, StructRef, StructFieldRef } from './ref';
 import { NameToken_normal, ValueExpr_path } from '../parser/ast';
 import { build_struct_field_ref, FieldType } from './field-type';
+import { assert } from 'console';
 
 export function link_fields(schema: Schema, errors: BuildError[]) {
 	const error = build_error_factory(errors, schema);
@@ -233,7 +234,7 @@ function link_param_expr(schema: Schema, param: StructFieldRef | EnumMemberRef, 
 			break;
 
 		case 'enum_member_ref':
-			// 
+			// pass: already linked
 			break;
 	}
 }
