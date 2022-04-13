@@ -1,19 +1,17 @@
 
-import { BuildError } from '../error';
-import { Schema, Import } from '../schema';
-import { link_locals } from './link-locals';
-import { LinkerOptions } from './opts';
+import { Schema } from './schema';
+import { Import } from './import';
+import { link_types } from './link-types';
+import { LinkerOptions } from './options';
+import { linker as log } from '../log';
+import { build_schema_from_ast } from './builder';
+import { BuildError, build_error_factory } from '../error';
 
-export async function resolve_imports(from: Schema, opts: LinkerOptions, deps: Map<string, Promise<Schema>>, errors: BuildError[]) {
+export async function resolve_imports(from: Schema, root: Schema, opts: LinkerOptions, deps: Map<string, Promise<Schema>>, errors: BuildError[]) {
+	const error = build_error_factory(errors, from);
+	
 	if (from.imports.length && ! opts.resolve_import) {
-		const node = from.include_source_maps
-			? from.source_map.get(from.imports[0])
-			: null;
-
-		errors.push(
-			new BuildError(`No import resolution method provided to linker`, from, node)
-		);
-
+		error(from.imports[0], 'No import resolution method provided to linker');
 		return;
 	}
 
@@ -26,13 +24,14 @@ export async function resolve_imports(from: Schema, opts: LinkerOptions, deps: M
 	await Promise.all(promises);
 	
 	async function resolve(imported: Import) {
-		const name = imported.source_expr.value;
+		const name = imported.source.value;
 
 		if (! deps.has(name)) {
 			const promise = opts.resolve_import(name, from).then(
-				async (schema) => {
-					await resolve_imports(schema, opts, deps, errors);
-					link_locals(schema, errors);
+				async (ast_node) => {
+					const schema = build_schema_from_ast(ast_node, errors, from);
+					await resolve_imports(schema, root, opts, deps, errors);
+					link_types(schema, errors);
 					return schema;
 				}
 			);
@@ -42,24 +41,17 @@ export async function resolve_imports(from: Schema, opts: LinkerOptions, deps: M
 
 		try {
 			const resolved_schema = await deps.get(name);
-			imported.source_schema = resolved_schema;
+			imported.schema = resolved_schema;
 		}
 
-		catch (error) {
-			console.error(error);
+		catch (err) {
+			log.debug(err);
 			
-			const node = from.include_source_maps
-				? from.source_map.get(imported.source_expr)
-				: null;
-
 			const message
-				= error instanceof Error ? error.message
-				: error instanceof BuildError ? error.message
+				= err instanceof Error ? err.message
 				: null;
 
-			errors.push(
-				new BuildError(`Failed to resolve import "${name}"; ${message}`, from, node)
-			);
+			error(imported, `Failed to resolve import "${name}"; ${message}`);
 		}
 	}
 }

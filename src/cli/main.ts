@@ -4,7 +4,7 @@ import { main as log } from './log';
 import { output_format, parse_args } from './args';
 import { exit_error, exit_successful } from './exit';
 import { InputLoader, MarkdownConf, OutputWriter } from './fs';
-import { parse_src_to_ast, compile_to_markdown, MarkdownCompilerOptions, link_schema2 } from '../lib';
+import { parse_src_to_ast, compile_to_markdown, MarkdownCompilerOptions, link_schema } from '../lib';
 import { red, yellow } from 'chalk';
 import { Cache } from './cache';
 
@@ -45,7 +45,7 @@ async function main() {
 
 	// Build and link the schema, pulling in any other imported schemas and connecting all of the symbol
 	// references to their referenced declarations
-	const { schema, errors } = await link_schema2(entrypoint_ast, {
+	const { schema, errors } = await link_schema(entrypoint_ast, {
 		async resolve_import(path: string) {
 			log.debug('resolve_import', path);
 

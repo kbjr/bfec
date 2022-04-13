@@ -1,28 +1,41 @@
 
-import { Schema } from '../schema';
+import { ast } from '../parser';
 import { BuildError } from '../error';
-import { link_locals } from './link-locals';
-import { LinkerOptions } from './opts';
+import { Schema } from './schema';
+import { LinkerOptions } from './options';
+import { build_schema_from_ast } from './builder';
 import { resolve_imports } from './resolve-imports';
-// import { validate_types } from './type-validation';
+import { link_imports } from './link-imports';
+import { link_types } from './link-types';
+import { link_fields } from './link-fields';
 
-export * from './opts';
+export * from './base-types';
+export * from './bool-expr';
+export * from './comment';
+export * from './const';
+export * from './enum';
+export * from './import';
+export * from './node';
+export * from './pos';
+export * from './ref';
+export * from './schema';
+export * from './struct';
+export * from './switch';
+export * from './type-refinement';
 
-export async function link_schema(schema: Schema, opts: LinkerOptions) : Promise<BuildError[]> {
-	const deps = new Map<string, Promise<Schema>>();
+export async function link_schema(entrypoint_ast: ast.FileNode, opts: LinkerOptions) {
 	const errors: BuildError[] = [ ];
+	const schema = build_schema_from_ast(entrypoint_ast, errors);
 
-	await resolve_imports(schema, opts, deps, errors);
-	link_locals(schema, errors);
-	// validate_types(schema, errors);
+	const deps = new Map<string, Promise<Schema>>();
+	await resolve_imports(schema, schema, opts, deps, errors);
 
-	// If we've encountered any errors up to this point, stop here
-	if (errors.length) {
-		return errors;
-	}
+	link_imports(schema, errors);
+	link_types(schema, errors);
+	link_fields(schema, errors);
 
-	// Otherwise, continue on with resolving concrete types
-	// 
+	// TODO: struct expansion?
+	// TODO: type validation
 
-	return errors;
+	return { schema, errors };
 }

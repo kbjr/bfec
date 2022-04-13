@@ -1,7 +1,7 @@
 
 import { Schema } from './schema';
 import { ImportedRef } from './ref';
-import { BuildError, BuildErrorFactory, build_error_factory } from '../error2';
+import { BuildError, BuildErrorFactory, build_error_factory } from '../error';
 
 export function link_imports(schema: Schema, errors: BuildError[]) {
 	const error = build_error_factory(errors, schema);

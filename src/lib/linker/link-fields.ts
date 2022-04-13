@@ -4,7 +4,7 @@ import { Switch } from './switch';
 import { Schema } from './schema';
 import { ArrayType, ChecksumType, Length, TextType } from './base-types';
 import { Struct, StructField } from './struct';
-import { BuildError, BuildErrorFactory, build_error_factory } from '../error2';
+import { BuildError, BuildErrorFactory, build_error_factory } from '../error';
 import { BoolExpr_and, BoolExpr_eq, BoolExpr_neq, BoolExpr_not, BoolExpr_or, BoolExpr_xor } from './bool-expr';
 import { ConstInt, ConstString } from './const';
 import { EnumMemberRef, EnumRef, ImportedRef, ImportedRefable, ParamRef } from './ref';

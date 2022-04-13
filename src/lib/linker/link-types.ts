@@ -5,7 +5,7 @@ import { Schema } from './schema';
 import { EnumMemberRef } from './ref';
 import { Struct, StructParam } from './struct';
 import { build_field_type } from './field-type';
-import { BuildError, BuildErrorFactory, build_error_factory } from '../error2';
+import { BuildError, BuildErrorFactory, build_error_factory } from '../error';
 
 export function link_types(schema: Schema, errors: BuildError[]) {
 	const error = build_error_factory(errors, schema);

@@ -3,7 +3,7 @@ import { ast } from '../parser';
 import { Schema } from './schema';
 import { Switch } from './switch';
 import { Struct } from './struct';
-import { BuildErrorFactory } from '../error2';
+import { BuildErrorFactory } from '../error';
 import { ConstInt, ConstString } from './const';
 import { Enum, EnumType } from './enum';
 import { linker as log } from '../log';

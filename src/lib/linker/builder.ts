@@ -3,7 +3,7 @@ import { ast } from '../parser';
 import { Schema } from './schema';
 import { build_comment, Comment } from './comment';
 import { NamedStruct, Struct, StructExpansion, StructField } from './struct';
-import { build_error_factory, BuildError, BuildErrorFactory } from '../error2';
+import { build_error_factory, BuildError, BuildErrorFactory } from '../error';
 import { NamedSwitch, Switch, SwitchCase, SwitchDefault } from './switch';
 import { Enum, EnumMember } from './enum';
 import { Import } from './import';
