@@ -380,8 +380,8 @@ function type_expr(expr: TypeExpr, wrap = true) {
 				? out_file_name(expr.imported.from.schema) + '#' + expr.name.toLowerCase()
 				: '#' + expr.name.toLowerCase();
 
-			// return code(`<a href="${url}">${expr.name}(${value_expr(expr.param)})</a>`, wrap);
-			return code(`<a href="${url}">${expr.name}(todo: switch param)</a>`, wrap);
+			// return code(`<a href="${url}">${expr.name}</a>(${value_expr(expr.param)})`, wrap);
+			return code(`<a href="${url}">${expr.name}</a>(todo: switch param)`, wrap);
 		}
 
 		case 'type_refinement': {
@@ -514,7 +514,7 @@ function source_link(base_url: string, schema: lnk.Schema) {
 }
 
 function line_number(node: lnk.SchemaNode) {
-	return `#L${node.pos.start.line}`;
+	return `#L${node.pos.start.line + 1}`;
 }
 
 function out_file_name(schema: lnk.Schema) {
