@@ -3,8 +3,8 @@ import { get_http } from './http';
 import { main as log } from './log';
 import { output_format, parse_args } from './args';
 import { exit_error, exit_successful } from './exit';
-import { InputLoader, MarkdownConf, OutputWriter } from './fs';
-import { parse_src_to_ast, compile_to_markdown, MarkdownCompilerOptions, link_schema } from '../lib';
+import { InputLoader, MarkdownConf, OutputWriter, TypeScriptConf } from './fs';
+import { parse_src_to_ast, compile_to_markdown, MarkdownCompilerOptions, link_schema, TypescriptCompilerOptions, compile_to_typescript } from '../lib';
 import { red, yellow } from 'chalk';
 import { Cache } from './cache';
 
@@ -132,11 +132,23 @@ async function main() {
 				// TODO: Output HTML Documentation
 				break;
 
-			case output_format.ts:
-				// TODO: Output TypeScript
-				break;
+			case output_format.ts: {
+				const opts: TypescriptCompilerOptions = {
+					out_dir,
+					// TODO: Allow this to be passed in
+					root_struct_name: '$Root'
+				};
 
-			case output_format.md:
+				if (out.conf) {
+					const conf = out.conf as TypeScriptConf;
+					opts.no_generator_comment = conf.no_generator_comment;
+				}
+
+				await compile_to_typescript(schema, opts);
+				break;
+			}
+
+			case output_format.md: {
 				const opts: MarkdownCompilerOptions = { out_dir };
 
 				if (out.conf) {
@@ -144,10 +156,12 @@ async function main() {
 					opts.source_url = conf.source_url;
 					opts.include_external = conf.include_external;
 					opts.include_remote = conf.include_remote;
+					opts.no_generator_comment = conf.no_generator_comment;
 				}
 
 				await compile_to_markdown(schema, opts);
 				break;
+			}
 
 			case output_format.ast_json:
 			case output_format.sch_json:

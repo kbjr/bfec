@@ -20,7 +20,7 @@ export interface Conf {
 		[output_format.html]: string;
 		[output_format.md]: string | MarkdownConf;
 		[output_format.sch_json]: string;
-		[output_format.ts]: string;
+		[output_format.ts]: string | TypeScriptConf;
 	};
 	allowed_remotes?: string[];
 }
@@ -30,6 +30,12 @@ export interface MarkdownConf {
 	source_url?: string;
 	include_external?: boolean;
 	include_remote?: boolean;
+	no_generator_comment?: boolean;
+}
+
+export interface TypeScriptConf {
+	dir: string;
+	no_generator_comment?: boolean;
 }
 
 export class ConfLoader {
@@ -61,12 +67,23 @@ export class ConfLoader {
 				switch (out_format) {
 					case output_format.md:
 						if (typeof out_conf === 'string') {
-							// $.out[*] should be interpretted as relative to the config file's own location
+							// $.out.md should be interpretted as relative to the config file's own location
 							conf.out.md = resolve_path(dir, out_conf);
 							break;
 						}
 
-						// $.out[*] should be interpretted as relative to the config file's own location
+						// $.out.md.dir should be interpretted as relative to the config file's own location
+						out_conf.dir = resolve_path(dir, out_conf.dir);
+						break;
+
+					case output_format.ts:
+						if (typeof out_conf === 'string') {
+							// $.out.ts should be interpretted as relative to the config file's own location
+							conf.out.ts = resolve_path(dir, out_conf);
+							break;
+						}
+
+						// $.outts.dir should be interpretted as relative to the config file's own location
 						out_conf.dir = resolve_path(dir, out_conf.dir);
 						break;
 
@@ -74,7 +91,6 @@ export class ConfLoader {
 					case output_format.ast_json:
 					case output_format.html:
 					case output_format.sch_json:
-					case output_format.ts:
 						if (typeof out_conf !== 'string') {
 							await exit_error(1, `Invalid config file: '$.out.${out_format}' must be a string`);
 							break;

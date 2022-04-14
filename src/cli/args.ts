@@ -1,6 +1,6 @@
 
 import { jsonc } from 'jsonc';
-import { ConfLoader, MarkdownConf } from './fs';
+import { ConfLoader, MarkdownConf, TypeScriptConf } from './fs';
 import { print_help, print_version } from './help';
 import { log_level, main as log, set_log_level } from './log';
 import { exit_error, exit_successful } from './exit';
@@ -26,7 +26,7 @@ export interface Input {
 export interface Output {
 	format: output_format;
 	directory: string;
-	conf?: MarkdownConf;
+	conf?: MarkdownConf | TypeScriptConf;
 }
 
 export enum output_format {

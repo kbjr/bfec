@@ -1,7 +1,7 @@
 
 <!--
  THIS FILE WAS AUTOMATICALLY GENERATED
- 2022-04-13T05:23:16.906Z
+ 2022-04-14T04:19:42.141Z
 -->
 
 ## $
@@ -43,7 +43,7 @@ _Source: [~/png.bfec#L15](../png.bfec#L15)_
 | <code>length</code> | <code>len<u32_be></code> | The length of the `data` field (in bytes) |
 | <code>type</code> | <code><a href="#chunktype">ChunkType</a></code> |  |
 | <code>data</code> | <code>u8[@.length] -> <a href="#chunkdata">ChunkData</a>(type)</code> |  |
-| <code>crc</code> | <code>checksum<u32_be>(@.data, 'crc32')</code> |  |
+| <code>crc</code> | <code>checksum&lt;u32_be>(@.data, 'crc32')</code> |  |
 
 ## ImageHeader
 
@@ -172,7 +172,7 @@ _Source: [~/png.bfec#L147](../png.bfec#L147)_
 
 | Field Name | Type |
 |------------|------|
-| <code>proile_name</code> | <code>ascii<null></code> |
+| <code>proile_name</code> | <code>ascii&lt;null></code> |
 | <code>compression_method</code> | <code><a href="#compressionmethod">CompressionMethod</a></code> |
 | <code>compressed_profile</code> | <code>u8[...]</code> |
 
@@ -234,8 +234,8 @@ _Source: [~/png.bfec#L185](../png.bfec#L185)_
 
 | Field Name | Type |
 |------------|------|
-| <code>keyword</code> | <code>ascii<null></code> |
-| <code>text</code> | <code>ascii<...></code> |
+| <code>keyword</code> | <code>ascii&lt;null></code> |
+| <code>text</code> | <code>ascii&lt;...></code> |
 
 ## CompressedTextData
 
@@ -249,7 +249,7 @@ _Source: [~/png.bfec#L190](../png.bfec#L190)_
 
 | Field Name | Type |
 |------------|------|
-| <code>keyword</code> | <code>ascii<null></code> |
+| <code>keyword</code> | <code>ascii&lt;null></code> |
 | <code>compression_method</code> | <code>u8</code> |
 | <code>compressed_text</code> | <code>u8[...]</code> |
 
@@ -265,10 +265,10 @@ _Source: [~/png.bfec#L201](../png.bfec#L201)_
 
 | Field Name | Type |
 |------------|------|
-| <code>keyword</code> | <code>ascii<null></code> |
+| <code>keyword</code> | <code>ascii&lt;null></code> |
 | <code>compression_flag</code> | <code><a href="$remote/https:/bfec.io/bfec/basics/v1.bfec.md#bool">bool</a></code> |
 | <code>compression_method</code> | <code>u8</code> |
-| <code>language_tag</code> | <code>ascii<null></code> |
+| <code>language_tag</code> | <code>ascii&lt;null></code> |
 | <code>translated_keyword</code> | <code>u8[null]</code> |
 | <code>text</code> | <code><a href="#internationaltextdatabody">InternationalTextDataBody</a>(@.compression_flag)</code> |
 
@@ -392,7 +392,7 @@ _Source: [~/png.bfec#L273](../png.bfec#L273)_
 
 | Field Name | Type |
 |------------|------|
-| <code>pallete_name</code> | <code>ascii<null></code> |
+| <code>pallete_name</code> | <code>ascii&lt;null></code> |
 | <code>sample_depth</code> | <code><a href="#sampledepth">SampleDepth</a></code> |
 | (todo: struct expansion) | <code><a href="#sample">Sample</a>(@.sample_depth)</code> | |
 | <code>frequencies</code> | <code>u16_be[...]</code> |
@@ -505,7 +505,7 @@ _Source: [~/png.bfec#L196](../png.bfec#L196)_
 | Case | Value |
 |------|-------|
 | <code>true</code> | <code>u8[...]</code> |
-| <code>false</code> | <code>utf8<...></code> |
+| <code>false</code> | <code>utf8&lt;...></code> |
 
 ## BackgroundColorData
 
@@ -550,7 +550,7 @@ _Source: [~/png.bfec#L267](../png.bfec#L267)_
 
 **Enum**
 
-**Type:** <code>ascii<4></code>
+**Type:** <code>ascii&lt;4></code>
 
 _Source: [~/png.bfec#L23](../png.bfec#L23)_
 

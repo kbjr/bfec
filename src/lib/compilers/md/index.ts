@@ -1,5 +1,6 @@
 
 import { URL } from 'url';
+import { BuildError } from '../../error';
 import * as lnk from '../../linker';
 import { c_md as log } from '../../log';
 import { WriteableDir } from '../../writeable-dir';
@@ -13,6 +14,8 @@ export interface MarkdownCompilerOptions {
 }
 
 export async function compile_to_markdown(schema: lnk.Schema, opts: MarkdownCompilerOptions) {
+	// TODO: Do we need to catch any error cases in here?
+	const errors: BuildError[] = [ ] ;
 	const processed = new Set<lnk.Schema>();
 
 	processed.add(schema);
@@ -34,6 +37,8 @@ export async function compile_to_markdown(schema: lnk.Schema, opts: MarkdownComp
 		processed.add(imported.schema);
 		await compile_schema(imported.schema, opts);
 	}
+
+	return errors;
 }
 
 async function compile_schema(schema: lnk.Schema, opts: MarkdownCompilerOptions) {
@@ -345,7 +350,7 @@ function type_expr(expr: TypeExpr, wrap = true) {
 			return code(`len<${type_expr(expr.real_type, false)}>`, wrap);
 
 		case 'type_text':
-			return code(`${expr.name}<${length(expr.length)}>`, wrap);
+			return code(`${expr.name}&lt;${length(expr.length)}>`, wrap);
 
 		case 'type_array':
 			return code(`${type_expr(expr.elem_type, false)}[${length(expr.length)}]`, wrap);
@@ -354,7 +359,7 @@ function type_expr(expr: TypeExpr, wrap = true) {
 			const real_type = type_expr(expr.real_type, false);
 			const func_name = expr.checksum_func.token.text;
 			const data_expr = value_expr(expr.data_field);
-			return code(`checksum<${real_type}>(${data_expr}, ${func_name})`, wrap);
+			return code(`checksum&lt;${real_type}>(${data_expr}, ${func_name})`, wrap);
 		}
 
 		case 'enum_ref': {
@@ -403,7 +408,7 @@ function type_expr(expr: TypeExpr, wrap = true) {
 				case 'switch':
 					const param_type = type_expr(expr.refined_type.arg_type, false);
 					const param_expr = value_expr(expr.refined_type.arg_value);
-					return code(`${base_type} -> switch <${param_type}> (${param_expr})`, wrap);
+					return code(`${base_type} -> switch &lt;${param_type}> (${param_expr})`, wrap);
 			}
 		}
 

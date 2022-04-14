@@ -59,6 +59,10 @@
                 "include_remote": {
                   "type": "boolean",
                   "description": "Controls whether or not docs will be generated for any included remote sources"
+                },
+                "no_generator_comment": {
+                  "type": "boolean",
+                  "description": "Disables prefixing each output file with a comment about the file being auto-generated"
                 }
               },
               "required": ["dir"]
@@ -70,8 +74,27 @@
           "description": "Output directory for Schema JSON"
         },
         "ts": {
-          "type": "string",
-          "description": "Output directory for compiled TypeScript"
+          "oneOf": [
+            {
+              "type": "string",
+              "description": "Output directory for compiled TypeScript"
+            },
+            {
+              "type": "object",
+              "description": "Configuration for the TypeScript compiler",
+              "properties": {
+                "dir": {
+                  "type": "string",
+                  "description": "Output directory for TypeScript"
+                },
+                "no_generator_comment": {
+                  "type": "boolean",
+                  "description": "Disables prefixing each output file with a comment about the file being auto-generated"
+                }
+              },
+              "required": ["dir"]
+            }
+          ]
         }
       }
     },
