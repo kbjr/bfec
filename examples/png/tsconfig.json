@@ -1,0 +1,22 @@
+{
+	"compilerOptions": {
+		"target": "es2020",
+    "module": "commonjs",
+    "outDir": "js",
+    "rootDir": "ts",
+    "declaration": true,
+		"sourceMap": true,
+		"declarationMap": false,
+		"incremental": true,
+		"moduleResolution": "node",
+    "typeRoots": [ ],
+    "tsBuildInfoFile": "build/.tsbuildinfo",
+    "lib": [
+      "es2020"
+    ]
+	},
+	"exclude": [ ],
+  "include": [
+    "ts/**/*.ts"
+  ]
+}

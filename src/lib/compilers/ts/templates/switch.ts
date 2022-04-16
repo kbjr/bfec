@@ -1,7 +1,7 @@
 
 import * as ts from '../ts-entities';
 import { doc_comments_template } from './doc-comments';
-import { import_template, ImportTemplateOpts, path_relative_to, import_type_expr_template, import_utils } from './import';
+import { import_template, import_type_expr_template, import_utils } from './import';
 
 export interface SwitchFunctionTemplateOpts {
 	file_path: string;
@@ -29,22 +29,27 @@ export interface SwitchDefaultOpts {
 }
 
 export const switch_template = (tmpl: SwitchFunctionTemplateOpts) => `
-${import_utils(tmpl.file_path, '{ $BufferReader, $BufferWriter, $Root, $encode, $decode }')}
+${import_utils(tmpl.file_path, '{ $State, $encode, $decode }')}
 ${enum_import(tmpl)}
 
+${tmpl.switch_comments.length ? doc_comments_template(tmpl.switch_comments) : ''}
 export type ${tmpl.switch_name}<$T extends $Enum = $Enum>
 	= ${tmpl.branches.map((branch) => switch_type_branch_template(tmpl.file_path, branch)).join('\n\t: ')}
 	: ${switch_type_default_template(tmpl.file_path, tmpl.default)}
 	;
 
 export const ${tmpl.switch_name} = Object.freeze({
-	[$decode]<$T extends $Enum = $Enum>($read_from: $BufferReader, $case: $T, $root: $Root) : ${tmpl.switch_name}<$T> {
+	[$decode]<$T extends $Enum = $Enum>($inst: null, $state: $State, $case: $T) : ${tmpl.switch_name}<$T> {
 		switch ($case) {
 			// TODO: switch case/default decoding
+			${switch_case_default_decode_template(tmpl, tmpl.default)}
 		}
 	},
-	[$encode]<$T extends $Enum = $Enum>($read_from: $BufferReader, $case: $T, $root: $Root) {
-		// 
+	[$encode]<$T extends $Enum = $Enum>($inst: ${tmpl.switch_name}<$T>, $state: $State, $case: $T) {
+		switch ($case) {
+			// TODO: switch case/default encoding
+			${switch_case_default_encode_template(tmpl, tmpl.default)}
+		}
 	}
 });
 `;
@@ -59,6 +64,54 @@ const switch_type_default_template = (from_path: string, tmpl: SwitchDefaultOpts
 	: member_import_inline(from_path, tmpl)
 );
 
+const switch_case_branch_encode_template = (switch_tmpl: SwitchFunctionTemplateOpts, tmpl: SwitchBranchOpts) => {
+	if (tmpl.is_void) {
+		return `case $Enum.${tmpl.enum_member}: return void 0 as any as ${switch_tmpl.switch_name}<$T>;`;
+	}
+
+	if (tmpl.is_invalid) {
+		return 'case $Enum.${tmpl.enum_member}: ' + error_invalid(switch_tmpl.switch_name);
+	}
+
+	// 
+};
+
+const switch_case_branch_decode_template = (switch_tmpl: SwitchFunctionTemplateOpts, tmpl: SwitchBranchOpts) => {
+	if (tmpl.is_void) {
+		return `case $Enum.${tmpl.enum_member}: return void 0 as any as ${switch_tmpl.switch_name}<$T>;`;
+	}
+
+	if (tmpl.is_invalid) {
+		return 'case $Enum.${tmpl.enum_member}: ' + error_invalid(switch_tmpl.switch_name);
+	}
+
+	// 
+};
+
+const switch_case_default_encode_template = (switch_tmpl: SwitchFunctionTemplateOpts, tmpl: SwitchDefaultOpts) => {
+	if (tmpl.is_void) {
+		return `default: return void 0 as any as ${switch_tmpl.switch_name}<$T>;`;
+	}
+
+	if (tmpl.is_invalid) {
+		return 'default: ' + error_invalid(switch_tmpl.switch_name);
+	}
+
+	// 
+};
+
+const switch_case_default_decode_template = (switch_tmpl: SwitchFunctionTemplateOpts, tmpl: SwitchDefaultOpts) => {
+	if (tmpl.is_void) {
+		return `default: return void 0 as any as ${switch_tmpl.switch_name}<$T>;`;
+	}
+
+	if (tmpl.is_invalid) {
+		return 'default: ' + error_invalid(switch_tmpl.switch_name);
+	}
+
+	// 
+};
+
 const enum_import = (tmpl: SwitchFunctionTemplateOpts) => import_template({
 	type_name: tmpl.enum_name,
 	alias_name: '$Enum',
@@ -71,3 +124,5 @@ const member_import_inline = (from_path: string, tmpl: SwitchDefaultOpts | Switc
 	from_path: from_path,
 	source_path: tmpl.type_file_path,
 });
+
+const error_invalid = (switch_name: string) => `$state.fatal(\`${switch_name}: Encountered invalid case: \${$case}\`);`;

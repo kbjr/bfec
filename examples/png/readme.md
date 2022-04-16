@@ -11,4 +11,7 @@ See [./png.bfec](./png.bfec)
 
 ```bash
 $ bfec -conf ./config.jsonc
+
+# To compile the generated typescript all the way down to JS
+$ tsc --build ./tsconfig.json
 ```

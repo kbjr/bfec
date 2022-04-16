@@ -30,6 +30,7 @@ export async function compile_to_typescript(schema: lnk.Schema, opts: Typescript
 	if (collected.result.length) {
 		const emit_promises: Promise<void>[] = [ ];
 
+		// Build classes for TS representations of each type
 		for (const { type, schema } of collected.result) {
 			log.debug('Processing collected type', type.name);
 			log.silly('Processing collected type', type);
@@ -42,28 +43,27 @@ export async function compile_to_typescript(schema: lnk.Schema, opts: Typescript
 					const name = type === schema.root_struct ? opts.root_struct_name : type.name;
 					const ent = new ts.Struct(dir, name, type, state);
 					state.ts_structs.set(type, ent);
-					emit_promises.push(ent.emit());
 					break;
 				}
 
 				case 'switch': {
 					const ent = new ts.Switch(dir, type.name, type, state);
 					state.ts_switches.set(type, ent);
-					emit_promises.push(ent.emit());
 					break;
 				}
 
 				case 'enum': {
-					// 
+					const ent = new ts.Enum(dir, type.name, type, state);
+					state.ts_enums.set(type, ent);
 					break;
 				}
 			}
 
 			log.debug('Done processing collected type', type.name);
 		}
-
+		
 		log.debug('Waiting for all {type}.ts files to be emitted...');
-		await Promise.all(emit_promises);
+		await state.emit_all();
 		log.debug('All {type}.ts files written');
 
 		const exports: tmpl.ExportTemplateOpts[] = [
@@ -277,6 +277,10 @@ async function write_core_files(state: CompilerState, root_schema_ns: string) {
 		= generator_comment
 		+ tmpl.buffer_writer_template();
 
+	const state_ts
+		= generator_comment
+		+ tmpl.state_template();
+
 	const unprocessed_slice_ts
 		= generator_comment
 		+ tmpl.unprocessed_slice_template();
@@ -294,6 +298,7 @@ async function write_core_files(state: CompilerState, root_schema_ns: string) {
 		state.opts.out_dir.write_file('index.ts', entrypoint_ts),
 		state.opts.out_dir.write_file('buffer-reader.ts', buffer_reader_ts),
 		state.opts.out_dir.write_file('buffer-writer.ts', buffer_writer_ts),
+		state.opts.out_dir.write_file('state.ts', state_ts),
 		state.opts.out_dir.write_file('unprocessed-slice.ts', unprocessed_slice_ts),
 		state.opts.out_dir.write_file('utils.ts', utils_ts),
 	]);

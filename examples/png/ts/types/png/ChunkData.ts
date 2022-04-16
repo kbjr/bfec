@@ -1,13 +1,14 @@
 
 /*
  THIS FILE WAS AUTOMATICALLY GENERATED
- 2022-04-16T04:13:59.812Z
+ 2022-04-16T05:30:10.743Z
 */
 
 
-import { $BufferReader, $BufferWriter, $Root, $encode, $decode } from '../../utils';
+import { $State, $encode, $decode } from '../../utils';
 
-import {  as $Enum } from '../../';
+import { ChunkType as $Enum } from '../../';
+
 
 export type ChunkData<$T extends $Enum = $Enum>
 	= 
@@ -15,12 +16,16 @@ export type ChunkData<$T extends $Enum = $Enum>
 	;
 
 export const ChunkData = Object.freeze({
-	[$decode]<$T extends $Enum = $Enum>($read_from: $BufferReader, $case: $T, $root: $Root) : ChunkData<$T> {
+	[$decode]<$T extends $Enum = $Enum>($inst: null, $state: $State, $case: $T) : ChunkData<$T> {
 		switch ($case) {
 			// TODO: switch case/default decoding
+			default: $state.fatal(`ChunkData: Encountered invalid case: ${$case}`);
 		}
 	},
-	[$encode]<$T extends $Enum = $Enum>($read_from: $BufferReader, $case: $T, $root: $Root) {
-		// 
+	[$encode]<$T extends $Enum = $Enum>($inst: ChunkData<$T>, $state: $State, $case: $T) {
+		switch ($case) {
+			// TODO: switch case/default encoding
+			default: $state.fatal(`ChunkData: Encountered invalid case: ${$case}`);
+		}
 	}
 });

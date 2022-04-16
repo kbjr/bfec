@@ -48,3 +48,11 @@ struct NamespaceEntityContents {
 #   case true:  "true";
 # }
 
+
+
+
+
+# TODO: Look-up / look-behind value expr paths?
+#     data: ChunkData(%.Chunk.type);
+# ^ read: "find nearest ancestor of type `Chunk`, and take the `type` field from it"
+

@@ -1,10 +1,15 @@
 
 /*
  THIS FILE WAS AUTOMATICALLY GENERATED
- 2022-04-16T04:13:59.812Z
+ 2022-04-16T05:30:10.742Z
 */
 
-import { $BufferReader, $BufferWriter, $Root, $encode, $decode } from '../../utils';
+
+import { $State, $encode, $decode } from '../../utils';
+
+export interface $ {
+	
+}
 
 
 /**
@@ -15,14 +20,12 @@ https://www.w3.org/TR/PNG
 
  */
 export class $ {
-	
-
-	public static [$encode]($inst: $, $write_to: $BufferWriter, $root: $Root) {
+	public static [$encode]($inst: $, $state: $State) {
 		//
 		
 	}
 	
-	public static [$decode]($inst: $, $read_from: $BufferReader, $root: $Root) : $ {
+	public static [$decode]($inst: $, $state: $State) : $ {
 		//
 		
 		return $inst;

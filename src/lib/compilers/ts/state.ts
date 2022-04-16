@@ -24,4 +24,22 @@ export class CompilerState {
 	public readonly ts_structs  = new Map<lnk.Struct, ts.Struct>();
 	public readonly ts_switches = new Map<lnk.Switch, ts.Switch>();
 	public readonly ts_enums    = new Map<lnk.Enum, ts.Enum>();
+
+	public emit_all() {
+		const promises: Promise<void>[] = [ ];
+
+		for (const [node, type] of this.ts_structs) {
+			promises.push(type.emit());
+		}
+
+		for (const [node, type] of this.ts_switches) {
+			promises.push(type.emit());
+		}
+
+		for (const [node, type] of this.ts_enums) {
+			promises.push(type.emit());
+		}
+
+		return Promise.all(promises);
+	}
 }

@@ -1,6 +1,6 @@
 
 import { doc_comments_template } from './doc-comments';
-import { import_template, ImportTemplateOpts, path_relative_to } from './import';
+import { import_template, ImportTemplateOpts, import_utils } from './import';
 
 export interface StructClassTemplateOpts {
 	file_path: string;
@@ -14,18 +14,20 @@ export interface StructClassTemplateOpts {
 }
 
 export const struct_template = (tmpl: StructClassTemplateOpts) => `
-import { $BufferReader, $BufferWriter, $Root, $encode, $decode } from '${path_relative_to(tmpl.file_path, 'utils')}';
+${import_utils(tmpl.file_path, '{ $State, $encode, $decode }')}
 ${tmpl.struct_imports.map(import_template).join('')}
+export interface ${tmpl.struct_name} {
+	${tmpl.struct_fields.map(([ name, type ]) => struct_field_template(name, type)).join('')}
+}
+
 ${tmpl.struct_comments.length ? doc_comments_template(tmpl.struct_comments) : ''}
 export class ${tmpl.struct_name} {
-	${tmpl.struct_fields.map(([ name, type ]) => struct_field_template(name, type)).join('')}
-
-	public static [$encode]($inst: ${tmpl.struct_name}, $write_to: $BufferWriter, $root: $Root) {
+	public static [$encode]($inst: ${tmpl.struct_name}, $state: $State) {
 		//
 		${tmpl.struct_encode_body.join('\n\t\t')}
 	}
 	
-	public static [$decode]($inst: ${tmpl.struct_name}, $read_from: $BufferReader, $root: $Root) : ${tmpl.struct_name} {
+	public static [$decode]($inst: ${tmpl.struct_name}, $state: $State) : ${tmpl.struct_name} {
 		//
 		${tmpl.struct_decode_body.join('\n\t\t')}
 		return $inst;
@@ -34,4 +36,4 @@ export class ${tmpl.struct_name} {
 `;
 
 const struct_field_template = (name: string, type: string) => `
-	public ${name}: ${type};`;
+	${name}: ${type};`;

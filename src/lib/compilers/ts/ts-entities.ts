@@ -37,7 +37,20 @@ export class Struct {
 }
 
 export class Enum {
-	// 
+	constructor(
+		public out_dir: string,
+		public class_name: string,
+		public switch_node: lnk.Enum,
+		public state: CompilerState
+	) { }
+
+	public get file_path() {
+		return `${this.out_dir}/${this.class_name}`;
+	}
+
+	public emit() {
+		return Promise.resolve();
+	}
 }
 
 export class Switch {
@@ -56,13 +69,15 @@ export class Switch {
 		const imports: tmpl.ImportTemplateOpts[] = [ ];
 		const generator_comment = tmpl.generator_comment_template(this.state.opts.no_generator_comment);
 
+		const enum_type = this.switch_node.arg_type.points_to;
+
 		const type_ts
 			= generator_comment
 			+ tmpl.switch_template({
 				file_path: this.file_path,
 				switch_name: this.class_name,
 				switch_comments: this.switch_node.comments.map((comment) => comment.content),
-				enum_name: '',
+				enum_name: enum_type.name,
 				enum_file_path: '',
 				branches: [ ],
 				default: { is_void: false, is_invalid: true },
