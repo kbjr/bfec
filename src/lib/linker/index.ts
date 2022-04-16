@@ -14,6 +14,7 @@ export * from './bool-expr';
 export * from './comment';
 export * from './const';
 export * from './enum';
+export { FieldType } from './field-type';
 export * from './import';
 export * from './node';
 export * from './pos';

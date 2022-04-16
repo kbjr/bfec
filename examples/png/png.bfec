@@ -2,12 +2,15 @@
 from 'https://bfec.io/bfec/basics/v1.bfec' { bool };
 
 #--
-PNG Image Format
+The root of a PNG image
 
 https://www.w3.org/TR/PNG
 #--
 struct $ {
+  # Magic bytes at the start of the file to identify the file as a PNG
   magic_number: "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a";
+  # The image header is always the first chunk in a PNG image. It contains
+  # general metadata like the image dimensions and compression method
   header: Chunk(ChunkType.IHDR);
   chunks: Chunk[...];
 }
@@ -15,8 +18,11 @@ struct $ {
 struct Chunk(type: ChunkType) {
   # The length of the `data` field (in bytes)
   length: len<u32_be>;
+  # Identifies the type of data contained in this chunk
   type: ChunkType = type;
+  # The actual chunk data
   data: u8[@.length] -> ChunkData(type);
+  # CRC32 checksum of the `data` field for validation
   crc: checksum<u32_be>(@.data, 'crc32');
 }
 

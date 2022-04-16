@@ -36,7 +36,7 @@ export abstract class AbstractSwitch implements SchemaNode {
 }
 
 export class NamedSwitch extends AbstractSwitch {
-	public switch_type = 'named';
+	public switch_type = 'named' as const;
 	public ast_node: ast.DeclareSwitchNode;
 	public parent: Schema;
 
@@ -58,7 +58,7 @@ export class NamedSwitch extends AbstractSwitch {
 }
 
 export class InlineSwitch extends AbstractSwitch {
-	public switch_type = 'named';
+	public switch_type = 'inline' as const;
 	public ast_node: ast.DeclareSwitchNode;
 	public arg_value: StructFieldRef<EnumRef> | ParamRef;
 	public parent: Struct;

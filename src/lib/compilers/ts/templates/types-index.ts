@@ -1,15 +1,19 @@
 
+import { path_relative_to } from './import';
+
 export interface TypesIndexTemplateOpts {
-	root_struct_class: string;
-	exports: string[];
+	exports: ExportTemplateOpts[];
+}
+
+export interface ExportTemplateOpts {
+	ns_name: string;
+	from_path: string;
+	source_path: string;
 }
 
 export const types_index_template = (tmpl: TypesIndexTemplateOpts) => `
-
-export { ${tmpl.root_struct_class} as $Root } from './${tmpl.root_struct_class}';
-
-${tmpl.exports.map((exp) => export_template(exp))}
+${tmpl.exports.map((exp) => export_template(exp)).join('')}
 `;
 
-export const export_template = (exp: string) => `
-export { ${exp} } from './${exp}';`
+const export_template = (exp: ExportTemplateOpts) => `
+export * as ${exp.ns_name} from './${path_relative_to(exp.from_path, exp.source_path)}';`

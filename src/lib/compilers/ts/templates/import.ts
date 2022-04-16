@@ -1,15 +1,21 @@
 
 export interface ImportTemplateOpts {
 	type_name: string;
+	alias_name?: string;
 	from_path: string;
 	source_path: string;
 }
 
 export const import_template = (tmpl: ImportTemplateOpts) => `
-import { ${tmpl.type_name } from '${path_relative_to(tmpl.from_path, tmpl.source_path)}';`;
+import { ${tmpl.type_name}${tmpl.alias_name ? ` as ${tmpl.alias_name}` : ''} } from '${path(tmpl)}';`;
 
-export function utils_path_from(from_path: string) {
-	return path_relative_to(from_path, 'utils');
+export const import_utils = (from_path: string, imports: string) => `
+import ${imports} from '${path_relative_to(from_path, 'utils')}';`;
+
+export const import_type_expr_template = (tmpl: ImportTemplateOpts) => `typeof import('${path(tmpl)}').${tmpl.type_name}`;
+
+function path(tmpl: ImportTemplateOpts) {
+	return path_relative_to(tmpl.from_path, tmpl.source_path);
 }
 
 export function path_relative_to(from_path: string, to_path: string) {
@@ -41,6 +47,10 @@ export function path_relative_to(from_path: string, to_path: string) {
 		if (to_parts[0] === from_parts[0]) {
 			to_parts.shift();
 			from_parts.shift();
+		}
+
+		else {
+			break;
 		}
 	}
 

@@ -136,7 +136,7 @@ async function main() {
 				const opts: TypescriptCompilerOptions = {
 					out_dir,
 					// TODO: Allow this to be passed in
-					root_struct_name: '$Root'
+					root_struct_name: '$'
 				};
 
 				if (out.conf) {
