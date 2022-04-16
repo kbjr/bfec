@@ -2,17 +2,17 @@
 import { import_utils } from './import';
 
 export const state_template = () => `
-${import_utils('state', '{ $BufferReader, $BufferWriter, $Root, $encode, $decode }')}
+${import_utils('state', '{ $BufferReader, $BufferWriter, $Root }')}
 
 export class $State {
-	public stack: string[];
+	public stack: $StackFrame<any>[] = [ ];
 	public read_from?: $BufferReader;
 	public write_to?: $BufferWriter;
 
-	constructor(
-		public root: $Root
-	) {
-		this.step_down('$', root);
+	public clone() {
+		const $new_state = new $State();
+		$new_state.stack = this.stack.slice();
+		return $new_state;
 	}
 
 	public here() {

@@ -2,8 +2,8 @@
 	"compilerOptions": {
 		"target": "es2020",
     "module": "commonjs",
-    "outDir": "js",
-    "rootDir": "ts",
+    "outDir": "javascript",
+    "rootDir": "typescript",
     "declaration": true,
 		"sourceMap": true,
 		"declarationMap": false,
@@ -17,6 +17,6 @@
 	},
 	"exclude": [ ],
   "include": [
-    "ts/**/*.ts"
+    "typescript/**/*.ts"
   ]
 }

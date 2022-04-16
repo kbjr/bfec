@@ -5,14 +5,12 @@
     "file": "png.bfec"
   },
   "out": {
-    // "ast_json": "./ast",
-    "sch_json": "./schema",
     "ts": {
-      "dir": "./ts"
+      "dir": "./typescript"
     },
     // "as": "./as",
     "md": {
-      "dir": "./md",
+      "dir": "./markdown",
       "source_url": "../",
       "include_external": false,
       "include_remote": false

@@ -1,9 +1,0 @@
-
-struct Expr {
-	# 
-}
-
-struct BinaryExpr {
-	lh_operand: Expr;
-	rh_operand: Expr;
-}

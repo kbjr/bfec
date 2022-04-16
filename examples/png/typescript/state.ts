@@ -1,21 +1,21 @@
 
 /*
  THIS FILE WAS AUTOMATICALLY GENERATED
- 2022-04-16T05:30:10.739Z
+ 2022-04-16T07:11:34.211Z
 */
 
 
-import { $BufferReader, $BufferWriter, $Root, $encode, $decode } from './utils';
+import { $BufferReader, $BufferWriter, $Root } from './utils';
 
 export class $State {
-	public stack: string[];
+	public stack: $StackFrame<any>[] = [ ];
 	public read_from?: $BufferReader;
 	public write_to?: $BufferWriter;
 
-	constructor(
-		public root: $Root
-	) {
-		this.step_down('$', root);
+	public clone() {
+		const $new_state = new $State();
+		$new_state.stack = this.stack.slice();
+		return $new_state;
 	}
 
 	public here() {

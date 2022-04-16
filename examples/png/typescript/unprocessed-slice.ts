@@ -1,5 +1,9 @@
 
-export const unprocessed_slice_template = () => `
+/*
+ THIS FILE WAS AUTOMATICALLY GENERATED
+ 2022-04-16T07:11:34.211Z
+*/
+
 import { $BufferReader, $State, $StructType, $SwitchType, $Root } from './utils';
 
 export class $UnprocessedSlice<$T, $C = void> {
@@ -15,4 +19,3 @@ export class $UnprocessedSlice<$T, $C = void> {
 		return this.Type.$decode(this.state, this.$case);
 	}
 }
-`;

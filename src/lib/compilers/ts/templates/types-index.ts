@@ -16,4 +16,4 @@ ${tmpl.exports.map((exp) => export_template(exp)).join('')}
 `;
 
 const export_template = (exp: ExportTemplateOpts) => `
-export * as ${exp.ns_name} from './${path_relative_to(exp.from_path, exp.source_path)}';`
+export * as ${exp.ns_name} from '${path_relative_to(exp.from_path, exp.source_path)}';`

@@ -1,10 +1,9 @@
 
-export interface UtilsTemplateOpts {
-	root_ns_name: string;
-	root_struct_class: string;
-}
+/*
+ THIS FILE WAS AUTOMATICALLY GENERATED
+ 2022-04-16T07:11:34.211Z
+*/
 
-export const utils_template = (tmpl: UtilsTemplateOpts) => `
 import * as $types from './types/$index';
 import { $State } from './state';
 
@@ -13,7 +12,7 @@ export { $BufferWriter } from './buffer-writer';
 export { $State } from './state';
 export { $UnprocessedSlice } from './unprocessed-slice';
 
-export type $Root = $types.${tmpl.root_ns_name}.${tmpl.root_struct_class};
+export type $Root = $types.png.$;
 
 export interface $StructType<$T> {
 	new () : $T;
@@ -25,4 +24,3 @@ export interface $SwitchType<$T, $C> {
 	$encode($state: $State, $case: $C, $inst: $T) : void;
 	$decode($state: $State, $case: $C) : $T;
 }
-`;

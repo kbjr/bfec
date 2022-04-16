@@ -1,5 +1,0 @@
-
-switch EntityContents<EntityType> {
-	case namespace: NamespaceEntityContents;
-	default: invalid;
-}
