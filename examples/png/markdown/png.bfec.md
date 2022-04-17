@@ -1,7 +1,7 @@
 
 <!--
  THIS FILE WAS AUTOMATICALLY GENERATED
- 2022-04-16T07:11:34.219Z
+ 2022-04-17T04:06:19.188Z
 -->
 
 ## $
@@ -49,7 +49,7 @@ _Source: [~/png.bfec#L18](../png.bfec#L18)_
 
 **Struct** (Byte Aligned)
 
-_Source: [~/png.bfec#L93](../png.bfec#L93)_
+_Source: [~/png.bfec#L95](../png.bfec#L95)_
 
 
 
@@ -69,7 +69,7 @@ _Source: [~/png.bfec#L93](../png.bfec#L93)_
 
 **Struct** (Byte Aligned)
 
-_Source: [~/png.bfec#L111](../png.bfec#L111)_
+_Source: [~/png.bfec#L113](../png.bfec#L113)_
 
 
 
@@ -85,7 +85,7 @@ _Source: [~/png.bfec#L111](../png.bfec#L111)_
 
 **Struct** (Byte Aligned)
 
-_Source: [~/png.bfec#L124](../png.bfec#L124)_
+_Source: [~/png.bfec#L126](../png.bfec#L126)_
 
 
 
@@ -99,7 +99,7 @@ _Source: [~/png.bfec#L124](../png.bfec#L124)_
 
 **Struct** (Byte Aligned)
 
-_Source: [~/png.bfec#L128](../png.bfec#L128)_
+_Source: [~/png.bfec#L130](../png.bfec#L130)_
 
 
 
@@ -115,7 +115,7 @@ _Source: [~/png.bfec#L128](../png.bfec#L128)_
 
 **Struct** (Byte Aligned)
 
-_Source: [~/png.bfec#L134](../png.bfec#L134)_
+_Source: [~/png.bfec#L136](../png.bfec#L136)_
 
 
 
@@ -129,7 +129,7 @@ _Source: [~/png.bfec#L134](../png.bfec#L134)_
 
 **Struct** (Byte Aligned)
 
-_Source: [~/png.bfec#L138](../png.bfec#L138)_
+_Source: [~/png.bfec#L140](../png.bfec#L140)_
 
 
 
@@ -150,7 +150,7 @@ _Source: [~/png.bfec#L138](../png.bfec#L138)_
 
 **Struct** (Byte Aligned)
 
-_Source: [~/png.bfec#L149](../png.bfec#L149)_
+_Source: [~/png.bfec#L151](../png.bfec#L151)_
 
 
 
@@ -164,7 +164,7 @@ _Source: [~/png.bfec#L149](../png.bfec#L149)_
 
 **Struct** (Byte Aligned)
 
-_Source: [~/png.bfec#L153](../png.bfec#L153)_
+_Source: [~/png.bfec#L155](../png.bfec#L155)_
 
 
 
@@ -180,7 +180,7 @@ _Source: [~/png.bfec#L153](../png.bfec#L153)_
 
 **Struct** (Byte Aligned)
 
-_Source: [~/png.bfec#L168](../png.bfec#L168)_
+_Source: [~/png.bfec#L170](../png.bfec#L170)_
 
 
 
@@ -195,7 +195,7 @@ _Source: [~/png.bfec#L168](../png.bfec#L168)_
 
 **Struct** (Byte Aligned)
 
-_Source: [~/png.bfec#L173](../png.bfec#L173)_
+_Source: [~/png.bfec#L175](../png.bfec#L175)_
 
 
 
@@ -212,7 +212,7 @@ _Source: [~/png.bfec#L173](../png.bfec#L173)_
 
 **Struct** (Byte Aligned)
 
-_Source: [~/png.bfec#L187](../png.bfec#L187)_
+_Source: [~/png.bfec#L189](../png.bfec#L189)_
 
 
 
@@ -226,7 +226,7 @@ _Source: [~/png.bfec#L187](../png.bfec#L187)_
 
 **Struct** (Byte Aligned)
 
-_Source: [~/png.bfec#L191](../png.bfec#L191)_
+_Source: [~/png.bfec#L193](../png.bfec#L193)_
 
 
 
@@ -241,7 +241,7 @@ _Source: [~/png.bfec#L191](../png.bfec#L191)_
 
 **Struct** (Byte Aligned)
 
-_Source: [~/png.bfec#L196](../png.bfec#L196)_
+_Source: [~/png.bfec#L198](../png.bfec#L198)_
 
 
 
@@ -257,7 +257,7 @@ _Source: [~/png.bfec#L196](../png.bfec#L196)_
 
 **Struct** (Byte Aligned)
 
-_Source: [~/png.bfec#L207](../png.bfec#L207)_
+_Source: [~/png.bfec#L209](../png.bfec#L209)_
 
 
 
@@ -276,7 +276,7 @@ _Source: [~/png.bfec#L207](../png.bfec#L207)_
 
 **Struct** (Byte Aligned)
 
-_Source: [~/png.bfec#L225](../png.bfec#L225)_
+_Source: [~/png.bfec#L227](../png.bfec#L227)_
 
 
 
@@ -290,7 +290,7 @@ _Source: [~/png.bfec#L225](../png.bfec#L225)_
 
 **Struct** (Byte Aligned)
 
-_Source: [~/png.bfec#L229](../png.bfec#L229)_
+_Source: [~/png.bfec#L231](../png.bfec#L231)_
 
 
 
@@ -306,7 +306,7 @@ _Source: [~/png.bfec#L229](../png.bfec#L229)_
 
 **Struct** (Byte Aligned)
 
-_Source: [~/png.bfec#L235](../png.bfec#L235)_
+_Source: [~/png.bfec#L237](../png.bfec#L237)_
 
 
 
@@ -320,7 +320,7 @@ _Source: [~/png.bfec#L235](../png.bfec#L235)_
 
 **Struct** (Byte Aligned)
 
-_Source: [~/png.bfec#L239](../png.bfec#L239)_
+_Source: [~/png.bfec#L241](../png.bfec#L241)_
 
 
 
@@ -334,7 +334,7 @@ _Source: [~/png.bfec#L239](../png.bfec#L239)_
 
 **Struct** (Byte Aligned)
 
-_Source: [~/png.bfec#L248](../png.bfec#L248)_
+_Source: [~/png.bfec#L250](../png.bfec#L250)_
 
 
 
@@ -350,7 +350,7 @@ _Source: [~/png.bfec#L248](../png.bfec#L248)_
 
 **Struct** (Byte Aligned)
 
-_Source: [~/png.bfec#L259](../png.bfec#L259)_
+_Source: [~/png.bfec#L261](../png.bfec#L261)_
 
 
 
@@ -367,7 +367,7 @@ _Source: [~/png.bfec#L259](../png.bfec#L259)_
 
 **Struct** (Byte Aligned)
 
-_Source: [~/png.bfec#L266](../png.bfec#L266)_
+_Source: [~/png.bfec#L268](../png.bfec#L268)_
 
 
 
@@ -384,7 +384,7 @@ _Source: [~/png.bfec#L266](../png.bfec#L266)_
 
 **Struct** (Byte Aligned)
 
-_Source: [~/png.bfec#L279](../png.bfec#L279)_
+_Source: [~/png.bfec#L281](../png.bfec#L281)_
 
 
 
@@ -401,7 +401,7 @@ _Source: [~/png.bfec#L279](../png.bfec#L279)_
 
 **Struct** (Byte Aligned)
 
-_Source: [~/png.bfec#L286](../png.bfec#L286)_
+_Source: [~/png.bfec#L288](../png.bfec#L288)_
 
 
 
@@ -422,7 +422,7 @@ _Source: [~/png.bfec#L286](../png.bfec#L286)_
 
 **Type:** <code><a href="#chunktype">ChunkType</a></code>
 
-_Source: [~/png.bfec#L50](../png.bfec#L50)_
+_Source: [~/png.bfec#L52](../png.bfec#L52)_
 
 
 
@@ -456,7 +456,7 @@ _Source: [~/png.bfec#L50](../png.bfec#L50)_
 
 **Type:** <code><a href="#colortype">ColorType</a></code>
 
-_Source: [~/png.bfec#L117](../png.bfec#L117)_
+_Source: [~/png.bfec#L119](../png.bfec#L119)_
 
 
 
@@ -475,7 +475,7 @@ _Source: [~/png.bfec#L117](../png.bfec#L117)_
 
 **Type:** <code><a href="#colortype">ColorType</a></code>
 
-_Source: [~/png.bfec#L159](../png.bfec#L159)_
+_Source: [~/png.bfec#L161](../png.bfec#L161)_
 
 
 
@@ -496,7 +496,7 @@ _Source: [~/png.bfec#L159](../png.bfec#L159)_
 
 **Type:** <code><a href="$remote/https:/bfec.io/bfec/basics/v1.bfec.md#bool">bool</a></code>
 
-_Source: [~/png.bfec#L202](../png.bfec#L202)_
+_Source: [~/png.bfec#L204](../png.bfec#L204)_
 
 
 
@@ -513,7 +513,7 @@ _Source: [~/png.bfec#L202](../png.bfec#L202)_
 
 **Type:** <code><a href="#colortype">ColorType</a></code>
 
-_Source: [~/png.bfec#L216](../png.bfec#L216)_
+_Source: [~/png.bfec#L218](../png.bfec#L218)_
 
 
 
@@ -534,7 +534,7 @@ _Source: [~/png.bfec#L216](../png.bfec#L216)_
 
 **Type:** <code><a href="#sampledepth">SampleDepth</a></code>
 
-_Source: [~/png.bfec#L273](../png.bfec#L273)_
+_Source: [~/png.bfec#L275](../png.bfec#L275)_
 
 
 
@@ -558,26 +558,26 @@ _Source: [~/png.bfec#L29](../png.bfec#L29)_
 
 ### Members
 
-| Name | Value |
-|------|-------|
-| <code>IHDR</code> | <code>"IHDR"</code> |
-| <code>PLTE</code> | <code>"PLTE"</code> |
-| <code>IDAT</code> | <code>"IDAT"</code> |
-| <code>IEND</code> | <code>"IEND"</code> |
-| <code>tRNS</code> | <code>"tRNS"</code> |
-| <code>cHRM</code> | <code>"cHRM"</code> |
-| <code>gAMA</code> | <code>"gAMA"</code> |
-| <code>iCCP</code> | <code>"iCCP"</code> |
-| <code>sBIT</code> | <code>"sBIT"</code> |
-| <code>sRGB</code> | <code>"sRGB"</code> |
-| <code>tEXt</code> | <code>"tEXt"</code> |
-| <code>xTXt</code> | <code>"xTXt"</code> |
-| <code>iTXt</code> | <code>"iTXt"</code> |
-| <code>bKGD</code> | <code>"bKGD"</code> |
-| <code>hIST</code> | <code>"hIST"</code> |
-| <code>pHYs</code> | <code>"pHYs"</code> |
-| <code>sPLT</code> | <code>"sPLT"</code> |
-| <code>tIME</code> | <code>"tIME"</code> |
+| Name | Value | Comments |
+|------|-------|----------|
+| <code>IHDR</code> | <code>"IHDR"</code> | Image header |
+| <code>PLTE</code> | <code>"PLTE"</code> | Color pallete data |
+| <code>IDAT</code> | <code>"IDAT"</code> |  |
+| <code>IEND</code> | <code>"IEND"</code> |  |
+| <code>tRNS</code> | <code>"tRNS"</code> |  |
+| <code>cHRM</code> | <code>"cHRM"</code> |  |
+| <code>gAMA</code> | <code>"gAMA"</code> |  |
+| <code>iCCP</code> | <code>"iCCP"</code> |  |
+| <code>sBIT</code> | <code>"sBIT"</code> |  |
+| <code>sRGB</code> | <code>"sRGB"</code> |  |
+| <code>tEXt</code> | <code>"tEXt"</code> |  |
+| <code>xTXt</code> | <code>"xTXt"</code> |  |
+| <code>iTXt</code> | <code>"iTXt"</code> |  |
+| <code>bKGD</code> | <code>"bKGD"</code> |  |
+| <code>hIST</code> | <code>"hIST"</code> |  |
+| <code>pHYs</code> | <code>"pHYs"</code> |  |
+| <code>sPLT</code> | <code>"sPLT"</code> |  |
+| <code>tIME</code> | <code>"tIME"</code> |  |
 
 ## BitDepth
 
@@ -585,7 +585,7 @@ _Source: [~/png.bfec#L29](../png.bfec#L29)_
 
 **Type:** <code>u8</code>
 
-_Source: [~/png.bfec#L72](../png.bfec#L72)_
+_Source: [~/png.bfec#L74](../png.bfec#L74)_
 
 
 
@@ -605,7 +605,7 @@ _Source: [~/png.bfec#L72](../png.bfec#L72)_
 
 **Type:** <code>u8</code>
 
-_Source: [~/png.bfec#L80](../png.bfec#L80)_
+_Source: [~/png.bfec#L82](../png.bfec#L82)_
 
 
 
@@ -621,7 +621,7 @@ _Source: [~/png.bfec#L80](../png.bfec#L80)_
 
 **Type:** <code>u8</code>
 
-_Source: [~/png.bfec#L84](../png.bfec#L84)_
+_Source: [~/png.bfec#L86](../png.bfec#L86)_
 
 
 
@@ -637,7 +637,7 @@ _Source: [~/png.bfec#L84](../png.bfec#L84)_
 
 **Type:** <code>u8</code>
 
-_Source: [~/png.bfec#L88](../png.bfec#L88)_
+_Source: [~/png.bfec#L90](../png.bfec#L90)_
 
 
 
@@ -654,7 +654,7 @@ _Source: [~/png.bfec#L88](../png.bfec#L88)_
 
 **Type:** <code>u8</code>
 
-_Source: [~/png.bfec#L103](../png.bfec#L103)_
+_Source: [~/png.bfec#L105](../png.bfec#L105)_
 
 
 
@@ -674,7 +674,7 @@ _Source: [~/png.bfec#L103](../png.bfec#L103)_
 
 **Type:** <code>u8</code>
 
-_Source: [~/png.bfec#L180](../png.bfec#L180)_
+_Source: [~/png.bfec#L182](../png.bfec#L182)_
 
 
 
@@ -693,7 +693,7 @@ _Source: [~/png.bfec#L180](../png.bfec#L180)_
 
 **Type:** <code>u8</code>
 
-_Source: [~/png.bfec#L243](../png.bfec#L243)_
+_Source: [~/png.bfec#L245](../png.bfec#L245)_
 
 
 
@@ -710,7 +710,7 @@ _Source: [~/png.bfec#L243](../png.bfec#L243)_
 
 **Type:** <code>u8</code>
 
-_Source: [~/png.bfec#L254](../png.bfec#L254)_
+_Source: [~/png.bfec#L256](../png.bfec#L256)_
 
 
 

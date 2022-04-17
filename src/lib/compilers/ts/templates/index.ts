@@ -6,6 +6,7 @@ export * from './entrypoint';
 export * from './enum';
 export * from './generator-comment';
 export * from './import';
+export * from './registers';
 export * from './schema-index';
 export * from './state';
 export * from './struct';

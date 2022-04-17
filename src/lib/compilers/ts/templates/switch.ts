@@ -1,13 +1,10 @@
 
-import * as ts from '../ts-entities';
-import { doc_comments_template } from './doc-comments';
+import * as ts from '../entities';
 import { import_template, import_type_expr_template, import_utils } from './import';
 
 export interface SwitchFunctionTemplateOpts {
 	ts_switch: ts.Switch;
-	switch_comments: string[];
-	enum_name: string;
-	enum_file_path: string;
+	ts_enum: ts.Enum;
 	branches: SwitchBranchOpts[];
 	default: SwitchDefaultOpts;
 }
@@ -27,9 +24,10 @@ export type SwitchDefaultOpts = SwitchBranchResult;
 
 export const switch_template = (tmpl: SwitchFunctionTemplateOpts) => `
 ${import_utils(tmpl.ts_switch.file_path, '{ $State }')}
+${tmpl.ts_switch.imports.map(import_template).join('')}
 ${enum_import(tmpl)}
 
-${tmpl.switch_comments.length ? doc_comments_template(tmpl.switch_comments) : ''}
+${tmpl.ts_switch.comments}
 export type ${tmpl.ts_switch.name}<$T extends $Enum = $Enum>
 	= ${tmpl.branches.map((branch) => switch_type_branch_template(tmpl.ts_switch.file_path, branch)).join('\n\t: ')}
 	: ${switch_type_template(tmpl.ts_switch.file_path, tmpl.default)}
@@ -51,6 +49,13 @@ export const ${tmpl.ts_switch.name} = Object.freeze({
 	}
 });
 `;
+
+const enum_import = (tmpl: SwitchFunctionTemplateOpts) => import_template({
+	type_name: tmpl.ts_enum.name,
+	alias_name: '$Enum',
+	from_path: tmpl.ts_switch.file_path,
+	source_path: tmpl.ts_enum.file_path,
+});
 
 const switch_type_branch_template = (from_path: string, br: SwitchBranchOpts) => (
 	`$T extends $Enum.${br.enum_member} ? ${switch_type_template(from_path, br)}`
@@ -114,12 +119,5 @@ const switch_case_default_decode_template = (switch_tmpl: SwitchFunctionTemplate
 
 	return 'default: $state.fatal(`Not yet implemented`);';
 };
-
-const enum_import = (tmpl: SwitchFunctionTemplateOpts) => import_template({
-	type_name: tmpl.enum_name,
-	alias_name: '$Enum',
-	from_path: tmpl.ts_switch.file_path,
-	source_path: tmpl.enum_file_path
-});
 
 const error_invalid = (switch_name: string) => `$state.fatal(\`${switch_name}: Encountered invalid case: \${$case}\`);`;

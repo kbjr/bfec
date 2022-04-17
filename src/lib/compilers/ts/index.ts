@@ -2,7 +2,7 @@
 import { ast } from '../../parser';
 import * as lnk from '../../linker';
 import * as tmpl from './templates';
-import * as ts from './ts-entities';
+import * as ts from './entities';
 import { c_ts as log } from '../../log';
 import { WriteableDir } from '../../writeable-dir';
 import { CompilerState } from './state';
@@ -266,12 +266,33 @@ async function write_core_files(state: CompilerState, root_schema_ns: string) {
 		= generator_comment
 		+ tmpl.entrypoint_template({
 			root_ns_name: root_schema_ns,
-			root_struct_class: state.opts.root_struct_name
+			root_struct_class: state.opts.root_struct_name,
+		});
+
+	const registers_ts
+		= generator_comment
+		+ tmpl.registers_template({
+			i128_shim: true,
+			dec_shim: true,
 		});
 
 	const buffer_reader_ts
 		= generator_comment
-		+ tmpl.buffer_reader_template();
+		+ tmpl.buffer_reader_template({
+			include_i16: true,
+			include_i24: true,
+			include_i32: true,
+			include_i64: true,
+			include_i128: true,
+			include_f32: true,
+			include_f64: true,
+			include_varint: true,
+			include_byte_array: true,
+			include_ascii: true,
+			include_utf8: true,
+			include_utf16: true,
+			include_utf32: true,
+		});
 
 	const buffer_writer_ts
 		= generator_comment
@@ -289,13 +310,14 @@ async function write_core_files(state: CompilerState, root_schema_ns: string) {
 		= generator_comment
 		+ tmpl.utils_template({
 			root_ns_name: root_schema_ns,
-			root_struct_class: state.opts.root_struct_name
+			root_struct_class: state.opts.root_struct_name,
 		});
 
 	log.debug('Waiting for all code/utility files to emit....');
 
 	await Promise.all([
 		state.opts.out_dir.write_file('index.ts', entrypoint_ts),
+		state.opts.out_dir.write_file('registers.ts', registers_ts),
 		state.opts.out_dir.write_file('buffer-reader.ts', buffer_reader_ts),
 		state.opts.out_dir.write_file('buffer-writer.ts', buffer_writer_ts),
 		state.opts.out_dir.write_file('state.ts', state_ts),

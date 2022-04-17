@@ -27,7 +27,9 @@ struct Chunk(type: ChunkType) {
 }
 
 enum ChunkType: ascii<4> {
+  # Image header
   IHDR = "IHDR";
+  # Color pallete data
   PLTE = "PLTE";
   IDAT = "IDAT";
   IEND = "IEND";

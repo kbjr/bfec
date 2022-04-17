@@ -1,6 +1,6 @@
 
+import * as ts from './entities';
 import * as lnk from '../../linker';
-import * as ts from './ts-entities';
 import { c_ts as log } from '../../log';
 import { BuildError } from '../../error';
 import type { TypescriptCompilerOptions } from './index';
