@@ -286,6 +286,8 @@ async function write_core_files(state: CompilerState, root_schema_ns: string) {
 			include_i128: true,
 			include_f32: true,
 			include_f64: true,
+			include_d32: true,
+			include_d64: true,
 			include_varint: true,
 			include_byte_array: true,
 			include_ascii: true,

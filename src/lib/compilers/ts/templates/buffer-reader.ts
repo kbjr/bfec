@@ -7,6 +7,8 @@ interface BufferReaderTemplateOpts {
 	include_i128: boolean;
 	include_f32: boolean;
 	include_f64: boolean;
+	include_d32: boolean;
+	include_d64: boolean;
 	include_varint: boolean;
 	include_byte_array: boolean;
 	include_ascii: boolean;
@@ -54,14 +56,21 @@ interface BufferReaderTemplateOpts {
 export const buffer_reader_template = (tmpl: BufferReaderTemplateOpts) => `
 import * as reg from './registers';
 
+${tmpl.include_utf8 ? 'const utf8_decode = new TextDecoder(\'utf-8\');' : ''}
+${tmpl.include_utf16 ? 'const utf16_decode = new TextDecoder(\'utf-16\');' : ''}
+
 export class $BufferReader {
 	constructor(
 		public array: Uint8Array
 	) { }
+
+	public unaligned_byte?: number;
+	public bit_offset: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 = 0;
 	${tmpl.no_bounds_checks ? cursor_no_checks_template() : cursor_with_checks_template()}
 	public get eof() {
 		return this.cursor >= this.array.length;
 	}
+
 
 
 	// ===== 8-bit Ints =====
@@ -96,6 +105,12 @@ export class $BufferReader {
 
 	${tmpl.include_f64 ? f64_impl(tmpl) : ''}
 
+
+	${tmpl.include_d32 ? d32_impl(tmpl) : ''}
+
+
+	${tmpl.include_d64 ? d64_impl(tmpl) : ''}
+
 	
 	${tmpl.include_varint ? varint_impl(tmpl) : ''}
 
@@ -106,7 +121,7 @@ export class $BufferReader {
 	${tmpl.include_ascii ? ascii_impl(tmpl) : ''}
 
 	
-	// TODO: utf8
+	${tmpl.include_utf8 ? utf8_impl(tmpl) : ''}
 
 
 	// TODO: utf16
@@ -358,45 +373,23 @@ const i128_impl = (tmpl: BufferReaderTemplateOpts) => `
 	}
 
 	private read_u128_fw() {
-		let result = 0n;
-
-		for (let bits = 0n; bits < 128n; bits += 8n) {
-			result |= BigInt(this.read_u8()) << bits;
-		}
-
-		return BigInt.asUintN(128, result);
+		${read_u8s_fw(0, 16, '\t\t')}
+		return reg.u128[0];
 	}
 
 	private read_u128_bw() {
-		let result = 0n;
-
-		for (let bits = 0n; bits < 128n; bits += 8n) {
-			result <<= 8n;
-			result |= BigInt(this.read_u8());
-		}
-
-		return BigInt.asUintN(128, result);
+		${read_u8s_bw(15, 16, '\t\t')}
+		return reg.u128[0];
 	}
 
 	private read_i128_fw() {
-		let result = 0n;
-
-		for (let bits = 0n; bits < 128n; bits += 8n) {
-			result |= BigInt(this.read_u8()) << bits;
-		}
-
-		return BigInt.asIntN(128, result);
+		${read_u8s_fw(0, 16, '\t\t')}
+		return reg.i128[0];
 	}
 
 	private read_i128_bw() {
-		let result = 0n;
-
-		for (let bits = 0n; bits < 128n; bits += 8n) {
-			result <<= 8n;
-			result |= BigInt(this.read_u8());
-		}
-
-		return BigInt.asIntN(128, result);
+		${read_u8s_bw(15, 16, '\t\t')}
+		return reg.u128[0];
 	}
 `;
 
@@ -444,39 +437,133 @@ const f64_impl = (tmpl: BufferReaderTemplateOpts) => `
 	}
 `;
 
+const d32_impl = (tmpl: BufferReaderTemplateOpts) => `
+	// ===== 32-bit Decimal Floats =====
+
+	public read_d32_le() {
+		return ${endian_variant(tmpl, 'read_d32', true)};
+	}
+
+	public read_d32_be() {
+		return ${endian_variant(tmpl, 'read_d32', false)};
+	}
+
+	private read_d32_fw() {
+		${read_u8s_fw(0, 4, '\t\t')}
+		return reg.d32[0];
+	}
+
+	private read_d32_bw() {
+		${read_u8s_bw(3, 4, '\t\t')}
+		return reg.d32[0];
+	}
+`;
+
+const d64_impl = (tmpl: BufferReaderTemplateOpts) => `
+	// ===== 64-bit Decimal Floats =====
+
+	public read_d64_le() {
+		return ${endian_variant(tmpl, 'read_d64', true)};
+	}
+
+	public read_d64_be() {
+		return ${endian_variant(tmpl, 'read_d64', false)};
+	}
+
+	private read_d64_fw() {
+		${read_u8s_fw(0, 8, '\t\t')}
+		return reg.d64[0];
+	}
+
+	private read_d64_bw() {
+		${read_u8s_bw(7, 8, '\t\t')}
+		return reg.d64[0];
+	}
+`;
+
 const varint_impl = (tmpl: BufferReaderTemplateOpts) => `
 	// ===== Variable-Width Ints =====
 
 	public read_varint_u_le(max_bits: number) : number {
-		const big = this.read_varint_big(BigInt(max_bits));
+		return Number(this.read_varint_big_u_le(max_bits));
 	}
 
 	public read_varint_u_be(max_bits: number) : number {
-		const big = this.read_varint_big(BigInt(max_bits));
+		return Number(this.read_varint_big_u_be(max_bits));
 	}
 
 	public read_varint_s_le(max_bits: number) : number {
-		const big = this.read_varint_big(BigInt(max_bits));
+		return Number(this.read_varint_big_s_le(max_bits));
 	}
 
 	public read_varint_s_be(max_bits: number) : number {
-		const big = this.read_varint_big(BigInt(max_bits));
+		return Number(this.read_varint_big_s_be(max_bits));
 	}
 
-	public read_varint_big_u_le(max_bits: bigint) : bigint {
-		// 
+	private read_varint_big_u_le(max_bits: number) : bigint {
+		return BigInt.asUintN(max_bits, this.read_varint_big_le(max_bits));
 	}
 
-	public read_varint_big_u_be(max_bits: bigint) : bigint {
-		// 
+	private read_varint_big_u_be(max_bits: number) : bigint {
+		return BigInt.asUintN(max_bits, this.read_varint_big_be(max_bits));
 	}
 
-	public read_varint_big_s_le(max_bits: bigint) : bigint {
-		// 
+	private read_varint_big_s_le(max_bits: number) : bigint {
+		return BigInt.asIntN(max_bits, this.read_varint_big_le(max_bits));
 	}
 
-	public read_varint_big_s_be(max_bits: bigint) : bigint {
-		// 
+	private read_varint_big_s_be(max_bits: number) : bigint {
+		return BigInt.asIntN(max_bits, this.read_varint_big_be(max_bits));
+	}
+
+	private read_varint_big_le(max_bits: number) : bigint {
+		let size = 0;
+		let result = 0n;
+
+		while (true) {
+			size += 7;
+			const byte = this.read_u8();
+			const bits = BigInt(byte & 0x7f);
+
+			result |= bits << BigInt(size);
+
+			if (byte & 0x80) {
+				continue;
+			}
+
+			if (size >= max_bits) {
+				throw new Error(\`varint<\${max_bits}> size exceeded\`);
+			}
+
+			break;
+		}
+
+		return result;
+	}
+
+	private read_varint_big_be(max_bits: number) : bigint {
+		let size = 0;
+		let result = 0n;
+
+		while (true) {
+			size += 7;
+			const byte = this.read_u8();
+			const bits = BigInt(byte & 0x7f);
+
+			result = (result << 7n) | bits;
+
+			if (byte & 0x80) {
+				continue;
+			}
+
+			if (size >= max_bits) {
+				throw new Error(\`varint<\${max_bits}> size exceeded\`);
+			}
+
+			break;
+		}
+
+		return result;
 	}
 `;
 
@@ -516,7 +603,7 @@ const byte_array_impl = (tmpl: BufferReaderTemplateOpts) => `
 const ascii_impl = (tmpl: BufferReaderTemplateOpts) => `
 	// ===== ASCII Text =====
 
-	public static as_ascii(array: Uint8Array) : string {
+	public as_ascii(array: Uint8Array) : string {
 		const len = array.length;
 		const chars: string[] = new Array(len);
 
@@ -534,6 +621,66 @@ const ascii_impl = (tmpl: BufferReaderTemplateOpts) => `
 
 		while (byte = this.read_u8()) {
 			chars.push(String.fromCharCode(byte));
+		}
+
+		return chars.join('');
+	}
+`;
+
+const utf8_impl = (tmpl: BufferReaderTemplateOpts) => `
+	// ===== UTF-8 Text =====
+
+	public as_utf8(array: Uint8Array) : string {
+		return utf8_decode.decode(array);
+	}
+
+	// Modified from: https://rosettacode.org/wiki/UTF-8_encode_and_decode#JavaScript
+	public read_utf8_null_term() : string {
+		let hi_end = 0;
+		let hi_mid = 0;
+		let lo_mid = 0;
+		let lo_end = 0;
+
+		const chars: string[] = [ ];
+		const char = (code_point: number) => chars.push(String.fromCodePoint(code_point));
+
+		while (hi_end = this.read_u8()) {
+			if (hi_end < 0x80) {
+				char((hi_end & 0x7f) << 0);
+				continue;
+			}
+
+			hi_mid = this.read_u8();
+
+			if (0xc1 < hi_end && hi_end < 0xe0 && hi_mid === (hi_mid & 0xbf)) {
+				char((hi_end & 0x1f) << 6 | (hi_mid & 0x3f) << 0);
+				continue;
+			}
+
+			lo_mid = this.read_u8();
+
+			if ((hi_end === 0xe0 && 0x9f < hi_mid && hi_mid < 0xc0
+			  || 0xe0 < hi_end && hi_end < 0xed && 0x7f < hi_mid && hi_mid < 0xc0
+			  || hi_end === 0xed && 0x7f < hi_mid && hi_mid < 0xa0
+			  || 0xed < hi_end && hi_end < 0xf0 && 0x7f < hi_mid && hi_mid < 0xc0)
+			  && lo_mid === (lo_mid & 0xbf))
+			{
+				char((hi_end & 0x0f) << 12 | (hi_mid & 0x3f) << 6 | (lo_mid & 0x3f) << 0);
+				continue;
+			}
+
+			lo_end = this.read_u8();
+
+			if ((hi_end === 0xf0 && 0x8f < hi_mid && hi_mid < 0xc0
+			  || hi_end === 0xf4 && 0x7f < hi_mid && hi_mid < 0x90
+			  || 0xf0 < hi_end && hi_end < 0xf4 && 0x7f < hi_mid && hi_mid < 0xc0)
+			  && lo_mid === (lo_mid & 0xbf) && lo_end === (lo_end & 0xbf))
+			{
+				char((hi_end & 0x07) << 18 | (hi_mid & 0x3f) << 12 | (lo_mid & 0x3f) << 6 | (lo_end & 0x3f) << 0);
+				continue;
+			}
+
+			throw new Error('Encountered invalid utf8 encoding');
 		}
 
 		return chars.join('');

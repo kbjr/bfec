@@ -1,14 +1,14 @@
 
 /*
  THIS FILE WAS AUTOMATICALLY GENERATED
- 2022-04-17T04:06:19.177Z
+ 2022-04-19T07:40:18.194Z
 */
 
 
-import { $BufferReader, $BufferWriter, $Root } from './utils';
+import { $BufferReader, $BufferWriter, $Root, $StructType, $SwitchType, $Struct } from './utils';
 
 export class $State {
-	public stack: $StackFrame<any>[] = [ ];
+	public stack: $StackFrame[] = [ ];
 	public read_from?: $BufferReader;
 	public write_to?: $BufferWriter;
 
@@ -22,7 +22,7 @@ export class $State {
 		return this.stack[this.stack.length - 1];
 	}
 
-	public step_down<$T>(name: string, node?: $T) {
+	public step_down<$T extends $Struct>(name: string, node?: $T) {
 		this.stack.push(
 			new $StackFrame(name, node)
 		);
@@ -37,7 +37,7 @@ export class $State {
 	}
 }
 
-export class $StackFrame<$T> {
+export class $StackFrame<$T extends $Struct = $Struct> {
 	constructor(
 		public name: string,
 		public node?: $T

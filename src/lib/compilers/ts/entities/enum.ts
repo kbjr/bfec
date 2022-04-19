@@ -2,6 +2,7 @@
 import * as lnk from '../../../linker';
 import * as tmpl from '../templates';
 import { CompilerState } from '../state';
+import { fixed_int } from '../templates/builtin-types';
 
 export class Enum {
 	constructor(
@@ -40,6 +41,20 @@ export class Enum {
 			};
 		});
 	}
+
+	// public get encode_value() {
+	// 	switch (this.node.member_type.type) {
+	// 		case 'type_fixed_int': return fixed_int.encode(this.node.member_type, '$value');
+
+	// 		case 'type_var_int':
+	// 			// 
+	// 			break;
+
+	// 		case 'type_text':
+	// 			// 
+	// 			break;
+	// 	}
+	// }
 
 	public emit() {
 		const generator_comment = tmpl.generator_comment_template(this.state.opts.no_generator_comment);

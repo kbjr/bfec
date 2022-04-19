@@ -8,14 +8,16 @@ export interface StructClassTemplateOpts {
 }
 
 export const struct_template = (tmpl: StructClassTemplateOpts) => `
-${import_utils(tmpl.ts_struct.file_path, '{ $State }')}
+${import_utils(tmpl.ts_struct.file_path, '{ $State, $align }')}
 ${tmpl.ts_struct.imports.map(import_template).join('')}
 export interface ${tmpl.ts_struct.name} {
-	${tmpl.ts_struct.fields.join('\n\t\t')}
+	${tmpl.ts_struct.interface_fields.join('\n\t')}
 }
 
 ${tmpl.ts_struct.comments}
 export class ${tmpl.ts_struct.name} {
+	public [$align] : ${tmpl.ts_struct.node.is_byte_aligned ? 'true' : 'false'} = ${tmpl.ts_struct.node.is_byte_aligned ? 'true' : 'false'};
+
 	public static $encode($state: $State, $inst: ${tmpl.ts_struct.name}) {
 		${tmpl.ts_struct.is_root ? '$state.step_down(\'$\', $inst);' : ''}
 		${tmpl.ts_struct.encode_body.join('\n\t\t')}
@@ -30,6 +32,3 @@ export class ${tmpl.ts_struct.name} {
 	}
 }
 `;
-
-const struct_field_template = (name: string, type: string) => `
-	${name}: ${type};`;

@@ -2,10 +2,10 @@
 import { import_utils } from './import';
 
 export const state_template = () => `
-${import_utils('state', '{ $BufferReader, $BufferWriter, $Root }')}
+${import_utils('state', '{ $BufferReader, $BufferWriter, $Root, $StructType, $SwitchType, $Struct }')}
 
 export class $State {
-	public stack: $StackFrame<any>[] = [ ];
+	public stack: $StackFrame[] = [ ];
 	public read_from?: $BufferReader;
 	public write_to?: $BufferWriter;
 
@@ -19,7 +19,7 @@ export class $State {
 		return this.stack[this.stack.length - 1];
 	}
 
-	public step_down<$T>(name: string, node?: $T) {
+	public step_down<$T extends $Struct>(name: string, node?: $T) {
 		this.stack.push(
 			new $StackFrame(name, node)
 		);
@@ -34,7 +34,7 @@ export class $State {
 	}
 }
 
-export class $StackFrame<$T> {
+export class $StackFrame<$T extends $Struct = $Struct> {
 	constructor(
 		public name: string,
 		public node?: $T
