@@ -1,5 +1,5 @@
 
-export class TypeParam {
+export class TSTypeParam {
 	public name: string;
 	public extends?: string;
 	public default?: string;

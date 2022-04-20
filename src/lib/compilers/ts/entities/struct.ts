@@ -5,7 +5,7 @@ import { CompilerState } from '../state';
 import { builtins, fixed_int } from '../templates/builtin-types';
 import { Enum } from './enum';
 import { Switch } from './switch';
-import { Interface } from '../ts-entities/interface';
+import { TSInterface } from '../ts-entities/interface';
 
 export class Struct {
 	constructor(
@@ -81,10 +81,10 @@ export class Struct {
 			this.imports.push(...field.imports);
 		});
 
-		const iface = new Interface();
+		const iface = new TSInterface();
 		iface.name = this.name;
 		// iface.comments.push(this.comments);
-		iface.file_path = this.file_path;
+		// iface.file_path = this.file_path;
 
 		const type_ts
 			= generator_comment

@@ -1,9 +1,9 @@
 
-import * as ts from './entities';
 import * as lnk from '../../linker';
 import { c_ts as log } from '../../log';
 import { BuildError, build_error_factory } from '../../error';
 import type { TypescriptCompilerOptions } from './index';
+import { TSEnumModule, TSStructModule, TSSwitchModule } from './ts-entities';
 
 export class CompilerState {
 	constructor(
@@ -22,9 +22,9 @@ export class CompilerState {
 	public readonly errors: BuildError[] = [ ];
 	public readonly error = build_error_factory(this.errors, this.schema);
 
-	public readonly ts_structs  = new Map<lnk.Struct, ts.Struct>();
-	public readonly ts_switches = new Map<lnk.Switch, ts.Switch>();
-	public readonly ts_enums    = new Map<lnk.Enum, ts.Enum>();
+	public readonly ts_structs  = new Map<lnk.Struct, TSStructModule>();
+	public readonly ts_switches = new Map<lnk.Switch, TSSwitchModule>();
+	public readonly ts_enums    = new Map<lnk.Enum, TSEnumModule>();
 
 	public emit_all() {
 		const promises: Promise<void>[] = [ ];

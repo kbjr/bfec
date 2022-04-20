@@ -1,11 +1,11 @@
 
 import * as ts from '../entities';
-import { Interface } from '../ts-entities/interface';
+import { TSInterface } from '../ts-entities/interface';
 import { import_template, import_utils } from './import';
 
 export interface StructClassTemplateOpts {
 	ts_struct: ts.Struct;
-	struct_iface: Interface;
+	struct_iface: TSInterface;
 	root_struct_type: string;
 }
 

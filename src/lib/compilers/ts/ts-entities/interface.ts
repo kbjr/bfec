@@ -1,15 +1,14 @@
 
-import * as tmpl from '../templates';
 import { TSEntity } from './entity';
-import { TypeParam } from './type-param';
+import { TSTypeParam } from './type-param';
 
-export class Interface extends TSEntity {
-	public extends?: Interface;
-	public type_params: TypeParam[] = [ ];
-	public fields: InterfaceField[] = [ ];
+export class TSInterface extends TSEntity {
+	public extends?: TSInterface;
+	public type_params: TSTypeParam[] = [ ];
+	public fields: TSInterfaceField[] = [ ];
 
 	public add_field(name: string) {
-		const field = new InterfaceField();
+		const field = new TSInterfaceField();
 		field.name = name;
 		field.iface = this;
 		this.fields.push(field);
@@ -38,11 +37,11 @@ export class Interface extends TSEntity {
 	}
 }
 
-export class InterfaceField {
+export class TSInterfaceField {
 	public name: string;
-	public iface: Interface;
+	public iface: TSInterface;
 	public comments: string[] = [ ];
-	public type: InterfaceRef
+	// public type: TSInterfaceRef
 
 	public get decl_str() {
 		// TODO: Other field types
@@ -50,8 +49,8 @@ export class InterfaceField {
 	}
 }
 
-export class InterfaceRef {
-	public iface: Interface;
+export class TSInterfaceRef {
+	public iface: TSInterface;
 	public params: string[] = [ ];
 
 	public get ref_str() {

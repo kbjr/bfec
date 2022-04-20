@@ -1,11 +1,10 @@
 
-import { ast } from '../../parser';
 import * as lnk from '../../linker';
 import * as tmpl from './templates';
-import * as ts from './entities';
 import { c_ts as log } from '../../log';
 import { WriteableDir } from '../../writeable-dir';
 import { CompilerState } from './state';
+import { TSEnumModule, TSStructModule, TSSwitchModule } from './ts-entities';
 
 export interface TypescriptCompilerOptions {
 	out_dir: WriteableDir;
@@ -38,23 +37,25 @@ export async function compile_to_typescript(schema: lnk.Schema, opts: Typescript
 			const dir = out_dir_name(schema);
 
 			switch (type.type) {
-				case 'struct': {;
-					// TODO: Variants
+				case 'struct': {
 					const name = type === schema.root_struct ? opts.root_struct_name : type.name;
-					const ent = new ts.Struct(dir, name, type, state);
-					state.ts_structs.set(type, ent);
+					const module = new TSStructModule(dir, name, state);
+					module.bfec_struct = type;
+					state.ts_structs.set(type, module);
 					break;
 				}
 
 				case 'switch': {
-					const ent = new ts.Switch(dir, type.name, type, state);
-					state.ts_switches.set(type, ent);
+					const module = new TSSwitchModule(dir, type.name, state);
+					module.bfec_switch = type;
+					state.ts_switches.set(type, module);
 					break;
 				}
 
 				case 'enum': {
-					const ent = new ts.Enum(dir, type.name, type, state);
-					state.ts_enums.set(type, ent);
+					const module = new TSEnumModule(dir, type.name, state);
+					module.bfec_enum = type;
+					state.ts_enums.set(type, module);
 					break;
 				}
 			}
