@@ -2,7 +2,7 @@
 import * as ts from './entities';
 import * as lnk from '../../linker';
 import { c_ts as log } from '../../log';
-import { BuildError } from '../../error';
+import { BuildError, build_error_factory } from '../../error';
 import type { TypescriptCompilerOptions } from './index';
 
 export class CompilerState {
@@ -20,6 +20,7 @@ export class CompilerState {
 	}
 
 	public readonly errors: BuildError[] = [ ];
+	public readonly error = build_error_factory(this.errors, this.schema);
 
 	public readonly ts_structs  = new Map<lnk.Struct, ts.Struct>();
 	public readonly ts_switches = new Map<lnk.Switch, ts.Switch>();

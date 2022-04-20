@@ -126,10 +126,14 @@ async function main() {
 		switch (out.format) {
 			case output_format.as:
 				// TODO: Output AssemblyScript
+				log.error(`\AS Build Error: Generating AssemblyScript not yet supported`);
+				await exit_error(1, 'Failed to generate AssemblyScript');
 				break;
 
 			case output_format.html:
 				// TODO: Output HTML Documentation
+				log.error(`\nHTML Build Error: Generating HTML documentation not yet supported`);
+				await exit_error(1, 'Failed to generate HTML');
 				break;
 
 			case output_format.ts: {
@@ -144,7 +148,20 @@ async function main() {
 					opts.no_generator_comment = conf.no_generator_comment;
 				}
 
-				await compile_to_typescript(schema, opts);
+				const errors = await compile_to_typescript(schema, opts);
+
+				// If we encountered errors while building, stop here
+				if (errors.length) {
+					errors.forEach((error) => {
+						log.error(`\n${red('TS Build Error')}: ${error.message}`);
+						log.error(`(${error.pos_text})\n`);
+						log.error(`${error.reference_text}\n`);
+					});
+			
+					log.error(`\nTS Build Errors: ${yellow(errors.length)}`);
+					await exit_error(1, 'Failed to generate TypeScript code');
+				}
+
 				break;
 			}
 
@@ -159,7 +176,20 @@ async function main() {
 					opts.no_generator_comment = conf.no_generator_comment;
 				}
 
-				await compile_to_markdown(schema, opts);
+				const errors = await compile_to_markdown(schema, opts);
+
+				// If we encountered errors while building, stop here
+				if (errors.length) {
+					errors.forEach((error) => {
+						log.error(`\n${red('MD Build Error')}: ${error.message}`);
+						log.error(`(${error.pos_text})\n`);
+						log.error(`${error.reference_text}\n`);
+					});
+			
+					log.error(`\nMD Build Errors: ${yellow(errors.length)}`);
+					await exit_error(1, 'Failed to generate Markdown');
+				}
+
 				break;
 			}
 

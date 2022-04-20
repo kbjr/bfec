@@ -1,11 +1,22 @@
 
 /*
  THIS FILE WAS AUTOMATICALLY GENERATED
- 2022-04-19T07:40:18.197Z
+ 2022-04-20T02:57:14.577Z
 */
 
 
-import { $State, $align } from '../../utils';
+import { $State, $align, $UnprocessedSlice } from '../../utils';
+
+import { Chunk } from './Chunk';
+import { ChunkType } from './ChunkType';
+
+
+/**
+
+*/
+export interface $ {
+	
+}
 
 export interface $ {
 	
@@ -18,15 +29,14 @@ export interface $ {
 	/**
 	 The image header is always the first chunk in a PNG image. It contains
 	 general metadata like the image dimensions and compression method
-	@bfec_type `undefined`
+	@bfec_type `Chunk`
 	*/
-	header: undefined;
-	// TODO: struct fields not yet implemented
+	header: Chunk<ChunkType.IHDR>;
 	
 	/**
 	@bfec_type `undefined`
 	*/
-	chunks: undefined;
+	chunks: [];
 }
 
 

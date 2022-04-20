@@ -1,16 +1,22 @@
 
 import * as ts from '../entities';
+import { Interface } from '../ts-entities/interface';
 import { import_template, import_utils } from './import';
 
 export interface StructClassTemplateOpts {
 	ts_struct: ts.Struct;
+	struct_iface: Interface;
 	root_struct_type: string;
 }
 
+// TODO: Only import `$UnprocessedSlice` if needed
 export const struct_template = (tmpl: StructClassTemplateOpts) => `
-${import_utils(tmpl.ts_struct.file_path, '{ $State, $align }')}
+${import_utils(tmpl.ts_struct.file_path, '{ $State, $align, $UnprocessedSlice }')}
 ${tmpl.ts_struct.imports.map(import_template).join('')}
-export interface ${tmpl.ts_struct.name} {
+
+${tmpl.struct_iface.decl_str}
+
+export interface ${tmpl.ts_struct.name}${tmpl.ts_struct.params} {
 	${tmpl.ts_struct.interface_fields.join('\n\t')}
 }
 

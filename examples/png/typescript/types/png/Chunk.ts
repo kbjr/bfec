@@ -1,13 +1,24 @@
 
 /*
  THIS FILE WAS AUTOMATICALLY GENERATED
- 2022-04-19T07:40:18.198Z
+ 2022-04-20T02:57:14.578Z
 */
 
 
-import { $State, $align } from '../../utils';
+import { $State, $align, $UnprocessedSlice } from '../../utils';
 
+import { ChunkType } from './ChunkType';
+import { ChunkData } from './ChunkData';
+
+
+/**
+
+*/
 export interface Chunk {
+	
+}
+
+export interface Chunk<type extends ChunkType = ChunkType> {
 	
 	/**
 	 The length of the `data` field (in bytes)
@@ -19,15 +30,12 @@ export interface Chunk {
 	 Identifies the type of data contained in this chunk
 	@bfec_type `ChunkType`
 	*/
-	type: undefined;
-	// TODO: struct fields not yet implemented
 	
 	/**
 	 The actual chunk data
 	@bfec_type `undefined -> undefined`
 	*/
-	data: undefined;
-	// TODO: struct fields not yet implemented
+	data: $UnprocessedSlice<ChunkData> | ChunkData;
 	
 	/**
 	 CRC32 checksum of the `data` field for validation
