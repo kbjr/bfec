@@ -1,7 +1,7 @@
 
 /*
  THIS FILE WAS AUTOMATICALLY GENERATED
- 2022-04-20T02:57:14.571Z
+ 2022-04-21T06:09:08.772Z
 */
 
 import * as $types from './types/$index';
@@ -15,21 +15,3 @@ export { $UnprocessedSlice } from './unprocessed-slice';
 export const $align = Symbol('$align');
 
 export type $Root = $types.png.$;
-
-export interface $Struct {
-	readonly [$align]: boolean;
-}
-
-export interface $StructType<$T> {
-	new () : $T;
-	$type: 'struct';
-	$align: boolean;
-	$encode($state: $State, $inst: $T) : void;
-	$decode($state: $State) : $T;
-}
-
-export interface $SwitchType<$T, $C> {
-	$type: 'switch';
-	$encode($state: $State, $case: $C, $inst: $T) : void;
-	$decode($state: $State, $case: $C) : $T;
-}

@@ -8,7 +8,7 @@ export abstract class TSEntity {
 	public comments: string[] = [ ];
 
 	public comments_str(indent: string) {
-		return tmpl.doc_comments_template(this.comments, indent);
+		return this.comments.length ? tmpl.doc_comments_template(this.comments, indent) : '';
 	}
 
 	public import(from: string, alias?: string) : tmpl.ImportTemplateOpts {

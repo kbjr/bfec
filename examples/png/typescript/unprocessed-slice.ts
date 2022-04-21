@@ -1,21 +1,25 @@
 
 /*
  THIS FILE WAS AUTOMATICALLY GENERATED
- 2022-04-20T02:57:14.571Z
+ 2022-04-21T06:09:08.772Z
 */
 
 import { $BufferReader, $State, $StructType, $SwitchType, $Root } from './utils';
+
+export interface $ProcessSlice<$T, $C = void> {
+	(slice: $UnprocessedSlice<$T, $C>) : $T;
+}
 
 export class $UnprocessedSlice<$T, $C = void> {
 	constructor(
 		public read_from: $BufferReader,
 		public root: $Root,
 		public state: $State,
-		public Type: $StructType<$T> | $SwitchType<$T, $C>,
+		public process: $ProcessSlice<$T, $C>,
 		public $case: $C
 	) { }
 
 	public $decode() : $T {
-		return this.Type.$decode(this.state, this.$case);
+		return this.process(this);
 	}
 }

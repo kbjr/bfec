@@ -56,16 +56,15 @@ interface BufferReaderTemplateOpts {
 export const buffer_reader_template = (tmpl: BufferReaderTemplateOpts) => `
 import * as reg from './registers';
 
-${tmpl.include_utf8 ? 'const utf8_decode = new TextDecoder(\'utf-8\');' : ''}
-${tmpl.include_utf16 ? 'const utf16_decode = new TextDecoder(\'utf-16\');' : ''}
+${tmpl.include_utf8 ? '// const utf8_decode = new TextDecoder(\'utf-8\');' : ''}
+${tmpl.include_utf16 ? '// const utf16_decode = new TextDecoder(\'utf-16\');' : ''}
 
 export class $BufferReader {
 	constructor(
 		public array: Uint8Array
 	) { }
 
-	public unaligned_byte?: number;
-	public bit_offset: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 = 0;
+	public bits_taken: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 = 0;
 	${tmpl.no_bounds_checks ? cursor_no_checks_template() : cursor_with_checks_template()}
 	public get eof() {
 		return this.cursor >= this.array.length;

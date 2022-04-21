@@ -1,3 +1,4 @@
+#~ grammar: "https://bfec.io/ebnf/bfec/v1.ebnf"
 
 # Represents a simple boolean value
 enum bool: b1 {

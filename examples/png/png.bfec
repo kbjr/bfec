@@ -1,3 +1,4 @@
+#~ grammar: "https://bfec.io/ebnf/bfec/v1.ebnf"
 
 from 'https://bfec.io/bfec/basics/v1.bfec' { bool };
 

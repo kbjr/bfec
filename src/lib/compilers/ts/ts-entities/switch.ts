@@ -5,11 +5,11 @@ import { TSImportedRef } from './import';
 export class TSSwitchStatement {
 	public param: string;
 	public ts_enum: TSImportedRef<TSEnum>;
-	public cases: [ name: string, case_expr: string ][];
+	public cases: [ name: string, case_expr: string ][] = [ ];
 	public default_expr: string;
 
 	public get stmt_str() {
-		return `switch (${this.param}) {\n\t\t\t${this.cases_str}\n\t\t${this.default_str}\n\t\t}`;
+		return `switch (${this.param}) {\n\t\t\t${this.cases_str}\n\t\t\t${this.default_str}\n\t\t}`;
 	}
 
 	private get cases_str() {

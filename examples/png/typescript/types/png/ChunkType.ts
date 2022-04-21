@@ -1,90 +1,46 @@
 
 /*
  THIS FILE WAS AUTOMATICALLY GENERATED
- 2022-04-20T02:57:14.579Z
+ 2022-04-21T06:09:08.779Z
 */
-
 
 import { $State } from '../../utils';
 
 export enum ChunkType {
-		
-	/**
-	 Image header
-	*/
 	IHDR = "IHDR",
-	
-	/**
-	 Color pallete data
-	*/
 	PLTE = "PLTE",
-	
 	IDAT = "IDAT",
-	
 	IEND = "IEND",
-	
 	tRNS = "tRNS",
-	
 	cHRM = "cHRM",
-	
 	gAMA = "gAMA",
-	
 	iCCP = "iCCP",
-	
 	sBIT = "sBIT",
-	
 	sRGB = "sRGB",
-	
 	tEXt = "tEXt",
-	
 	xTXt = "xTXt",
-	
 	iTXt = "iTXt",
-	
 	bKGD = "bKGD",
-	
 	hIST = "hIST",
-	
 	pHYs = "pHYs",
-	
 	sPLT = "sPLT",
-	
 	tIME = "tIME",
-
 }
-
 export namespace ChunkType {
-	export function $encode($state: $State, $value: ChunkType) {
-		// 
+	
+	export function $encode_aligned($state: $State, $value: ChunkType) {
+		$state.fatal('not supported');
 	}
-
-	export function $decode($state: $State) : ChunkType {
-		// 
+	
+	export function $encode_unaligned($state: $State, $value: ChunkType) {
+		$state.fatal('Cannot encode unaligned text field');
 	}
-
-	export const $set = new Set<ChunkType>([
-		ChunkType.IHDR,
-		ChunkType.PLTE,
-		ChunkType.IDAT,
-		ChunkType.IEND,
-		ChunkType.tRNS,
-		ChunkType.cHRM,
-		ChunkType.gAMA,
-		ChunkType.iCCP,
-		ChunkType.sBIT,
-		ChunkType.sRGB,
-		ChunkType.tEXt,
-		ChunkType.xTXt,
-		ChunkType.iTXt,
-		ChunkType.bKGD,
-		ChunkType.hIST,
-		ChunkType.pHYs,
-		ChunkType.sPLT,
-		ChunkType.tIME,
-	]);
-
-	export function $is_valid(value: string) : value is ChunkType {
-		return $set.has(value as ChunkType);
+	
+	export function $decode_aligned($state: $State) : ChunkType {
+		return $state.read_from.as_ascii($state.read_from.take_bytes(4, false)) as ChunkType;
+	}
+	
+	export function $decode_unaligned($state: $State) : ChunkType {
+		return $state.fatal('Cannot decode unaligned text field') as ChunkType;
 	}
 }
-

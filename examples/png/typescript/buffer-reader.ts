@@ -1,21 +1,20 @@
 
 /*
  THIS FILE WAS AUTOMATICALLY GENERATED
- 2022-04-20T02:57:14.571Z
+ 2022-04-21T06:09:08.772Z
 */
 
 import * as reg from './registers';
 
-const utf8_decode = new TextDecoder('utf-8');
-const utf16_decode = new TextDecoder('utf-16');
+// const utf8_decode = new TextDecoder('utf-8');
+// const utf16_decode = new TextDecoder('utf-16');
 
 export class $BufferReader {
 	constructor(
 		public array: Uint8Array
 	) { }
 
-	public unaligned_byte?: number;
-	public bit_offset: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 = 0;
+	public bits_taken: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 = 0;
 	
 	private _cursor: number = 0;
 		

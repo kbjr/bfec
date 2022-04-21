@@ -2,7 +2,7 @@
 import { import_utils } from './import';
 
 export const state_template = () => `
-${import_utils('state', '{ $BufferReader, $BufferWriter, $Root, $StructType, $SwitchType, $Struct }')}
+${import_utils('state', '{ $BufferReader, $BufferWriter }')}
 
 export class $State {
 	public stack: $StackFrame[] = [ ];
@@ -19,7 +19,7 @@ export class $State {
 		return this.stack[this.stack.length - 1];
 	}
 
-	public step_down<$T extends $Struct>(name: string, node?: $T) {
+	public step_down<$T>(name: string, node?: $T) {
 		this.stack.push(
 			new $StackFrame(name, node)
 		);
@@ -32,9 +32,31 @@ export class $State {
 	public fatal(message: string) : never {
 		throw new Error(\`Error at \${this.stack.join('.')}: \${message}\`);
 	}
+
+	public assert_u8_array_match<T>(actual: Uint8Array, expected: Uint8Array, successful?: T) : T | never {
+		if (actual.length !== expected.length) {
+			this.fatal('Expected to find constant value');
+		}
+
+		for (let i = 0; i < actual.length; i++) {
+			if (actual[i] !== expected[i]) {
+				this.fatal('Expected to find constant value');
+			}
+		}
+
+		return successful;
+	}
+
+	public assert_str_match<T>(actual: string, expected: string, successful?: T) : T | never {
+		if (actual !== expected) {
+			this.fatal('Expected to find constant value');
+		}
+
+		return successful;
+	}
 }
 
-export class $StackFrame<$T extends $Struct = $Struct> {
+export class $StackFrame<$T = any> {
 	constructor(
 		public name: string,
 		public node?: $T

@@ -5,6 +5,7 @@ import { c_ts as log } from '../../log';
 import { WriteableDir } from '../../writeable-dir';
 import { CompilerState } from './state';
 import { TSEnumModule, TSStructModule, TSSwitchModule } from './ts-entities';
+import { generator_comment_template } from './templates';
 
 export interface TypescriptCompilerOptions {
 	out_dir: WriteableDir;
@@ -93,6 +94,7 @@ export async function compile_to_typescript(schema: lnk.Schema, opts: Typescript
 			});
 		}
 
+		await write_checksums(state);
 		await write_type_index(state, exports);
 	}
 
@@ -329,6 +331,49 @@ async function write_core_files(state: CompilerState, root_schema_ns: string) {
 	]);
 
 	log.debug('All code/utility files done');
+}
+
+function write_checksums(state: CompilerState) {
+	if (! state.checksum_funcs.size) {
+		return;
+	}
+
+	const generator_comment = generator_comment_template(state.opts.no_generator_comment);
+
+	const opts: tmpl.ChecksumTemplateOpts = { checksums: [ ] };
+	const promises: Promise<void>[] = [ ];
+
+	for (const [func, nodes] of state.checksum_funcs) {
+		opts.checksums.push(func);
+
+		const func_template = tmpl.checksum_funcs[func];
+
+		if (! func_template) {
+			for (const node of nodes) {
+				state.error(node, 'Checksum function "${}" not supported');
+			}
+
+			continue;
+		}
+
+		const func_ts
+			= generator_comment
+			+ func_template();
+
+		promises.push(
+			state.opts.out_dir.write_file(`checksum/${func}.ts`, func_ts)
+		);
+	}
+
+	const index_ts
+		= generator_comment
+		+ tmpl.checksum_index_template(opts);
+
+	promises.push(
+		state.opts.out_dir.write_file(`checksum/index.ts`, index_ts)
+	);
+
+	return Promise.all(promises);
 }
 
 function write_type_index(state: CompilerState, exports: tmpl.ExportTemplateOpts[]) {

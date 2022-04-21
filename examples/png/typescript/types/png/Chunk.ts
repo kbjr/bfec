@@ -1,66 +1,50 @@
 
 /*
  THIS FILE WAS AUTOMATICALLY GENERATED
- 2022-04-20T02:57:14.578Z
+ 2022-04-21T06:09:08.779Z
 */
 
-
-import { $State, $align, $UnprocessedSlice } from '../../utils';
-
+import { $State } from '../../utils';
 import { ChunkType } from './ChunkType';
-import { ChunkData } from './ChunkData';
 
-
-/**
-
-*/
-export interface Chunk {
-	
-}
 
 export interface Chunk<type extends ChunkType = ChunkType> {
-	
-	/**
-	 The length of the `data` field (in bytes)
-	@bfec_type `undefined`
-	*/
-	length: undefined;
-	
-	/**
-	 Identifies the type of data contained in this chunk
-	@bfec_type `ChunkType`
-	*/
-	
-	/**
-	 The actual chunk data
-	@bfec_type `undefined -> undefined`
-	*/
-	data: $UnprocessedSlice<ChunkData> | ChunkData;
-	
-	/**
-	 CRC32 checksum of the `data` field for validation
-	@bfec_type `checksum<u32_be>(@.data, 'crc32')`
-	*/
-	crc: undefined;
+	length: number;
+	type: ChunkType
+	data: never;
+	crc: number;
 }
-
-
-/**
-@bfec_type `struct Chunk`
-*/
-export class Chunk {
-	public [$align] : true = true;
-
-	public static $encode($state: $State, $inst: Chunk) {
-		
-		
+export namespace Chunk {
+	
+	export function $encode($state: $State, $inst: Chunk) {
+		$state.step_down('length', $inst.length);
+		undefined;
+		$state.step_up();
+		$state.step_down('type', $inst.type);
+		ChunkType.$encode_aligned($state, $inst.type);
+		$state.step_up();
+		$state.step_down('data', $inst.data);
+		$state.fatal('Failed to compile type refinement encoder');
+		$state.step_up();
+		$state.step_down('crc', $inst.crc);
+		undefined;
+		$state.step_up();
 	}
 	
-	// TODO: Handle variants
-	public static $decode($state: $State) : Chunk {
-		const $inst = new Chunk();
-		
-		
+	export function $decode($state: $State) : Chunk {
+		const $inst = { } as Chunk;
+		$state.step_down('length');
+		$inst.length = undefined;
+		$state.step_up();
+		$state.step_down('type');
+		$inst.type = $state.fatal('Failed to compile enum encoder');
+		$state.step_up();
+		$state.step_down('data');
+		$inst.data = $state.fatal('Failed to compile type refinement decoder');
+		$state.step_up();
+		$state.step_down('crc');
+		$inst.crc = undefined;
+		$state.step_up();
 		return $inst;
 	}
 }

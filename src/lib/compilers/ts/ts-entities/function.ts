@@ -9,7 +9,7 @@ export class TSFunction extends TSEntity {
 	public statements: string[] = [ ];
 
 	public get decl_ns_str() {
-		return `${this.comments_str('')}\nexport function ${this.name}${this.type_param_str}(${this.param_str})${this.return_type_str} {\n\t\t${this.stmt_str}\n\t}`;
+		return `${this.comments_str('\t')}\n\texport function ${this.name}${this.type_param_str}(${this.param_str})${this.return_type_str} {\n\t\t${this.stmt_str}\n\t}`;
 	}
 
 	public get decl_obj_str() {

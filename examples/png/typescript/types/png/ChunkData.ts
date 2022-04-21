@@ -1,84 +1,61 @@
 
 /*
  THIS FILE WAS AUTOMATICALLY GENERATED
- 2022-04-20T02:57:14.578Z
+ 2022-04-21T06:09:08.779Z
 */
 
-
 import { $State } from '../../utils';
+import { ChunkType } from './ChunkType';
 
 
-import { ChunkType as $Enum } from './ChunkType';
-
-
-export type ChunkData<$T extends $Enum = $Enum>
-	= $T extends $Enum.IHDR ? never
-	: $T extends $Enum.PLTE ? never
-	: $T extends $Enum.IDAT ? void
-	: $T extends $Enum.IEND ? void
-	: $T extends $Enum.tRNS ? never
-	: $T extends $Enum.cHRM ? never
-	: $T extends $Enum.gAMA ? never
-	: $T extends $Enum.iCCP ? never
-	: $T extends $Enum.sBIT ? never
-	: $T extends $Enum.sRGB ? never
-	: $T extends $Enum.tEXt ? never
-	: $T extends $Enum.xTXt ? never
-	: $T extends $Enum.iTXt ? never
-	: $T extends $Enum.bKGD ? never
-	: $T extends $Enum.hIST ? never
-	: $T extends $Enum.pHYs ? never
-	: $T extends $Enum.sPLT ? never
-	: $T extends $Enum.tIME ? never
-	: void
+export type ChunkData<$T extends ChunkType = ChunkType, $V = void>
+	= $T extends ChunkType.IHDR ? unknown
+	: $T extends ChunkType.PLTE ? unknown
+	: $T extends ChunkType.IDAT ? $V
+	: $T extends ChunkType.IEND ? $V
+	: $T extends ChunkType.tRNS ? unknown
+	: $T extends ChunkType.cHRM ? unknown
+	: $T extends ChunkType.gAMA ? unknown
+	: $T extends ChunkType.iCCP ? unknown
+	: $T extends ChunkType.sBIT ? unknown
+	: $T extends ChunkType.sRGB ? unknown
+	: $T extends ChunkType.tEXt ? unknown
+	: $T extends ChunkType.xTXt ? unknown
+	: $T extends ChunkType.iTXt ? unknown
+	: $T extends ChunkType.bKGD ? unknown
+	: $T extends ChunkType.hIST ? unknown
+	: $T extends ChunkType.pHYs ? unknown
+	: $T extends ChunkType.sPLT ? unknown
+	: $T extends ChunkType.tIME ? unknown
+	: $V
 	;
-
-export const ChunkData = Object.freeze({
-	$decode<$T extends $Enum = $Enum>($state: $State, $case: $T) : ChunkData<$T> {
+export namespace ChunkData {
+	
+	export function $encode<$T extends ChunkType = ChunkType>($state: $State, $case: $T, $inst: ChunkData<$T>) {
 		switch ($case) {
-			case $Enum.IHDR: $state.fatal(`ChunkData: Encountered invalid case: ${$case}`);
-			case $Enum.PLTE: $state.fatal(`ChunkData: Encountered invalid case: ${$case}`);
-			case $Enum.IDAT: return void 0;
-			case $Enum.IEND: return void 0;
-			case $Enum.tRNS: $state.fatal(`ChunkData: Encountered invalid case: ${$case}`);
-			case $Enum.cHRM: $state.fatal(`ChunkData: Encountered invalid case: ${$case}`);
-			case $Enum.gAMA: $state.fatal(`ChunkData: Encountered invalid case: ${$case}`);
-			case $Enum.iCCP: $state.fatal(`ChunkData: Encountered invalid case: ${$case}`);
-			case $Enum.sBIT: $state.fatal(`ChunkData: Encountered invalid case: ${$case}`);
-			case $Enum.sRGB: $state.fatal(`ChunkData: Encountered invalid case: ${$case}`);
-			case $Enum.tEXt: $state.fatal(`ChunkData: Encountered invalid case: ${$case}`);
-			case $Enum.xTXt: $state.fatal(`ChunkData: Encountered invalid case: ${$case}`);
-			case $Enum.iTXt: $state.fatal(`ChunkData: Encountered invalid case: ${$case}`);
-			case $Enum.bKGD: $state.fatal(`ChunkData: Encountered invalid case: ${$case}`);
-			case $Enum.hIST: $state.fatal(`ChunkData: Encountered invalid case: ${$case}`);
-			case $Enum.pHYs: $state.fatal(`ChunkData: Encountered invalid case: ${$case}`);
-			case $Enum.sPLT: $state.fatal(`ChunkData: Encountered invalid case: ${$case}`);
-			case $Enum.tIME: $state.fatal(`ChunkData: Encountered invalid case: ${$case}`);
-			default: return void 0;
-		}
-	},
-
-	$encode<$T extends $Enum = $Enum>($state: $State, $case: $T, $inst: ChunkData<$T>) {
-		switch ($case) {
-			case $Enum.IHDR: $state.fatal(`ChunkData: Encountered invalid case: ${$case}`);
-			case $Enum.PLTE: $state.fatal(`ChunkData: Encountered invalid case: ${$case}`);
-			case $Enum.IDAT: return void 0;
-			case $Enum.IEND: return void 0;
-			case $Enum.tRNS: $state.fatal(`ChunkData: Encountered invalid case: ${$case}`);
-			case $Enum.cHRM: $state.fatal(`ChunkData: Encountered invalid case: ${$case}`);
-			case $Enum.gAMA: $state.fatal(`ChunkData: Encountered invalid case: ${$case}`);
-			case $Enum.iCCP: $state.fatal(`ChunkData: Encountered invalid case: ${$case}`);
-			case $Enum.sBIT: $state.fatal(`ChunkData: Encountered invalid case: ${$case}`);
-			case $Enum.sRGB: $state.fatal(`ChunkData: Encountered invalid case: ${$case}`);
-			case $Enum.tEXt: $state.fatal(`ChunkData: Encountered invalid case: ${$case}`);
-			case $Enum.xTXt: $state.fatal(`ChunkData: Encountered invalid case: ${$case}`);
-			case $Enum.iTXt: $state.fatal(`ChunkData: Encountered invalid case: ${$case}`);
-			case $Enum.bKGD: $state.fatal(`ChunkData: Encountered invalid case: ${$case}`);
-			case $Enum.hIST: $state.fatal(`ChunkData: Encountered invalid case: ${$case}`);
-			case $Enum.pHYs: $state.fatal(`ChunkData: Encountered invalid case: ${$case}`);
-			case $Enum.sPLT: $state.fatal(`ChunkData: Encountered invalid case: ${$case}`);
-			case $Enum.tIME: $state.fatal(`ChunkData: Encountered invalid case: ${$case}`);
+			case ChunkType.IHDR: $state.fatal('Switch case failed to compile');
+			case ChunkType.PLTE: $state.fatal(`Not yet implemented`);
+			case ChunkType.IDAT: return void ($inst != null && $state.write_inst_somehow($inst));
+			case ChunkType.IEND: return void ($inst != null && $state.write_inst_somehow($inst));
+			case ChunkType.tRNS: $state.fatal('Switch case failed to compile');
+			case ChunkType.cHRM: $state.fatal('Switch case failed to compile');
+			case ChunkType.gAMA: $state.fatal('Switch case failed to compile');
+			case ChunkType.iCCP: $state.fatal('Switch case failed to compile');
+			case ChunkType.sBIT: $state.fatal('Switch case failed to compile');
+			case ChunkType.sRGB: $state.fatal('Switch case failed to compile');
+			case ChunkType.tEXt: $state.fatal('Switch case failed to compile');
+			case ChunkType.xTXt: $state.fatal('Switch case failed to compile');
+			case ChunkType.iTXt: $state.fatal('Switch case failed to compile');
+			case ChunkType.bKGD: $state.fatal('Switch case failed to compile');
+			case ChunkType.hIST: $state.fatal('Switch case failed to compile');
+			case ChunkType.pHYs: $state.fatal('Switch case failed to compile');
+			case ChunkType.sPLT: $state.fatal('Switch case failed to compile');
+			case ChunkType.tIME: $state.fatal('Switch case failed to compile');
 			default: return void 0;
 		}
 	}
-});
+	
+	export function $decode() {
+		
+	}
+}

@@ -7,11 +7,34 @@ export class TSImport {
 	constructor(
 		public from: TSModule,
 		public source: TSModule,
-		public imports: TSImportedRef[]
 	) { }
+	
+	private imports = new Map<TSEntity, TSImportedRef>();
+
+	public add<T extends TSEntity = TSEntity>(ent: T) : TSImportedRef<T> {
+		if (this.imports.has(ent)) {
+			return this.imports.get(ent) as TSImportedRef<T>;
+		}
+
+		const ref = new TSImportedRef<T>();
+		ref.entity = ent;
+		ref.ts_import = this;
+		this.imports.set(ent, ref);
+		return ref;
+	}
 
 	public get import_str() {
-		const imports = this.imports.map((ref) => ref.decl_str);
+		const imports: string[] = [ ];
+		const names = new Set<string>();
+
+		for (const [, ref] of this.imports) {
+			// FIXME: This does not perfectly account for aliases.
+			if (! names.has(ref.ref_str)) {
+				names.add(ref.ref_str);
+				imports.push(ref.decl_str);
+			}
+		}
+
 		return `import { ${imports.join(', ')} } from '${path_relative_to(this.from.file_path, this.source.file_path)}';`
 	}
 }

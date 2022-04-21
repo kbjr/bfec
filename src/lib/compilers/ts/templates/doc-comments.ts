@@ -1,5 +1,2 @@
 
-export const doc_comments_template = (comments: string[], indent = '') => `
-${indent}/**
-${indent}${comments.join(`\n${indent}`)}
-${indent}*/`;
+export const doc_comments_template = (comments: string[], indent = '') => `/**\n${indent}${comments.join(`\n${indent}`)}\n${indent}*/`;

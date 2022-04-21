@@ -2,37 +2,61 @@
 import * as lnk from '../../../linker';
 import { TSModule } from './module';
 import { TSFunction } from './function';
-import { TSTypeBranchAlias } from './type-branch-alias';
+import { TSTypeBranch, TSTypeBranchAlias } from './type-branch-alias';
 import { generator_comment_template } from '../templates';
 import { TSEnum } from './enum';
 import { TSImportedRef } from './import';
 import { TSTypeParam } from './type-param';
 import { TSSwitchStatement } from './switch';
+import { TSEnumRef } from './enum-module';
+import { CompilerState } from '../state';
+import { TSNamespace } from './namespace';
 
 export class TSSwitchModule extends TSModule {
 	public bfec_switch: lnk.Switch;
 
 	public ts_enum: TSImportedRef<TSEnum>;
-	public ts_type: TSTypeBranchAlias;
-	public ts_encode: TSFunction;
-	public ts_decode: TSFunction;
-	public encode_switch: TSSwitchStatement;
-	public decode_switch: TSSwitchStatement;
+	public ts_type = new TSTypeBranchAlias();
+	public ts_namespace = new TSNamespace();
+	public ts_encode = new TSFunction();
+	public ts_decode = new TSFunction();
+	public encode_switch = new TSSwitchStatement();
+	public decode_switch = new TSSwitchStatement();
+
+	constructor(dir: string, name: string, state: CompilerState) {
+		super(dir, name, state);
+		this.ts_type.name = this.name;
+		this.ts_type.module = this;
+		this.ts_namespace.name = this.name;
+		this.ts_namespace.module = this;
+		this.ts_encode.name = '$encode';
+		this.ts_encode.module = this;
+		this.ts_decode.name = '$decode';
+		this.ts_decode.module = this;
+	}
 
 	public build() {
+		this.state.ts_module = this;
 		this.import_util('$State');
 		this.import_enum();
 		this.build_type();
 		this.build_encoder();
-		// this.build_decoder();
+		this.build_decoder();
+		this.state.ts_module = null;
+	}
+
+	public link() {
+		this.state.ts_module = this;
+		for (const func of this.on_link) {
+			func();
+		}
+
+		this.on_link.length = 0;
+		this.state.ts_module = null;
 	}
 
 	public get module_str() {
-		return `\n${this.imports_str}\n${this.ts_type.decl_str}\n${this.obj_str}\n`;
-	}
-
-	private get obj_str() {
-		return `export const ${this.name} = Object.freeze({\n\t${this.ts_encode.decl_obj_str},\n\t${this.ts_decode.decl_obj_str}\n});`;
+		return `\n${this.imports_str}\n${this.consts_str}\n${this.ts_type.decl_str}\n${this.ts_namespace.decl_str}\n`;
 	}
 
 	public emit() {
@@ -42,6 +66,8 @@ export class TSSwitchModule extends TSModule {
 
 		return this.state.opts.out_dir.write_file(`${this.file_path}.ts`, type_ts);
 	}
+
+	private on_link: (() => void)[] = [ ];
 
 	private import_enum() {
 		const enum_module = this.state.ts_enums.get(this.bfec_switch.arg_type.points_to);
@@ -55,53 +81,59 @@ export class TSSwitchModule extends TSModule {
 	}
 
 	private build_type() {
-		this.ts_type = new TSTypeBranchAlias();
 		this.ts_type.type = this.ts_enum.ref_str;
-		this.ts_type.cases = this.bfec_switch.cases.map(this.branch_type);
-		// this.ts_type.default_type
+
+		for (const branch of this.bfec_switch.cases) {
+			const ts_case = this.ts_type.add_case(`${this.ts_enum.ref_str}.${branch.case_name}`);
+			this.build_type_branch(branch, ts_case);
+		}
+
+		this.ts_type.add_default();
+		this.build_type_branch(this.bfec_switch.default, this.ts_type.default_type);
 	}
 
-	private branch_type = (branch: lnk.SwitchCase) : [ sub_type: string, result_type: string ] => {
-		const sub_type = `${this.ts_enum.ref_str}.${branch.case_name}`;
+	private build_type_branch(branch: lnk.SwitchCase | lnk.SwitchDefault, ts_case: TSTypeBranch) {
+		const type = branch.type === 'switch_case' ? branch.case_type : branch.default_type;
 
 		if (branch.is_void) {
-			return [ sub_type, 'void' ];
+			ts_case.result_type = '$V';
 		}
 		
-		if (branch.is_invalid) {
-			return [ sub_type, 'never' ];
+		else if (branch.is_invalid) {
+			ts_case.result_type = 'never';
 		}
 
-		switch (branch.case_type.type) {
-			case 'enum_ref':
-				const enum_node = branch.case_type.points_to;
-				const enum_module = this.state.ts_enums.get(enum_node);
-				const ts_enum = this.import(enum_module.ts_enum);
+		else {
+			switch (type.type) {
+				case 'enum_ref': {
+					const enum_node = type.points_to;
+					const enum_module = this.state.ts_enums.get(enum_node);
+					ts_case.result_type = new TSEnumRef(enum_module);
+					this.import(enum_module.ts_enum);
+					break;
+				}
+					
+				case 'struct_ref':
+					// 
+					break;
+					
+				case 'switch_ref':
+					// 
+					break;
 
-				return [ sub_type, ts_enum.ref_str ];
-				
-			case 'struct_ref':
-				// 
-				break;
-				
-			case 'switch_ref':
-				// 
-				break;
+				case 'const_int':
+				case 'const_string':
+					// 
+					break;
 
-			case 'const_int':
-			case 'const_string':
-				// 
-				break;
+				default:
+					ts_case.result_type = 'unknown';
+					break;
+			}
 		}
-
-		// FIXME: Remove, should be unreachable
-		return [ sub_type, 'unknown' ];
-	};
+	}
 
 	private build_encoder() {
-		this.ts_encode = new TSFunction();
-		this.ts_encode.name = '$encode';
-
 		const type_param = new TSTypeParam();
 		this.ts_encode.type_params.push(type_param);
 		type_param.name = '$T';
@@ -124,34 +156,63 @@ export class TSSwitchModule extends TSModule {
 		this.encode_switch.default_expr = this.encode_default(this.bfec_switch.default);
 
 		this.ts_encode.statements.push(this.encode_switch.stmt_str);
+
+		this.ts_namespace.contents.push(
+			this.ts_encode.decl_ns_str
+		);
 	}
 
 	private encode_branch = (branch: lnk.SwitchCase) : [ case_expr: string, result_expr: string ] => {
-		const case_expr = `${this.ts_enum.ref_str}.${branch.case_name}`;
-
 		if (branch.is_void) {
-			return [ case_expr, 'return void 0;' ];
+			// TODO: In the case of `void` when encoding, `$inst` should be either `undefined`
+			// (in which case we do nothing) or the base type of a refinement (which should be
+			// written without modification)
+			return [ branch.case_name, 'return void ($inst != null && $state.write_inst_somehow($inst));' ];
 		}
 		
 		if (branch.is_invalid) {
-			return [ case_expr, `$state.fatal(\`${this.name}: Encountered invalid case: \${$case}\`);` ];
+			return [ branch.case_name, `$state.fatal(\`${this.name}: Encountered invalid case: \${$case}\`);` ];
 		}
 
 		switch (branch.case_type.type) {
-			case 'enum_ref':
+			case 'enum_ref': {
 				const enum_node = branch.case_type.points_to;
 				const enum_module = this.state.ts_enums.get(enum_node);
-				const ts_enum = this.import(enum_module.ts_enum);
+				
+				if (! enum_module) {
+					// this.state.error(enum_node, 'Encountered a reference to an uncollected type');
+					return [ branch.case_name, `$state.fatal('Switch case failed to compile');` ];
+				}
 
-				return [ case_expr, `return ${ts_enum.ref_str}.$encode($state, $inst);` ];
+				const ts_enum = this.import(enum_module.ts_enum);
+				return [ branch.case_name, `return ${ts_enum.ref_str}.$encode($state, $inst);` ];
+			}
 				
-			case 'struct_ref':
-				// 
-				break;
+			case 'struct_ref': {
+				const struct_node = branch.case_type.points_to;
+				const struct_module = this.state.ts_structs.get(struct_node);
+
+				if (! struct_module) {
+					// this.state.error(struct_node, 'Encountered a reference to an uncollected type');
+					return [ branch.case_name, `$state.fatal('Switch case failed to compile');` ];
+				}
+
+				const ts_namespace = this.import(struct_module.ts_namespace);
+				return [ branch.case_name, `return ${ts_namespace.ref_str}.$encode($state, $inst);` ];
+			}
 				
-			case 'switch_ref':
-				// 
-				break;
+			case 'switch_ref': {
+				const switch_node = branch.case_type.points_to;
+				const switch_module = this.state.ts_switches.get(switch_node);
+
+				if (! switch_module) {
+					// this.state.error(switch_node, 'Encountered a reference to an uncollected type');
+					return [ branch.case_name, `$state.fatal('Switch case failed to compile');` ];
+				}
+
+				const ts_namespace = this.import(switch_module.ts_namespace);
+				return [ branch.case_name, `return ${ts_namespace.ref_str}.$encode($state, $inst);` ];
+			}
 
 			case 'const_int':
 			case 'const_string':
@@ -160,7 +221,7 @@ export class TSSwitchModule extends TSModule {
 		}
 
 		// FIXME: Remove, should be unreachable
-		return [ case_expr, '$state.fatal(`Not yet implemented`);' ];
+		return [ branch.case_name, '$state.fatal(`Not yet implemented`);' ];
 	};
 
 	private encode_default(branch: lnk.SwitchDefault) {
@@ -198,16 +259,26 @@ export class TSSwitchModule extends TSModule {
 		return '$state.fatal(`Not yet implemented`);';
 	}
 
-	// private build_decoder() {
-	// 	this.ts_encode = new TSFunction();
-	// 	this.ts_encode.name = '$encode';
-	// 	this.ts_encode.type_params
-	// 	this.ts_encode.params = [
-	// 		[ '$state', '$State' ],
-	// 		[ '$case', this. ],
-	// 		[ '$inst', this. ],
-	// 	]
-	// 	this.ts_encode.return_type
-	// 	this.ts_encode.statements
-	// }
+	private build_decoder() {
+		// this.ts_decode.type_params
+		// this.ts_decode.params = [
+		// 	[ '$state', '$State' ],
+		// 	[ '$case', this. ],
+		// 	[ '$inst', this. ],
+		// ]
+		// this.ts_decode.return_type
+		// this.ts_decode.statements
+		
+
+		this.ts_namespace.contents.push(
+			this.ts_decode.decl_ns_str
+		);
+	}
+}
+
+export class TSSwitchRef {
+	constructor(
+		public ts_switch: TSSwitchModule,
+		public param: null
+	) { }
 }
