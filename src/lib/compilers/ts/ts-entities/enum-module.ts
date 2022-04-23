@@ -7,21 +7,27 @@ import { generator_comment_template } from '../templates';
 import { CompilerState } from '../state';
 import { TSFunction } from './function';
 import { builtins } from './builtins';
+import { Assign, TSNever } from './types';
 
 export class TSEnumModule extends TSModule {
-	public bfec_enum: lnk.Enum;
-
 	public ts_enum = new TSEnum();
+	public ts_type: builtins.TSBuiltin;
 	public ts_namespace = new TSNamespace();
 	public ts_encode_aligned = new TSFunction();
 	public ts_encode_unaligned = new TSFunction();
 	public ts_decode_aligned = new TSFunction();
 	public ts_decode_unaligned = new TSFunction();
 
-	constructor(dir: string, name: string, state: CompilerState) {
+	constructor(
+		dir: string,
+		name: string,
+		state: CompilerState,
+		public bfec_enum: lnk.Enum
+	) {
 		super(dir, name, state);
 		this.ts_enum.name = this.name;
 		this.ts_enum.module = this;
+		this.ts_type = new builtins.TSBuiltin(this.state, this.bfec_enum.member_type);
 		this.ts_namespace.name = this.name;
 		this.ts_namespace.module = this;
 		this.ts_encode_aligned.module = this;
@@ -83,7 +89,7 @@ export class TSEnumModule extends TSModule {
 			[ '$value', this.name ],
 		);
 		this.ts_encode_aligned.statements.push(
-			builtins.encode_aligned(this.state, this.bfec_enum.member_type, '$value') + ';'
+			this.ts_type.encode_aligned('$value')
 		);
 		
 		this.ts_encode_unaligned.params.push(
@@ -91,7 +97,7 @@ export class TSEnumModule extends TSModule {
 			[ '$value', this.name ],
 		);
 		this.ts_encode_unaligned.statements.push(
-			builtins.encode_unaligned(this.state, this.bfec_enum.member_type, '$value') + ';'
+			this.ts_type.encode_unaligned('$value')
 		);
 		
 		this.ts_decode_aligned.return_type = this.name;
@@ -99,7 +105,7 @@ export class TSEnumModule extends TSModule {
 			[ '$state', '$State' ],
 		);
 		this.ts_decode_aligned.statements.push(
-			`return ${builtins.decode_aligned(this.state, this.bfec_enum.member_type)} as ${this.name};`
+			this.ts_type.decode_aligned((x) => `return ${x} as ${this.name};`)
 		);
 		
 		this.ts_decode_unaligned.return_type = this.name;
@@ -107,7 +113,7 @@ export class TSEnumModule extends TSModule {
 			[ '$state', '$State' ],
 		);
 		this.ts_decode_unaligned.statements.push(
-			`return ${builtins.decode_unaligned(this.state, this.bfec_enum.member_type)} as ${this.name};`
+			this.ts_type.decode_unaligned((x) => `return ${x} as ${this.name};`)
 		);
 
 		this.ts_namespace.contents.push(
@@ -123,4 +129,39 @@ export class TSEnumRef {
 	constructor(
 		public ts_enum: TSEnumModule,
 	) { }
+
+	public static from_ref(state: CompilerState, ref: lnk.EnumRef) {
+		const enum_module = state.ts_enums.get(ref.points_to);
+
+		if (! enum_module) {
+			state.error(ref, 'Encountered reference to uncollected type');
+			return new TSNever();
+		}
+
+		return new TSEnumRef(enum_module);
+	}
+
+	public import_into(module: TSModule) {
+		module.import(this.ts_enum.ts_enum);
+	}
+	
+	public field_type() {
+		return this.ts_enum.name;
+	}
+
+	public encode_aligned(value_expr: string) {
+		return `${this.ts_enum.name}.$encode_aligned($state, ${value_expr});`;
+	}
+
+	public encode_unaligned(value_expr: string) {
+		return `${this.ts_enum.name}.$encode_unaligned($state, ${value_expr});`;
+	}
+
+	public decode_aligned(assign: Assign) {
+		return assign(`${this.ts_enum.name}.$decode_aligned($state)`);
+	}
+
+	public decode_unaligned(assign: Assign) {
+		return assign(`${this.ts_enum.name}.$decode_unaligned($state)`);
+	}
 }

@@ -8,17 +8,22 @@ import { builtins } from './builtins';
 import { generator_comment_template } from '../templates';
 import { TSFunction } from './function';
 import { TSNamespace } from './namespace';
-import { decode, encode } from './types';
+import { Assign, TSFieldType, create_ts_field_type, TSNever } from './types';
+import { TSEnumRef } from './enum-module';
 
 export class TSStructModule extends TSModule {
-	public bfec_struct: lnk.Struct;
-
 	public ts_iface = new TSInterface();
 	public ts_namespace = new TSNamespace();
 	public ts_encode = new TSFunction();
 	public ts_decode = new TSFunction();
+	public ts_fields: (TSStructField | TSStructExpansion)[];
 
-	constructor(dir: string, name: string, state: CompilerState) {
+	constructor(
+		dir: string,
+		name: string,
+		state: CompilerState,
+		public bfec_struct: lnk.Struct
+	) {
 		super(dir, name, state);
 		this.ts_iface.name = this.name;
 		this.ts_iface.module = this;
@@ -45,6 +50,7 @@ export class TSStructModule extends TSModule {
 	public build() {
 		this.state.ts_module = this;
 		this.import_util('$State');
+		this.build_fields();
 		this.build_iface();
 		this.build_namespace();
 		this.state.ts_module = null;
@@ -70,6 +76,24 @@ export class TSStructModule extends TSModule {
 
 	private on_link: (() => void)[] = [ ];
 
+	private build_fields() {
+		this.ts_fields = [ ];
+
+		for (const field of this.bfec_struct.fields) {
+			if (field.type === 'struct_field') {
+				this.ts_fields.push(
+					TSStructField.from_schema(this.state, field)
+				);
+			}
+
+			else if (field.type === 'struct_expansion') {
+				this.ts_fields.push(
+					TSStructExpansion.from_schema(this.state, field)
+				); 
+			}
+		}
+	}
+
 	private build_iface() {
 		if (this.bfec_struct.params) {
 			this.ts_iface.type_params.push(
@@ -79,15 +103,13 @@ export class TSStructModule extends TSModule {
 
 		const extend: string[] = [ ];
 
-		for (const field of this.bfec_struct.fields) {
-			if (field.type === 'struct_field') {
+		for (const field of this.ts_fields) {
+			if (field instanceof TSStructField) {
 				this.ts_iface.add_field(field);
 			}
 
-			else if (field.type === 'struct_expansion') {
-				// TODO: Import
-				// TODO: Params
-				extend.push(field.expanded_type.name);
+			else if (field instanceof TSStructExpansion) {
+				extend.push(field.extend);
 			}
 		}
 
@@ -100,25 +122,12 @@ export class TSStructModule extends TSModule {
 		const ts_param = new TSTypeParam();
 		ts_param.name = param.name;
 
-		if (param.param_type.type === 'enum_ref') {
-			const enum_module = this.state.ts_enums.get(param.param_type.points_to);
-
-			if (! enum_module) {
-				this.state.error(param.param_type, 'Encountered reference to uncollected type');
-				return;
-			}
-
-			this.on_link.push(() => {
-				const ts_enum = this.import(enum_module.ts_enum);
-				ts_param.extends = ts_enum.ref_str;
-				ts_param.default = ts_enum.ref_str;
-			});
-		}
-
-		else {
-			const type = builtins.field_type(this.state, param.param_type);
-			ts_param.extends = type;
-			ts_param.default = type;
+		const type = create_ts_field_type(this.state, param.param_type) as builtins.TSBuiltin | TSEnumRef;
+		ts_param.extends = type.field_type();
+		ts_param.default = type.field_type();
+		
+		if (type instanceof TSEnumRef) {
+			type.import_into(this);
 		}
 
 		return ts_param;
@@ -135,6 +144,7 @@ export class TSStructModule extends TSModule {
 	}
 
 	private build_encode() {
+		this.state.ts_function = this.ts_encode;
 		this.ts_encode.params.push(
 			[ '$state', '$State' ],
 			[ '$inst', this.name ],
@@ -144,12 +154,12 @@ export class TSStructModule extends TSModule {
 			this.ts_encode.statements.push(`$state.step_down('$', $inst);`);
 		}
 
-		for (const field of this.bfec_struct.fields) {
-			if (field.type === 'struct_field') {
+		for (const field of this.ts_fields) {
+			if (field instanceof TSStructField) {
 				this.build_field_encode(field);
 			}
 
-			else if (field.type === 'struct_expansion') {
+			else {
 				this.build_expansion_encode(field);
 			}
 		}
@@ -157,24 +167,33 @@ export class TSStructModule extends TSModule {
 		if (this.is_root) {
 			this.ts_encode.statements.push(`$state.step_up();`);
 		}
+
+		this.state.ts_function = null;
 	}
 
-	private build_field_encode(field: lnk.StructField) {
-		if (field.has_field_value) {
+	private build_field_encode(field: TSStructField) {
+		if (field.bfec_field.has_field_value) {
 			// 
 		}
 
-		const encode_expr = encode(this.state, field.field_type, this, `$inst.${field.name}`);
+		if (field.bfec_field.condition) {
+			// 
+		}
+
+		// TODO: unaligned?
+		const encode_expr = field.field_type.encode_aligned(`$inst.${field.name}`);
 		this.ts_encode.statements.push(`$state.step_down('${field.name}', $inst.${field.name});`);
-		this.ts_encode.statements.push(encode_expr + ';');
+		this.ts_encode.statements.push(encode_expr || 'null');
 		this.ts_encode.statements.push(`$state.step_up();`);
 	}
 
-	private build_expansion_encode(field: lnk.StructExpansion) {
+	private build_expansion_encode(field: TSStructExpansion) {
 		this.ts_encode.statements.push('// struct expansion not yet implemented');
 	}
 
 	private build_decode() {
+		this.state.ts_function = this.ts_decode;
+
 		this.ts_decode.params.push(
 			[ '$state', '$State' ],
 		);
@@ -185,12 +204,12 @@ export class TSStructModule extends TSModule {
 			this.ts_decode.statements.push(`$state.step_down('$', $inst);`);
 		}
 
-		for (const field of this.bfec_struct.fields) {
-			if (field.type === 'struct_field') {
+		for (const field of this.ts_fields) {
+			if (field instanceof TSStructField) {
 				this.build_field_decode(field);
 			}
 
-			else if (field.type === 'struct_expansion') {
+			else {
 				this.build_expansion_decode(field);
 			}
 		}
@@ -200,21 +219,68 @@ export class TSStructModule extends TSModule {
 		}
 		
 		this.ts_decode.statements.push(`return $inst;`);
+
+		this.state.ts_function = null;
 	}
 
-	private build_field_decode(field: lnk.StructField) {
-		if (field.has_field_value) {
+	private build_field_decode(field: TSStructField) {
+		if (field.bfec_field.has_field_value) {
 			// 
 		}
 
-		const decode_expr = decode(this.state, field.field_type, this);
+		if (field.bfec_field.condition) {
+			// 
+		}
+
+		// TODO: unaligned?
+		const decode_expr = field.field_type.decode_aligned((value_expr: string) => `$inst.${field.name} = ${value_expr}`);
 		this.ts_decode.statements.push(`$state.step_down('${field.name}');`);
-		this.ts_decode.statements.push(`$inst.${field.name} = ${decode_expr};`);
+		this.ts_decode.statements.push(decode_expr);
 		this.ts_decode.statements.push(`$state.step_up();`);
 	}
 
-	private build_expansion_decode(field: lnk.StructExpansion) {
+	private build_expansion_decode(field: TSStructExpansion) {
 		this.ts_encode.statements.push('// struct expansion not yet implemented');
+	}
+}
+
+export class TSStructField {
+	constructor(
+		public state: CompilerState,
+		public bfec_field: lnk.StructField,
+		public field_type: TSFieldType
+	) { }
+
+	public get name() {
+		return this.bfec_field.name;
+	}
+
+	public static from_schema(state: CompilerState, bfec_field: lnk.StructField) {
+		if (bfec_field.condition) {
+			// 
+		}
+
+		if (bfec_field.has_field_value) {
+			// 
+		}
+
+		return new TSStructField(state, bfec_field, create_ts_field_type(state, bfec_field.field_type));
+	}
+}
+
+export class TSStructExpansion {
+	constructor(
+		public state: CompilerState,
+		public bfec_expansion: lnk.StructExpansion,
+		public field_type: TSFieldType
+	) { }
+
+	public get extend() {
+		return typeof this.field_type === 'string' ? this.field_type : this.field_type.field_type();
+	}
+
+	public static from_schema(state: CompilerState, bfec_expansion: lnk.StructExpansion) {
+		return new TSStructExpansion(state, bfec_expansion, create_ts_field_type(state, bfec_expansion.expanded_type));
 	}
 }
 
@@ -225,15 +291,51 @@ export class TSStructRef {
 	) { }
 
 	public static from_ref(state: CompilerState, ref: lnk.StructRef) {
-		const ts_struct = state.ts_structs.get(ref.points_to);
+		const struct_module = state.ts_structs.get(ref.points_to);
+
+		if (! struct_module) {
+			state.error(ref, 'Encountered reference to uncollected type');
+			return new TSNever();
+		}
+
+		// TODO: Params
 		const params = ref.params.map((param) => {
 			return `(todo: ref to ${param.name})`;
 		});
 
-		return new TSStructRef(ts_struct, params);
+		return new TSStructRef(struct_module, params);
 	}
 
-	public get ref_str() {
-		return '(todo: TSStructRef.ref_str)';
+	public import_into(module: TSModule) {
+		module.import(this.ts_struct.ts_iface);
+	}
+
+	public field_type() {
+		// TODO: params
+		return this.ts_struct.name;
+	}
+
+	public encode_aligned(value_expr: string) {
+		return `${this.ts_struct.name}.$encode($state, ${value_expr})`;
+	}
+
+	public encode_unaligned(value_expr: string) {
+		if (this.ts_struct.is_byte_aligned) {
+			return `$state.fatal('Cannot encode byte aligned struct in non-aligned context');`;
+		}
+
+		return `${this.ts_struct.name}.$encode($state, ${value_expr})`;
+	}
+
+	public decode_aligned(assign: Assign) {
+		return assign(`${this.ts_struct.name}.$decode($state)`);
+	}
+
+	public decode_unaligned(assign: Assign) {
+		if (this.ts_struct.is_byte_aligned) {
+			return `$state.fatal('Cannot decode byte aligned struct in non-aligned context');`;
+		}
+
+		return assign(`${this.ts_struct.name}.$decode($state)`);
 	}
 }

@@ -1,7 +1,7 @@
 
 /*
  THIS FILE WAS AUTOMATICALLY GENERATED
- 2022-04-21T06:09:08.779Z
+ 2022-04-23T05:05:33.452Z
 */
 
 import { $State } from '../../utils';
@@ -9,24 +9,24 @@ import { ChunkType } from './ChunkType';
 
 
 export type ChunkData<$T extends ChunkType = ChunkType, $V = void>
-	= $T extends ChunkType.IHDR ? unknown
-	: $T extends ChunkType.PLTE ? unknown
+	= $T extends ChunkType.IHDR ? never
+	: $T extends ChunkType.PLTE ? never[]
 	: $T extends ChunkType.IDAT ? $V
 	: $T extends ChunkType.IEND ? $V
-	: $T extends ChunkType.tRNS ? unknown
-	: $T extends ChunkType.cHRM ? unknown
-	: $T extends ChunkType.gAMA ? unknown
-	: $T extends ChunkType.iCCP ? unknown
-	: $T extends ChunkType.sBIT ? unknown
-	: $T extends ChunkType.sRGB ? unknown
-	: $T extends ChunkType.tEXt ? unknown
-	: $T extends ChunkType.xTXt ? unknown
-	: $T extends ChunkType.iTXt ? unknown
-	: $T extends ChunkType.bKGD ? unknown
-	: $T extends ChunkType.hIST ? unknown
-	: $T extends ChunkType.pHYs ? unknown
-	: $T extends ChunkType.sPLT ? unknown
-	: $T extends ChunkType.tIME ? unknown
+	: $T extends ChunkType.tRNS ? never
+	: $T extends ChunkType.cHRM ? never
+	: $T extends ChunkType.gAMA ? never
+	: $T extends ChunkType.iCCP ? never
+	: $T extends ChunkType.sBIT ? never
+	: $T extends ChunkType.sRGB ? never
+	: $T extends ChunkType.tEXt ? never
+	: $T extends ChunkType.xTXt ? never
+	: $T extends ChunkType.iTXt ? never
+	: $T extends ChunkType.bKGD ? never
+	: $T extends ChunkType.hIST ? never
+	: $T extends ChunkType.pHYs ? never
+	: $T extends ChunkType.sPLT ? never
+	: $T extends ChunkType.tIME ? never
 	: $V
 	;
 export namespace ChunkData {

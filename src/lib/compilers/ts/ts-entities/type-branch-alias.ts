@@ -1,9 +1,6 @@
 
-import { builtins } from './builtins';
 import { TSEntity } from './entity';
-import { TSEnumRef } from './enum-module';
-import { TSStructRef } from './struct-module';
-import { TSSwitchRef } from './switch-module';
+import { TSFieldType } from './types';
 
 export class TSTypeBranchAlias extends TSEntity {
 	public type: string;
@@ -26,12 +23,13 @@ export class TSTypeBranchAlias extends TSEntity {
 	}
 
 	public get decl_str() {
-		return `${this.comments_str('')}\nexport type ${this.name}<$T extends ${this.type} = ${this.type}, $V = void>\n\t= ${this.cases_str}\n\t: ${this.default_type.result_type_str}\n\t;`;
+		const defaul_result = this.default_type.field_type();
+		return `${this.comments_str('')}\nexport type ${this.name}<$T extends ${this.type} = ${this.type}, $V = void>\n\t= ${this.cases_str}\n\t: ${defaul_result}\n\t;`;
 	}
 
 	private get cases_str() {
 		return this.cases.map((branch) => {
-			return `$T extends ${branch.sub_type} ? ${branch.result_type_str}`;
+			return `$T extends ${branch.sub_type} ? ${branch.field_type()}`;
 		}).join('\n\t: ');
 	}
 }
@@ -39,31 +37,9 @@ export class TSTypeBranchAlias extends TSEntity {
 export class TSTypeBranch {
 	public alias: TSTypeBranchAlias;
 	public sub_type: string;
-	public result_type: TSStructRef | TSSwitchRef | TSEnumRef | builtins.Builtin | string;
+	public result_type: TSFieldType | '$V';
 
-	public get result_type_str() {
-		if (this.result_type instanceof TSStructRef) {
-			return this.result_type.ts_struct.name;
-		}
-
-		else if (this.result_type instanceof TSSwitchRef) {
-			return this.result_type.ts_switch.name;
-		}
-
-		else if (this.result_type instanceof TSEnumRef) {
-			return this.result_type.ts_enum.name;
-		}
-
-		else if (typeof this.result_type === 'string') {
-			return this.result_type;
-		}
-
-		else if (! this.result_type) {
-			return 'unknown';
-		}
-
-		else {
-			return builtins.field_type(this.alias.module.state, this.result_type);
-		}
+	public field_type() {
+		return typeof this.result_type === 'string' ? this.result_type : this.result_type.field_type();
 	}
 }

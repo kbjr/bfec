@@ -1,7 +1,7 @@
 
 /*
  THIS FILE WAS AUTOMATICALLY GENERATED
- 2022-04-21T06:09:08.779Z
+ 2022-04-23T05:05:33.452Z
 */
 
 import { $State } from '../../utils';
@@ -29,11 +29,11 @@ export enum ChunkType {
 export namespace ChunkType {
 	
 	export function $encode_aligned($state: $State, $value: ChunkType) {
-		$state.fatal('not supported');
+		$state.fatal('not supported')
 	}
 	
 	export function $encode_unaligned($state: $State, $value: ChunkType) {
-		$state.fatal('Cannot encode unaligned text field');
+		$state.fatal('Cannot encode unaligned text field')
 	}
 	
 	export function $decode_aligned($state: $State) : ChunkType {
@@ -41,6 +41,6 @@ export namespace ChunkType {
 	}
 	
 	export function $decode_unaligned($state: $State) : ChunkType {
-		return $state.fatal('Cannot decode unaligned text field') as ChunkType;
+		$state.fatal('Cannot decode unaligned text field');
 	}
 }

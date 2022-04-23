@@ -3,7 +3,7 @@ import * as lnk from '../../linker';
 import { c_ts as log } from '../../log';
 import { BuildError, build_error_factory } from '../../error';
 import type { TypescriptCompilerOptions } from './index';
-import { TSEnumModule, TSModule, TSStructModule, TSSwitchModule } from './ts-entities';
+import { TSEnumModule, TSFunction, TSModule, TSStructModule, TSSwitchModule } from './ts-entities';
 
 export class CompilerState {
 	constructor(
@@ -22,6 +22,7 @@ export class CompilerState {
 	public readonly checksum_funcs = new Map<string, Set<lnk.ChecksumType>>();
 
 	public ts_module: TSModule;
+	public ts_function: TSFunction;
 
 	public readonly errors: BuildError[] = [ ];
 	public readonly error = build_error_factory(this.errors, this.schema);

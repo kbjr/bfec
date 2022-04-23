@@ -1,7 +1,7 @@
 
 /*
  THIS FILE WAS AUTOMATICALLY GENERATED
- 2022-04-21T06:09:08.772Z
+ 2022-04-23T05:05:33.444Z
 */
 
 
@@ -50,7 +50,7 @@ export class $State {
 		return successful;
 	}
 
-	public assert_str_match<T>(actual: string, expected: string, successful?: T) : T | never {
+	public assert_match<E, T>(actual: E, expected: E, successful?: T) : T | never {
 		if (actual !== expected) {
 			this.fatal('Expected to find constant value');
 		}

@@ -11,11 +11,12 @@ import { TSSwitchStatement } from './switch';
 import { TSEnumRef } from './enum-module';
 import { CompilerState } from '../state';
 import { TSNamespace } from './namespace';
+import { Assign, create_ts_field_type, TSFieldType, TSNever } from './types';
 
 export class TSSwitchModule extends TSModule {
-	public bfec_switch: lnk.Switch;
-
 	public ts_enum: TSImportedRef<TSEnum>;
+	public ts_cases: TSSwitchBranch<lnk.SwitchCase>[];
+	public ts_default: TSSwitchBranch<lnk.SwitchDefault>;
 	public ts_type = new TSTypeBranchAlias();
 	public ts_namespace = new TSNamespace();
 	public ts_encode = new TSFunction();
@@ -23,7 +24,12 @@ export class TSSwitchModule extends TSModule {
 	public encode_switch = new TSSwitchStatement();
 	public decode_switch = new TSSwitchStatement();
 
-	constructor(dir: string, name: string, state: CompilerState) {
+	constructor(
+		dir: string,
+		name: string,
+		state: CompilerState,
+		public bfec_switch: lnk.Switch
+	) {
 		super(dir, name, state);
 		this.ts_type.name = this.name;
 		this.ts_type.module = this;
@@ -39,6 +45,7 @@ export class TSSwitchModule extends TSModule {
 		this.state.ts_module = this;
 		this.import_util('$State');
 		this.import_enum();
+		this.build_cases();
 		this.build_type();
 		this.build_encoder();
 		this.build_decoder();
@@ -80,12 +87,21 @@ export class TSSwitchModule extends TSModule {
 		this.ts_enum = this.import(enum_module.ts_enum);
 	}
 
+	private build_cases() {
+		this.ts_cases = [ ];
+
+		for (const branch of this.bfec_switch.cases) {
+			this.ts_cases.push(TSSwitchBranch.from_bfec(this.state, branch));
+		}
+
+		this.ts_default = TSSwitchBranch.from_bfec(this.state, this.bfec_switch.default);
+	}
+
 	private build_type() {
 		this.ts_type.type = this.ts_enum.ref_str;
 
-		for (const branch of this.bfec_switch.cases) {
-			const ts_case = this.ts_type.add_case(`${this.ts_enum.ref_str}.${branch.case_name}`);
-			this.build_type_branch(branch, ts_case);
+		for (const ts_case of this.ts_cases) {
+			this.build_type_branch(ts_case.bfec_case, this.ts_type.add_case(`${this.ts_enum.ref_str}.${ts_case.bfec_case.case_name}`));
 		}
 
 		this.ts_type.add_default();
@@ -93,43 +109,17 @@ export class TSSwitchModule extends TSModule {
 	}
 
 	private build_type_branch(branch: lnk.SwitchCase | lnk.SwitchDefault, ts_case: TSTypeBranch) {
-		const type = branch.type === 'switch_case' ? branch.case_type : branch.default_type;
-
 		if (branch.is_void) {
 			ts_case.result_type = '$V';
 		}
 		
 		else if (branch.is_invalid) {
-			ts_case.result_type = 'never';
+			ts_case.result_type = new TSNever();
 		}
 
 		else {
-			switch (type.type) {
-				case 'enum_ref': {
-					const enum_node = type.points_to;
-					const enum_module = this.state.ts_enums.get(enum_node);
-					ts_case.result_type = new TSEnumRef(enum_module);
-					this.import(enum_module.ts_enum);
-					break;
-				}
-					
-				case 'struct_ref':
-					// 
-					break;
-					
-				case 'switch_ref':
-					// 
-					break;
-
-				case 'const_int':
-				case 'const_string':
-					// 
-					break;
-
-				default:
-					ts_case.result_type = 'unknown';
-					break;
-			}
+			const type = create_ts_field_type(this.state, branch.type === 'switch_case' ? branch.case_type : branch.default_type);
+			ts_case.result_type = type;
 		}
 	}
 
@@ -234,6 +224,7 @@ export class TSSwitchModule extends TSModule {
 		}
 
 		switch (branch.default_type.type) {
+			// return `return ${branch.default_type.}`
 			case 'enum_ref':
 				const enum_node = branch.default_type.points_to;
 				const enum_module = this.state.ts_enums.get(enum_node);
@@ -281,4 +272,70 @@ export class TSSwitchRef {
 		public ts_switch: TSSwitchModule,
 		public param: null
 	) { }
+
+	public static from_ref(state: CompilerState, ref: lnk.SwitchRef) {
+		const switch_module = state.ts_switches.get(ref.points_to);
+
+		if (! switch_module) {
+			state.error(ref, 'Encountered reference to uncollected type');
+			return new TSNever();
+		}
+
+		// TODO: Param
+		return new TSSwitchRef(switch_module, null);
+	}
+
+	public import_into(module: TSModule) {
+		module.import(this.ts_switch.ts_type);
+	}
+
+	public field_type() {
+		// TODO: param
+		return this.ts_switch.name;
+	}
+
+	public encode_aligned(value_expr: string) {
+		return `$state.fatal('Failed to compile switch encoder');`;
+	}
+
+	public encode_unaligned(value_expr: string) {
+		return `$state.fatal('Failed to compile switch encoder');`;
+	}
+
+	public decode_aligned(assign: Assign) {
+		return `$state.fatal('Failed to compile switch decoder');`;
+	}
+
+	public decode_unaligned(assign: Assign) {
+		return `$state.fatal('Failed to compile switch decoder');`;
+	}
+}
+
+export class TSSwitchBranch<T extends lnk.SwitchCase | lnk.SwitchDefault = lnk.SwitchCase | lnk.SwitchDefault> {
+	public bfec_case: T;
+	public result_type?: TSFieldType;
+
+	public get result_type_str() {
+		if (this.bfec_case.is_void) {
+			return '$V';
+		}
+
+		if (this.bfec_case.is_invalid) {
+			return 'never';
+		}
+
+		return this.result_type.field_type();
+	}
+
+	public static from_bfec<T extends lnk.SwitchCase | lnk.SwitchDefault = lnk.SwitchCase | lnk.SwitchDefault>(state: CompilerState, bfec_case: T) : TSSwitchBranch<T> {
+		const ts_case = new TSSwitchBranch<T>();
+		ts_case.bfec_case = bfec_case;
+
+		if (! bfec_case.is_void && ! bfec_case.is_invalid) {
+			const result_type = bfec_case.type === 'switch_case' ? bfec_case.case_type : bfec_case.default_type;
+			ts_case.result_type = create_ts_field_type(state, result_type);
+		}
+
+		return ts_case;
+	}
 }

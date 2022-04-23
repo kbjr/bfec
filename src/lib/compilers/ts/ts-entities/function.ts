@@ -1,11 +1,13 @@
 
 import { TSEntity } from './entity';
+import { TSLocal } from './local';
 import { TSTypeParam } from './type-param';
 
 export class TSFunction extends TSEntity {
 	public params: [ name: string, type: string ][] = [ ];
 	public type_params: TSTypeParam[] = [ ];
 	public return_type?: string;
+	public locals: TSLocal[] = [ ];
 	public statements: string[] = [ ];
 
 	public get decl_ns_str() {
@@ -28,6 +30,10 @@ export class TSFunction extends TSEntity {
 
 	public get return_type_str() {
 		return this.return_type ? ` : ${this.return_type}` : '';
+	}
+
+	public get locals_str() {
+		return this.locals.map((local) => local.decl_str).join('\n\t\t');
 	}
 
 	public get stmt_str() {

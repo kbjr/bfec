@@ -5,25 +5,25 @@ import { TSEntity } from './entity';
 import { TSEnumRef } from './enum-module';
 import { TSTypeParam } from './type-param';
 import { TSSwitchRef } from './switch-module';
-import { TSStructRef } from './struct-module';
-import { field_type } from './types';
+import { TSStructField, TSStructRef } from './struct-module';
+import { create_ts_field_type } from './types';
 
 export class TSInterface extends TSEntity {
 	public extends: string;
 	public type_params: TSTypeParam[] = [ ];
 	public fields: TSInterfaceField[] = [ ];
 
-	public add_field(bfec_field: lnk.StructField) {
+	public add_field(struct_field: TSStructField) {
 		const field = new TSInterfaceField();
-		field.name = bfec_field.name;
+		field.name = struct_field.name;
 		field.iface = this;
-		field.comments = bfec_field.comments.map((comment) => comment.content);
+		field.comments = struct_field.bfec_field.comments.map((comment) => comment.content);
 
-		if (bfec_field.has_field_value) {
+		if (struct_field.bfec_field.has_field_value) {
 			// 
 		}
 
-		field.type = field_type(this.module.state, bfec_field.field_type, this.module);
+		field.type = struct_field;
 		this.fields.push(field);
 		return field;
 	}
@@ -54,31 +54,13 @@ export class TSInterfaceField {
 	public name: string;
 	public iface: TSInterface;
 	public comments: string[] = [ ];
-	public type: TSStructRef | TSSwitchRef | TSEnumRef | builtins.Builtin | string;
+	public type: TSStructField;
+
+	public get field_type() {
+		return typeof this.type.field_type === 'string' ? this.type.field_type : this.type.field_type.field_type();
+	}
 
 	public get decl_str() {
-		if (this.type instanceof TSStructRef) {
-			return `${this.name}: ${this.type.ts_struct.name}`;
-		}
-
-		else if (this.type instanceof TSSwitchRef) {
-			return `${this.name}: ${this.type.ts_switch.name}`;
-		}
-
-		else if (this.type instanceof TSEnumRef) {
-			return `${this.name}: ${this.type.ts_enum.name}`;
-		}
-
-		else if (! this.type) {
-			return `${this.name}: unknown;`;
-		}
-
-		else if (typeof this.type === 'string') {
-			return `${this.name}: ${this.type};`
-		}
-
-		else {
-			return `${this.name}: ${builtins.field_type(this.iface.module.state, this.type)};`;
-		}
+		return `${this.name}: ${this.field_type};`;
 	}
 }

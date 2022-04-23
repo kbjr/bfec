@@ -47,7 +47,7 @@ export class $State {
 		return successful;
 	}
 
-	public assert_str_match<T>(actual: string, expected: string, successful?: T) : T | never {
+	public assert_match<E, T>(actual: E, expected: E, successful?: T) : T | never {
 		if (actual !== expected) {
 			this.fatal('Expected to find constant value');
 		}

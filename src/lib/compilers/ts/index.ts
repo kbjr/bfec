@@ -40,22 +40,19 @@ export async function compile_to_typescript(schema: lnk.Schema, opts: Typescript
 			switch (type.type) {
 				case 'struct': {
 					const name = type === schema.root_struct ? opts.root_struct_name : type.name;
-					const module = new TSStructModule(dir, name, state);
-					module.bfec_struct = type;
+					const module = new TSStructModule(dir, name, state, type);
 					state.ts_structs.set(type, module);
 					break;
 				}
 
 				case 'switch': {
-					const module = new TSSwitchModule(dir, type.name, state);
-					module.bfec_switch = type;
+					const module = new TSSwitchModule(dir, type.name, state, type);
 					state.ts_switches.set(type, module);
 					break;
 				}
 
 				case 'enum': {
-					const module = new TSEnumModule(dir, type.name, state);
-					module.bfec_enum = type;
+					const module = new TSEnumModule(dir, type.name, state, type);
 					state.ts_enums.set(type, module);
 					break;
 				}
