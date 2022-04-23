@@ -1,7 +1,7 @@
 
 /*
  THIS FILE WAS AUTOMATICALLY GENERATED
- 2022-04-23T06:34:43.113Z
+ 2022-04-23T23:44:05.381Z
 */
 
 import { $State } from '../../utils';
@@ -15,6 +15,7 @@ export interface TruecolorTransparencyData {
 export namespace TruecolorTransparencyData {
 	
 	export function $encode($state: $State, $inst: TruecolorTransparencyData) {
+		$state.here.node = $inst;
 		$state.step_down('red_sample', $inst.red_sample);
 		$state.write_to.write_u16_be($inst.red_sample);
 		$state.step_up();
@@ -28,6 +29,7 @@ export namespace TruecolorTransparencyData {
 	
 	export function $decode($state: $State) : TruecolorTransparencyData {
 		const $inst = { } as TruecolorTransparencyData;
+		$state.here.node = $inst;
 		$state.step_down('red_sample');
 		$inst.red_sample = $state.read_from.read_u16_be()
 		$state.step_up();

@@ -163,7 +163,7 @@ export namespace const_str {
 		const ts_const_u8 = type.state.ts_module.add_const_str_as_byte_array(type.type);
 		const lines: string[] = [
 			`$state.assert_match(${value_expr}, ${ts_const_str.ref_str});`,
-			`// TODO: Write bytes in ts_const_u8`
+			`$state.write_to.write_bytes(${ts_const_u8.ref_str});`
 		];
 		return lines.join('\n\t\t');
 	}

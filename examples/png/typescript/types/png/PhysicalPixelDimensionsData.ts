@@ -1,10 +1,11 @@
 
 /*
  THIS FILE WAS AUTOMATICALLY GENERATED
- 2022-04-23T06:34:43.114Z
+ 2022-04-23T23:44:05.382Z
 */
 
 import { $State } from '../../utils';
+import { PixelDimensionUnit } from './PixelDimensionUnit';
 
 
 export interface PhysicalPixelDimensionsData {
@@ -15,6 +16,7 @@ export interface PhysicalPixelDimensionsData {
 export namespace PhysicalPixelDimensionsData {
 	
 	export function $encode($state: $State, $inst: PhysicalPixelDimensionsData) {
+		$state.here.node = $inst;
 		$state.step_down('ppu_x', $inst.ppu_x);
 		$state.write_to.write_u32_be($inst.ppu_x);
 		$state.step_up();
@@ -28,6 +30,7 @@ export namespace PhysicalPixelDimensionsData {
 	
 	export function $decode($state: $State) : PhysicalPixelDimensionsData {
 		const $inst = { } as PhysicalPixelDimensionsData;
+		$state.here.node = $inst;
 		$state.step_down('ppu_x');
 		$inst.ppu_x = $state.read_from.read_u32_be()
 		$state.step_up();

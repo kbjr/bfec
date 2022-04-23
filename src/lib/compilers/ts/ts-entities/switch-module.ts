@@ -12,6 +12,7 @@ import { TSEnumRef } from './enum-module';
 import { CompilerState } from '../state';
 import { TSNamespace } from './namespace';
 import { Assign, create_ts_field_type, TSFieldType, TSNever } from './types';
+import { TSStructRef } from './struct-module';
 
 export class TSSwitchModule extends TSModule {
 	public ts_enum: TSImportedRef<TSEnum>;
@@ -91,12 +92,18 @@ export class TSSwitchModule extends TSModule {
 		this.ts_cases = [ ];
 
 		for (const branch of this.bfec_switch.cases) {
-			this.ts_cases.push(TSSwitchBranch.from_bfec(this.state, branch));
+			const ts_branch = TSSwitchBranch.from_bfec(this.state, branch);
+			ts_branch.import_into(this);
+			ts_branch.ts_switch = this;
+			this.ts_cases.push(ts_branch);
 		}
 
 		this.ts_default = this.bfec_switch.default
 			? TSSwitchBranch.from_bfec(this.state, this.bfec_switch.default)
 			: new TSSwitchBranch();
+			
+		this.ts_default.import_into(this);
+		this.ts_default.ts_switch = this;
 	}
 
 	private build_type() {
@@ -135,12 +142,17 @@ export class TSSwitchModule extends TSModule {
 		type_param.name = '$T';
 		type_param.extends = this.ts_enum.ref_str;
 		type_param.default = this.ts_enum.ref_str;
+		
+		const void_type_param = new TSTypeParam();
+		this.ts_encode.type_params.push(void_type_param);
+		void_type_param.name = '$V';
+		void_type_param.default = 'void';
 
 		this.import_util('$State');
 		this.ts_encode.params.push(
 			[ '$state', '$State' ],
 			[ '$case', '$T' ],
-			[ '$inst', `${this.name}<$T>` ]
+			[ '$inst', `${this.name}<$T, $V>` ]
 		);
 
 		this.encode_switch = new TSSwitchStatement();
@@ -173,13 +185,18 @@ export class TSSwitchModule extends TSModule {
 		type_param.extends = this.ts_enum.ref_str;
 		type_param.default = this.ts_enum.ref_str;
 		
+		const void_type_param = new TSTypeParam();
+		this.ts_decode.type_params.push(void_type_param);
+		void_type_param.name = '$V';
+		void_type_param.default = 'void';
+		
 		this.ts_decode.params = [
 			[ '$state', '$State' ],
 			[ '$case', '$T' ],
-			// [ '$inst', this. ],
+			[ '$void', '$V', 'void 0' ],
 		];
 
-		this.ts_decode.return_type = `${this.name}<$T>`;
+		this.ts_decode.return_type = `${this.name}<$T, $V>`;
 
 		this.decode_switch = new TSSwitchStatement();
 		this.decode_switch.ts_enum = this.ts_enum;
@@ -243,17 +260,18 @@ export class TSSwitchRef {
 	}
 
 	public decode_aligned(assign: Assign) {
-		return `$state.fatal('Failed to compile switch decoder');`;
+		return assign(`$state.fatal('Failed to compile switch decoder')`);
 	}
 
 	public decode_unaligned(assign: Assign) {
-		return `$state.fatal('Failed to compile switch decoder');`;
+		return assign(`$state.fatal('Failed to compile switch decoder')`);
 	}
 }
 
 export class TSSwitchBranch<T extends lnk.SwitchCase | lnk.SwitchDefault = lnk.SwitchCase | lnk.SwitchDefault> {
 	public bfec_case?: T;
 	public result_type?: TSFieldType;
+	public ts_switch: TSSwitchModule;
 
 	public get result_type_str() {
 		if (! this.bfec_case) {
@@ -273,7 +291,7 @@ export class TSSwitchBranch<T extends lnk.SwitchCase | lnk.SwitchDefault = lnk.S
 
 	public encode_str(ts_switch: TSSwitchModule) {
 		if (! this.bfec_case) {
-			return `$state.fatal(\`${ts_switch.name}: Encountered invalid case: \${$case}\`);`;
+			return `return void $state.fatal(\`${ts_switch.name}: Encountered invalid case: \${$case}\`);`;
 		}
 
 		if (this.bfec_case.is_void) {
@@ -284,26 +302,34 @@ export class TSSwitchBranch<T extends lnk.SwitchCase | lnk.SwitchDefault = lnk.S
 		}
 		
 		if (this.bfec_case.is_invalid) {
-			return `$state.fatal(\`${ts_switch.name}: Encountered invalid case: \${$case}\`);`;
+			return `return void $state.fatal(\`${ts_switch.name}: Encountered invalid case: \${$case}\`);`;
 		}
 
-		return this.result_type.encode_aligned('$inst');
+		return `return void ${this.result_type.encode_aligned(`$inst as ${this.result_type_str}`)};`;
 	}
 
 	public decode_str(ts_switch: TSSwitchModule) {
 		if (! this.bfec_case) {
-			return `$state.fatal(\`${ts_switch.name}: Encountered invalid case: \${$case}\`);`;
+			return `return void $state.fatal(\`${ts_switch.name}: Encountered invalid case: \${$case}\`);`;
 		}
 
 		if (this.bfec_case.is_void) {
-			return 'return void 0;';
+			return `return $void as ${this.ts_switch.name}<$T, $V>;`;
 		}
 		
 		if (this.bfec_case.is_invalid) {
-			return `$state.fatal(\`${ts_switch.name}: Encountered invalid case: \${$case}\`);`;
+			return `return void $state.fatal(\`${ts_switch.name}: Encountered invalid case: \${$case}\`);`;
 		}
 
-		return this.result_type.decode_aligned((x) => `return ${x};`);
+		return this.result_type.decode_aligned((x) => `return ${x} as ${this.ts_switch.name}<$T, $V>;`);
+	}
+
+	public import_into(ts_module: TSModule) {
+		if (this.result_type instanceof TSEnumRef
+		 || this.result_type instanceof TSStructRef
+		 || this.result_type instanceof TSSwitchRef) {
+			this.result_type.import_into(ts_module);
+		}
 	}
 
 	public get case_name() {

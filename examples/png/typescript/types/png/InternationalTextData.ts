@@ -1,10 +1,12 @@
 
 /*
  THIS FILE WAS AUTOMATICALLY GENERATED
- 2022-04-23T06:34:43.114Z
+ 2022-04-23T23:44:05.381Z
 */
 
 import { $State } from '../../utils';
+import { bool } from '../$remote/https:/bfec.io/bfec/basics/v1/bool';
+import { InternationalTextDataBody } from './InternationalTextDataBody';
 
 
 export interface InternationalTextData {
@@ -18,6 +20,7 @@ export interface InternationalTextData {
 export namespace InternationalTextData {
 	
 	export function $encode($state: $State, $inst: InternationalTextData) {
+		$state.here.node = $inst;
 		$state.step_down('keyword', $inst.keyword);
 		$state.fatal('not supported')
 		$state.step_up();
@@ -40,6 +43,7 @@ export namespace InternationalTextData {
 	
 	export function $decode($state: $State) : InternationalTextData {
 		const $inst = { } as InternationalTextData;
+		$state.here.node = $inst;
 		$state.step_down('keyword');
 		$inst.keyword = $state.read_from.read_ascii_null_term()
 		$state.step_up();
@@ -56,7 +60,7 @@ export namespace InternationalTextData {
 		
 		$state.step_up();
 		$state.step_down('text');
-		$state.fatal('Failed to compile switch decoder');
+		$inst.text = $state.fatal('Failed to compile switch decoder')
 		$state.step_up();
 		return $inst;
 	}

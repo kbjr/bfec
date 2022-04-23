@@ -59,6 +59,11 @@ import * as reg from './registers';
 ${tmpl.include_utf8 ? '// const utf8_decode = new TextDecoder(\'utf-8\');' : ''}
 ${tmpl.include_utf16 ? '// const utf16_decode = new TextDecoder(\'utf-16\');' : ''}
 
+type BitSize = 1  | 2  | 3  | 4  | 5  | 6  | 7  | 8
+             | 9  | 10 | 11 | 12 | 13 | 14 | 15 | 16
+             | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24
+             | 25 | 26 | 27 | 28 | 29 | 30 | 31 | 32;
+
 export class $BufferReader {
 	constructor(
 		public array: Uint8Array
@@ -68,6 +73,46 @@ export class $BufferReader {
 	${tmpl.no_bounds_checks ? cursor_no_checks_template() : cursor_with_checks_template()}
 	public get eof() {
 		return this.cursor >= this.array.length;
+	}
+
+
+
+	// ===== Unaligned Bits =====
+
+	public read_bits(count: BitSize) {
+		switch (this.bits_taken) {
+			case 0: {
+				// 
+			}
+
+			case 1: {
+				// 
+			}
+
+			case 2: {
+				// 
+			}
+
+			case 3: {
+				// 
+			}
+
+			case 4: {
+				// 
+			}
+
+			case 5: {
+				// 
+			}
+
+			case 6: {
+				// 
+			}
+
+			case 7: {
+				// 
+			}
+		}
 	}
 
 
@@ -513,19 +558,19 @@ const varint_impl = (tmpl: BufferReaderTemplateOpts) => `
 		return Number(this.read_varint_big_s_be(max_bits));
 	}
 
-	private read_varint_big_u_le(max_bits: number) : bigint {
+	public read_varint_big_u_le(max_bits: number) : bigint {
 		return BigInt.asUintN(max_bits, this.read_varint_big_le(max_bits));
 	}
 
-	private read_varint_big_u_be(max_bits: number) : bigint {
+	public read_varint_big_u_be(max_bits: number) : bigint {
 		return BigInt.asUintN(max_bits, this.read_varint_big_be(max_bits));
 	}
 
-	private read_varint_big_s_le(max_bits: number) : bigint {
+	public read_varint_big_s_le(max_bits: number) : bigint {
 		return BigInt.asIntN(max_bits, this.read_varint_big_le(max_bits));
 	}
 
-	private read_varint_big_s_be(max_bits: number) : bigint {
+	public read_varint_big_s_be(max_bits: number) : bigint {
 		return BigInt.asIntN(max_bits, this.read_varint_big_be(max_bits));
 	}
 

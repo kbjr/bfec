@@ -1,7 +1,7 @@
 
 /*
  THIS FILE WAS AUTOMATICALLY GENERATED
- 2022-04-23T06:34:43.112Z
+ 2022-04-23T23:44:05.380Z
 */
 
 import { $State } from '../../utils';
@@ -22,7 +22,7 @@ export namespace $ {
 		$state.step_down('$', $inst);
 		$state.step_down('magic_number', $inst.magic_number);
 		$state.assert_match($inst.magic_number, $const_str$_0);
-		// TODO: Write bytes in ts_const_u8
+		$state.write_to.write_bytes($const_u8_array$_0);
 		$state.step_up();
 		$state.step_down('header', $inst.header);
 		Chunk.$encode($state, $inst.header)

@@ -1,7 +1,7 @@
 
 /*
  THIS FILE WAS AUTOMATICALLY GENERATED
- 2022-04-23T06:34:43.114Z
+ 2022-04-23T23:44:05.382Z
 */
 
 import { $State } from '../../utils';
@@ -18,6 +18,7 @@ export interface LastModifiedTimestampData {
 export namespace LastModifiedTimestampData {
 	
 	export function $encode($state: $State, $inst: LastModifiedTimestampData) {
+		$state.here.node = $inst;
 		$state.step_down('year', $inst.year);
 		$state.write_to.write_u16_be($inst.year);
 		$state.step_up();
@@ -40,6 +41,7 @@ export namespace LastModifiedTimestampData {
 	
 	export function $decode($state: $State) : LastModifiedTimestampData {
 		const $inst = { } as LastModifiedTimestampData;
+		$state.here.node = $inst;
 		$state.step_down('year');
 		$inst.year = $state.read_from.read_u16_be()
 		$state.step_up();

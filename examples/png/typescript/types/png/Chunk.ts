@@ -1,7 +1,7 @@
 
 /*
  THIS FILE WAS AUTOMATICALLY GENERATED
- 2022-04-23T06:34:43.113Z
+ 2022-04-23T23:44:05.380Z
 */
 
 import { $State } from '../../utils';
@@ -17,6 +17,7 @@ export interface Chunk<type extends ChunkType = ChunkType> {
 export namespace Chunk {
 	
 	export function $encode($state: $State, $inst: Chunk) {
+		$state.here.node = $inst;
 		$state.step_down('length', $inst.length);
 		$state.fatal('not implemented')
 		$state.step_up();
@@ -33,6 +34,7 @@ export namespace Chunk {
 	
 	export function $decode($state: $State) : Chunk {
 		const $inst = { } as Chunk;
+		$state.here.node = $inst;
 		$state.step_down('length');
 		$state.fatal('not implemented')
 		$state.step_up();

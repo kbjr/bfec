@@ -1,10 +1,12 @@
 
 /*
  THIS FILE WAS AUTOMATICALLY GENERATED
- 2022-04-23T06:34:43.114Z
+ 2022-04-23T23:44:05.382Z
 */
 
 import { $State } from '../../utils';
+import { SampleDepth } from './SampleDepth';
+import { Sample } from './Sample';
 
 
 export interface SuggestedPalleteData extends Sample {
@@ -15,6 +17,7 @@ export interface SuggestedPalleteData extends Sample {
 export namespace SuggestedPalleteData {
 	
 	export function $encode($state: $State, $inst: SuggestedPalleteData) {
+		$state.here.node = $inst;
 		$state.step_down('pallete_name', $inst.pallete_name);
 		$state.fatal('not supported')
 		$state.step_up();
@@ -30,6 +33,7 @@ export namespace SuggestedPalleteData {
 	
 	export function $decode($state: $State) : SuggestedPalleteData {
 		const $inst = { } as SuggestedPalleteData;
+		$state.here.node = $inst;
 		$state.step_down('pallete_name');
 		$inst.pallete_name = $state.read_from.read_ascii_null_term()
 		$state.step_up();

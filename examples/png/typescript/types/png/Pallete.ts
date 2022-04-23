@@ -1,7 +1,7 @@
 
 /*
  THIS FILE WAS AUTOMATICALLY GENERATED
- 2022-04-23T06:34:43.113Z
+ 2022-04-23T23:44:05.380Z
 */
 
 import { $State } from '../../utils';
@@ -15,6 +15,7 @@ export interface Pallete {
 export namespace Pallete {
 	
 	export function $encode($state: $State, $inst: Pallete) {
+		$state.here.node = $inst;
 		$state.step_down('red', $inst.red);
 		$state.write_to.write_u8($inst.red);
 		$state.step_up();
@@ -28,6 +29,7 @@ export namespace Pallete {
 	
 	export function $decode($state: $State) : Pallete {
 		const $inst = { } as Pallete;
+		$state.here.node = $inst;
 		$state.step_down('red');
 		$inst.red = $state.read_from.read_u8()
 		$state.step_up();

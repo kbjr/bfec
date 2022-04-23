@@ -4,7 +4,7 @@ import { TSLocal } from './local';
 import { TSTypeParam } from './type-param';
 
 export class TSFunction extends TSEntity {
-	public params: [ name: string, type: string ][] = [ ];
+	public params: [ name: string, type: string, value?: string ][] = [ ];
 	public type_params: TSTypeParam[] = [ ];
 	public return_type?: string;
 	public locals: TSLocal[] = [ ];
@@ -25,7 +25,7 @@ export class TSFunction extends TSEntity {
 	}
 
 	public get param_str() {
-		return this.params.map(([ name, type ]) => `${name}: ${type}`).join(', ');
+		return this.params.map(([ name, type, value ]) => `${name}: ${type}${value ? ` = ${value}` : ''}`).join(', ');
 	}
 
 	public get return_type_str() {

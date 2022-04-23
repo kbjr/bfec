@@ -1,10 +1,15 @@
 
 /*
  THIS FILE WAS AUTOMATICALLY GENERATED
- 2022-04-23T06:34:43.113Z
+ 2022-04-23T23:44:05.380Z
 */
 
 import { $State } from '../../utils';
+import { BitDepth } from './BitDepth';
+import { ColorType } from './ColorType';
+import { CompressionMethod } from './CompressionMethod';
+import { FilterMethod } from './FilterMethod';
+import { InterlaceMethod } from './InterlaceMethod';
 
 
 export interface ImageHeader {
@@ -19,6 +24,7 @@ export interface ImageHeader {
 export namespace ImageHeader {
 	
 	export function $encode($state: $State, $inst: ImageHeader) {
+		$state.here.node = $inst;
 		$state.step_down('width', $inst.width);
 		$state.write_to.write_u32_be($inst.width);
 		$state.step_up();
@@ -44,6 +50,7 @@ export namespace ImageHeader {
 	
 	export function $decode($state: $State) : ImageHeader {
 		const $inst = { } as ImageHeader;
+		$state.here.node = $inst;
 		$state.step_down('width');
 		$inst.width = $state.read_from.read_u32_be()
 		$state.step_up();

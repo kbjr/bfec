@@ -306,7 +306,23 @@ async function write_core_files(state: CompilerState, root_schema_ns: string) {
 
 	const buffer_writer_ts
 		= generator_comment
-		+ tmpl.buffer_writer_template();
+		+ tmpl.buffer_writer_template({
+			include_i16: true,
+			include_i24: true,
+			include_i32: true,
+			include_i64: true,
+			include_i128: true,
+			include_f32: true,
+			include_f64: true,
+			include_d32: true,
+			include_d64: true,
+			include_varint: true,
+			include_byte_array: true,
+			include_ascii: true,
+			include_utf8: true,
+			include_utf16: true,
+			include_utf32: true,
+		});
 
 	const state_ts
 		= generator_comment
@@ -433,9 +449,7 @@ function schema_namespace(schema: lnk.Schema) {
 
 	if (source.startsWith('http://') || source.startsWith('https://')) {
 		const parsed = new URL(source);
-		// TODO: namespace names for remotes
-		// return `types/$remote/${parsed.protocol}/${parsed.host}/${parsed.pathname.slice(1)}`;
+		// FIXME: This isn't totally safe against collisions
 		return parsed.pathname.slice(1).replace(/\//g, '_');
-		// throw new Error('schema_namespace(): no remote namespace names yet');
 	}
 }

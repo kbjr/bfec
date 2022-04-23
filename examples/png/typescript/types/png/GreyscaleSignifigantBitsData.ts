@@ -1,7 +1,7 @@
 
 /*
  THIS FILE WAS AUTOMATICALLY GENERATED
- 2022-04-23T06:34:43.114Z
+ 2022-04-23T23:44:05.381Z
 */
 
 import { $State } from '../../utils';
@@ -14,6 +14,7 @@ export interface GreyscaleSignifigantBitsData {
 export namespace GreyscaleSignifigantBitsData {
 	
 	export function $encode($state: $State, $inst: GreyscaleSignifigantBitsData) {
+		$state.here.node = $inst;
 		$state.step_down('signifigant_greyscale_bits', $inst.signifigant_greyscale_bits);
 		$state.write_to.write_u8($inst.signifigant_greyscale_bits);
 		$state.step_up();
@@ -24,6 +25,7 @@ export namespace GreyscaleSignifigantBitsData {
 	
 	export function $decode($state: $State) : GreyscaleSignifigantBitsData {
 		const $inst = { } as GreyscaleSignifigantBitsData;
+		$state.here.node = $inst;
 		$state.step_down('signifigant_greyscale_bits');
 		$inst.signifigant_greyscale_bits = $state.read_from.read_u8()
 		$state.step_up();

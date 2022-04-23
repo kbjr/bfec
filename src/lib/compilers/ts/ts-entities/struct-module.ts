@@ -10,6 +10,7 @@ import { TSFunction } from './function';
 import { TSNamespace } from './namespace';
 import { Assign, TSFieldType, create_ts_field_type, TSNever } from './types';
 import { TSEnumRef } from './enum-module';
+import { TSSwitchRef } from './switch-module';
 
 export class TSStructModule extends TSModule {
 	public ts_iface = new TSInterface();
@@ -81,15 +82,15 @@ export class TSStructModule extends TSModule {
 
 		for (const field of this.bfec_struct.fields) {
 			if (field.type === 'struct_field') {
-				this.ts_fields.push(
-					TSStructField.from_schema(this.state, field)
-				);
+				const ts_field = TSStructField.from_schema(this.state, field);
+				this.ts_fields.push(ts_field);
+				ts_field.import_into(this);
 			}
 
 			else if (field.type === 'struct_expansion') {
-				this.ts_fields.push(
-					TSStructExpansion.from_schema(this.state, field)
-				); 
+				const ts_field = TSStructExpansion.from_schema(this.state, field);
+				this.ts_fields.push(ts_field); 
+				ts_field.import_into(this);
 			}
 		}
 	}
@@ -154,6 +155,10 @@ export class TSStructModule extends TSModule {
 			this.ts_encode.statements.push(`$state.step_down('$', $inst);`);
 		}
 
+		else {
+			this.ts_encode.statements.push(`$state.here.node = $inst;`)
+		}
+
 		for (const field of this.ts_fields) {
 			if (field instanceof TSStructField) {
 				this.build_field_encode(field);
@@ -202,6 +207,10 @@ export class TSStructModule extends TSModule {
 		
 		if (this.is_root) {
 			this.ts_decode.statements.push(`$state.step_down('$', $inst);`);
+		}
+
+		else {
+			this.ts_decode.statements.push(`$state.here.node = $inst;`);
 		}
 
 		for (const field of this.ts_fields) {
@@ -255,6 +264,14 @@ export class TSStructField {
 		return this.bfec_field.name;
 	}
 
+	public import_into(ts_module: TSModule) {
+		if (this.field_type instanceof TSEnumRef
+		 || this.field_type instanceof TSStructRef
+		 || this.field_type instanceof TSSwitchRef) {
+			this.field_type.import_into(ts_module);
+		}
+	}
+
 	public static from_schema(state: CompilerState, bfec_field: lnk.StructField) {
 		if (bfec_field.condition) {
 			// 
@@ -277,6 +294,14 @@ export class TSStructExpansion {
 
 	public get extend() {
 		return typeof this.field_type === 'string' ? this.field_type : this.field_type.field_type();
+	}
+
+	public import_into(ts_module: TSModule) {
+		if (this.field_type instanceof TSEnumRef
+		 || this.field_type instanceof TSStructRef
+		 || this.field_type instanceof TSSwitchRef) {
+			this.field_type.import_into(ts_module);
+		}
 	}
 
 	public static from_schema(state: CompilerState, bfec_expansion: lnk.StructExpansion) {

@@ -15,7 +15,7 @@ export class $State {
 		return $new_state;
 	}
 
-	public here() {
+	public get here() {
 		return this.stack[this.stack.length - 1];
 	}
 

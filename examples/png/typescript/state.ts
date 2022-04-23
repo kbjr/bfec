@@ -1,7 +1,7 @@
 
 /*
  THIS FILE WAS AUTOMATICALLY GENERATED
- 2022-04-23T06:34:43.102Z
+ 2022-04-23T23:44:05.371Z
 */
 
 
@@ -18,7 +18,7 @@ export class $State {
 		return $new_state;
 	}
 
-	public here() {
+	public get here() {
 		return this.stack[this.stack.length - 1];
 	}
 

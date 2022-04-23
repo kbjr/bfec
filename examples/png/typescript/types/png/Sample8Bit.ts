@@ -1,7 +1,7 @@
 
 /*
  THIS FILE WAS AUTOMATICALLY GENERATED
- 2022-04-23T06:34:43.114Z
+ 2022-04-23T23:44:05.382Z
 */
 
 import { $State } from '../../utils';
@@ -16,6 +16,7 @@ export interface Sample8Bit {
 export namespace Sample8Bit {
 	
 	export function $encode($state: $State, $inst: Sample8Bit) {
+		$state.here.node = $inst;
 		$state.step_down('red', $inst.red);
 		$state.write_to.write_u8($inst.red);
 		$state.step_up();
@@ -32,6 +33,7 @@ export namespace Sample8Bit {
 	
 	export function $decode($state: $State) : Sample8Bit {
 		const $inst = { } as Sample8Bit;
+		$state.here.node = $inst;
 		$state.step_down('red');
 		$inst.red = $state.read_from.read_u8()
 		$state.step_up();

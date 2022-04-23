@@ -1,7 +1,7 @@
 
 /*
  THIS FILE WAS AUTOMATICALLY GENERATED
- 2022-04-23T06:34:43.113Z
+ 2022-04-23T23:44:05.381Z
 */
 
 import { $State } from '../../utils';
@@ -20,6 +20,7 @@ export interface PrimaryChromaticitiesAndWhitePointData {
 export namespace PrimaryChromaticitiesAndWhitePointData {
 	
 	export function $encode($state: $State, $inst: PrimaryChromaticitiesAndWhitePointData) {
+		$state.here.node = $inst;
 		$state.step_down('white_point_x', $inst.white_point_x);
 		$state.write_to.write_u32_be($inst.white_point_x);
 		$state.step_up();
@@ -48,6 +49,7 @@ export namespace PrimaryChromaticitiesAndWhitePointData {
 	
 	export function $decode($state: $State) : PrimaryChromaticitiesAndWhitePointData {
 		const $inst = { } as PrimaryChromaticitiesAndWhitePointData;
+		$state.here.node = $inst;
 		$state.step_down('white_point_x');
 		$inst.white_point_x = $state.read_from.read_u32_be()
 		$state.step_up();
