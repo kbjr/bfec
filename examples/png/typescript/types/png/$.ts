@@ -1,7 +1,7 @@
 
 /*
  THIS FILE WAS AUTOMATICALLY GENERATED
- 2022-04-23T05:05:33.451Z
+ 2022-04-23T06:34:43.112Z
 */
 
 import { $State } from '../../utils';
@@ -43,8 +43,7 @@ export namespace $ {
 		$inst.header = Chunk.$decode($state)
 		$state.step_up();
 		$state.step_down('chunks');
-		while (! $state.read_from.eof) {
-		}
+		$inst.chunks = $state.read_from.read_array_take_remaining(() => Chunk.$decode($state))
 		$state.step_up();
 		$state.step_up();
 		return $inst;

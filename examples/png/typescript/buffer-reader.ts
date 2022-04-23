@@ -1,7 +1,7 @@
 
 /*
  THIS FILE WAS AUTOMATICALLY GENERATED
- 2022-04-23T05:05:33.444Z
+ 2022-04-23T06:34:43.102Z
 */
 
 import * as reg from './registers';
@@ -715,5 +715,19 @@ export class $BufferReader {
 	
 	
 	// TODO: utf32
+
+
+
+	// ===== Arrays =====
+
+	public read_array_take_remaining<T>(read_elem: () => T) : T[] {
+		const list: T[] = [ ];
+
+		while (! this.eof) {
+			list.push(read_elem());
+		}
+
+		return list;
+	}
 
 }

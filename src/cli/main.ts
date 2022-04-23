@@ -159,7 +159,7 @@ async function main() {
 					});
 			
 					log.error(`\nTS Build Errors: ${yellow(errors.length)}`);
-					await exit_error(1, 'Failed to generate TypeScript code');
+					await exit_error(1, 'TypeScript code generation completed with errors');
 				}
 
 				break;

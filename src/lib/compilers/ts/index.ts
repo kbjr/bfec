@@ -28,8 +28,6 @@ export async function compile_to_typescript(schema: lnk.Schema, opts: Typescript
 	const collected = collect_types(schema);
 	
 	if (collected.result.length) {
-		const emit_promises: Promise<void>[] = [ ];
-
 		// Build classes for TS representations of each type
 		for (const { type, schema } of collected.result) {
 			log.debug('Processing collected type', type.name);
@@ -219,7 +217,17 @@ function collect_types_from_struct(types: Collector, node: lnk.Struct) {
 }
 
 function collect_types_from_switch(types: Collector, node: lnk.Switch) {
-	// TODO: Step down to any referenced types
+	collect_field_type(types, node.arg_type);
+
+	for (const case_node of node.cases) {
+		if (case_node.is_type) {
+			collect_field_type(types, case_node.case_type);
+		}
+	}
+
+	if (node.default && node.default.is_type) {
+		collect_field_type(types, node.default.default_type);
+	}
 }
 
 function collect_types_from_enum(types: Collector, node: lnk.Enum) {
@@ -427,6 +435,7 @@ function schema_namespace(schema: lnk.Schema) {
 		const parsed = new URL(source);
 		// TODO: namespace names for remotes
 		// return `types/$remote/${parsed.protocol}/${parsed.host}/${parsed.pathname.slice(1)}`;
-		throw new Error('schema_namespace(): no remote namespace names yet');
+		return parsed.pathname.slice(1).replace(/\//g, '_');
+		// throw new Error('schema_namespace(): no remote namespace names yet');
 	}
 }

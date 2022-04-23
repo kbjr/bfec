@@ -33,7 +33,9 @@ export class TSArrayType {
 
 	public decode_aligned(assign: Assign) {
 		const lines: string[] = [ ];
-		// const decode_elem = decode()
+		const decode_elem = this.elem_type
+			? this.elem_type.decode_aligned((x) => x)
+			: `$state.fatal('array element type missing')`;
 
 		switch (this.length.length_type) {
 			case 'length_field': {
@@ -61,16 +63,7 @@ export class TSArrayType {
 			}
 
 			case 'take_remaining': {
-				// const decode_elem = this.elem_type instanceof TSArrayType
-				// 	? this.elem_type.decode_aligned('const $elem')
-				// 	: decode(this.state, this.elem_type, this.state.ts_module, 'const $elem');
-
-				// lines.push(`${write_to}: ${this.field_type} = [ ];`);
-				lines.push('while (! $state.read_from.eof) {');
-				// lines.push(`\t${}`);
-				// lines.push(`\t${write_to}.push(${});`);
-				lines.push('}');
-				break;
+				return assign(`$state.read_from.read_array_take_remaining(() => ${decode_elem})`);
 			}
 		}
 

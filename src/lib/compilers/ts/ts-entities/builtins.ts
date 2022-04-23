@@ -267,7 +267,7 @@ export namespace fixed_int {
 	}
 
 	export function decode_unaligned(type: builtins.TSBuiltin<lnk.FixedIntType>, assign: Assign) : string {
-		return assign(`$state.fatal('Cannot decode unaligned int field');`);
+		return assign(`$state.fatal('Cannot decode unaligned int field')`);
 	}
 }
 

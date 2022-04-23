@@ -128,6 +128,20 @@ export class $BufferReader {
 	
 	// TODO: utf32
 
+
+
+	// ===== Arrays =====
+
+	public read_array_take_remaining<T>(read_elem: () => T) : T[] {
+		const list: T[] = [ ];
+
+		while (! this.eof) {
+			list.push(read_elem());
+		}
+
+		return list;
+	}
+
 }
 `;
 

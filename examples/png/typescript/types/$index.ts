@@ -1,8 +1,9 @@
 
 /*
  THIS FILE WAS AUTOMATICALLY GENERATED
- 2022-04-23T05:05:33.455Z
+ 2022-04-23T06:34:43.129Z
 */
 
 
 export * as png from './png/$index';
+export * as bfec_basics_v1 from './$remote/https:/bfec.io/bfec/basics/v1/$index';
